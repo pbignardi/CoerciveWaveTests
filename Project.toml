@@ -1,0 +1,6 @@
+[deps]
+FastGaussQuadrature = "442a2c76-b920-505d-bb47-c5924d526838"
+Kronecker = "2c470bb0-bcc8-11e8-3dad-c9649493f05e"
+MeshSteward = "ffa89bc3-d1bd-4aea-b9f7-e9902d9f56ab"
+Meshes = "eacbb407-ea5a-433e-ab97-5258b1ca43fa"
+Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
