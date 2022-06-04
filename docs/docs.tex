@@ -1,0 +1,141 @@
+\documentclass[]{report}
+\usepackage[]{amsmath}
+\usepackage[]{mathtools}
+\usepackage[]{mathmod}
+\usepackage[]{tikz}
+\usepackage[]{listings}
+\usepackage[]{amssymb}
+
+\title{%
+    Spacetime coercive wave equation tests\\
+    \large Notes for the wave equation coercive formulation 
+    numerical tests}
+
+\author{Paolo Bignardi}
+
+\begin{document}
+    \maketitle
+
+    \section*{Introduction}
+
+    \section*{Local operators}
+    To construct the operators of the bilinear form, introduce the local operators for the space and time component, $S$ is for space, $T$ is for time. 
+    Apices will be used to denote the order of derivation for the trial and test functions: for example, $S^{00}$ is the \textbf{local mass matrix} for the space component. In general $S^{ij}$ is the local matrix associated to the local operator
+    \begin{equation*}
+        \int_{\hat{R}} \partial_i u \cdot \partial_j v dx,
+    \end{equation*}
+    letting $u$ and $v$ vary among all the space local basis functions, where $\hat{R}$ is the reference space element.
+    Similarly $T^{ij}$ is associated to the local operator 
+    \begin{equation*}
+        \int_0^1 \partial_i u \cdot \partial_j v dt,
+    \end{equation*}
+    letting $u$ and $v$ vary among all the time local basis functions.
+    
+    \subsection*{$H^1(Q)$ terms}
+    Scalar terms of the $H^1(Q)$ space are easy to compute.
+    \begin{align*}
+        &\int_Q u_tv_t = S^{00} \otimes T^{11}\\
+        &\int_Q \Grad u \cdot \Grad v = S^{11} \otimes T^{00}
+    \end{align*}
+
+    \subsection*{Least square term}
+    Least square term comes from the integral $\int_Q Wu Wv$. Expanding, we get
+    \begin{equation*}
+        \int_Q \left[ u_{tt} v_{tt} - c^2 u_{tt} \Lap v - c^2 v_{tt} \Lap v +c^4 \Lap u \Lap v \right],
+    \end{equation*}
+    Each terms is
+    \begin{align*}
+        &\int_Q u_{tt}v_{tt} = S^{00} \otimes T^{22}\\
+        &\int_Q u_{tt}\Lap v = S^{20} \otimes T^{02}\\
+        &\int_Q v_{tt}\Lap u = S^{02} \otimes T^{20}\\
+        &\int_Q \Lap u \Lap v = S^{22} \otimes T^{00}
+    \end{align*}
+
+    \subsection*{$\int_Q {Z}u {W}v$ term}
+    Expanding all terms we get
+    \begin{equation*}
+        \int_Q Zu Wv = ...
+    \end{equation*}
+    \begin{align*}
+        &\int_Q t u_t v_{tt} = S^{00} \otimes T^{12}_t \\
+        &\int_Q t u_t \Lap v = S^{02} \otimes T^{10}_t \\
+        &\int_Q u_t v_{tt} = S^{00} \otimes T^{12} \\
+        &\int_Q u_t \Lap v = S^{02} \otimes T^{10} \\
+        &\int_Q \vec{x} \cdot \Grad u v_{tt} = S^{10}_x \otimes T^{02} \\
+        &\int_Q \vec{x} \cdot \Grad u \Lap v = S^{12}_x \otimes T^{00}
+    \end{align*}
+
+    
+
+    \section*{Appendix A: FEM matrix assembly}
+    Consider $\Omega = [0,1]^2$ as the domain, and the following subdivision:
+    \begin{center}
+        \begin{tikzpicture}
+            \coordinate (1) at (0,0);
+            \coordinate (2) at (3,0);
+            \coordinate (3) at (6,0);
+            \coordinate (4) at (0,3);
+            \coordinate (5) at (3,3);
+            \coordinate (6) at (6,3);
+            \coordinate (7) at (0,6);
+            \coordinate (8) at (3,6);
+            \coordinate (9) at (6,6);
+
+            \draw (0,0) rectangle (3,3) node[pos=.5, color=red, font=\huge]{1};
+            \draw (3,3) rectangle (6,6) node[pos=.5, color=red, font=\huge]{4};
+            \draw (3,0) rectangle (6,3) node[pos=.5, color=red, font=\huge]{2};
+            \draw (0,3) rectangle (3,6) node[pos=.5, color=red, font=\huge]{3};
+
+            \path (1) node[below left] {1};
+            \path (2) node[below] {2};
+            \path (3) node[below right] {3};
+            
+            \path (4) node[left] {4};
+            \path (5) node[below left] {5};
+            \path (6) node[right] {6};
+            
+            \path (7) node[above left] {7};
+            \path (8) node[above] {8};
+            \path (9) node[above right] {9};
+            
+            \filldraw (1) circle (2pt);
+            \filldraw (2) circle (2pt);
+            \filldraw (3) circle (2pt);
+            \filldraw (4) circle (2pt);
+            \filldraw (5) circle (2pt);
+            \filldraw (6) circle (2pt);
+            \filldraw (7) circle (2pt);
+            \filldraw (8) circle (2pt);
+            \filldraw (9) circle (2pt);
+        \end{tikzpicture}    
+    \end{center}
+    Assume we have a local matrix called $A$, which is easy to compute. Now construct the \textit{connectivity matrix} which has in each column the list of vertices of the element.
+    \begin{equation*}
+        T = \begin{pmatrix*}
+            1 & 2 & 4 & 5 \\
+            2 & 3 & 5 & 6 \\
+            4 & 5 & 7 & 8 \\
+            5 & 6 & 8 & 9
+        \end{pmatrix*}
+    \end{equation*}
+    Now, assembly the global matrix by 
+    \begin{verbatim}
+        for e = 1:n_elems
+            el_nodes = T[:,e]
+            K[el_nodes,el_nodes] = K[el_nodes,el_nodes] + A
+        end
+    \end{verbatim}
+    
+    How do we treat more general elements? \dots
+
+    Suppose we have a finite element that has $k$ local degree of freedom, then wo assemble the stiffness matrix we would generally 
+
+    \section*{Appendix B: Load vector assembly}
+
+
+
+    
+
+
+    
+\end{document}
