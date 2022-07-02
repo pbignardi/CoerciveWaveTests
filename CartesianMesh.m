@@ -1,4 +1,4 @@
-function mesh = cartesian_mesh(disc)
+function mesh = CartesianMesh(disc)
     % Enumerate the nodes and construct the elements by their indices.
     % Nodes are ordered according to Kronecker product of T and X.
     mesh = struct();
