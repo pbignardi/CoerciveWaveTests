@@ -1,7 +1,14 @@
 function u = SolverWaves(problem, domain, mesh, disc, varargin)
 
     %% Unpacking parameters
-    
+    % Problem unpacking
+    f       = problem.f;
+    g       = problem.g;
+    u0      = problem.u0;
+    u1      = problem.u1;
+    c       = problem.c;
+    theta   = problem.theta;
+
     % Domain unpacking
     T       = domain.T;
     xmin    = domain.xmin;
@@ -24,7 +31,7 @@ function u = SolverWaves(problem, domain, mesh, disc, varargin)
     right   = mesh.right;
     
     % Formulation unpacking
-    if varargin == 0
+    if isempty(varargin)
         A   = 1;
         nu  = 2;
         xi  = 1;
@@ -41,22 +48,25 @@ function u = SolverWaves(problem, domain, mesh, disc, varargin)
     % Other parameters
     n_nodes = (nx + 1) * (nt + 1);
     ndofs = 4*n_nodes;
+    dofs = 1:ndofs;
     
     %% Local operators construction
     Xb = HermiteBasis(hx);
     Tb = HermiteBasis(ht);
-    
-    Kloc = kron(Tb.d0d0, Xb.d0d0);
+    Kloc = kron(Tb.d0d0, Xb.d1d1) + kron(Tb.d1d1, Xb.d0d0);
     
     %% Global matrix assembly
-    K = spalloc(ndofs, ndofs, 16 * ndofs);
+    K = assemble(Kloc, mesh, disc);
     
     %% Load vector assembly
-    F = zeros(ndofs, 1);
+    F = compute_rhs(f, mesh, disc);
     
     
     %% Imposing boundary conditions
-    
+    initial_dofs = unique([bot n_nodes+bot 2*n_nodes+bot 3*n_nodes+bot]);
+    dirichlet_dofs = unique([bot top left right ...
+        n_nodes+bot n_nodes+top 2*n_nodes+left 2*n_nodes+right]);
+    internal = setdiff(dofs, dirichlet_dofs);
     
     %% Solving
     u = zeros(ndofs, 1);
