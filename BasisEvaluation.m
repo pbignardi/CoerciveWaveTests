@@ -1,5 +1,10 @@
-function [psi, dpsi, ddpsi] = BasisEvaluation(nq)
-    [xq, ~] = gaussquad(nq);
+function [psi, dpsi, ddpsi] = BasisEvaluation(par)
+    if max(size(par)) > 1
+        xq = par;
+    else
+        nq = par;
+        [xq, ~] = gaussquad(nq);
+    end
     %% Psi evaluation
     psiB = (-2*xq.^3+3*xq.^2);
     psiA = 2*xq.^3-3*xq.^2+1;
