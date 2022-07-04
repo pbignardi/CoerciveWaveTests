@@ -28,14 +28,9 @@ function [U, X, T] = SolutionEval(u, mesh, disc, varargin)
 
     %%  Basis functions evaluation
     % Component basis evaluations
-    psiB = (-2*xq.^3+3*xq.^2);
-    psiA = 2*xq.^3-3*xq.^2+1;
-    psiD = xq.^3-xq.^2;
-    psiC = xq.^3-2*xq.^2+xq;
+    [psi, ~, ~] = BasisEvaluation(xq);
     % Tensor product of X and T component kron(T,X)
-    xb_eval = [psiA, psiB, psiC, psiD];
-    tb_eval = [psiA, psiB, psiC, psiD];
-    ref_eval = kron(tb_eval, xb_eval); 
+    ref_eval = kron(psi, psi); 
 
     %% Element-wise assembly
     U = zeros(nq * nt, nq * nx);
