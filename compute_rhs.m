@@ -1,10 +1,17 @@
-function F = compute_rhs(f, mesh, disc)
+function F = compute_rhs(f, mesh, disc, parameters)
     %% Unpacking parameters
     % Mesh parameters
     elms    = mesh.elms;
     pivots  = mesh.pivots;
     n_elms  = size(elms, 1);
-    
+
+    % Formulation parameters
+    A       = parameters.A;
+    beta    = parameters.beta;
+    xi      = parameters.xi;
+    Tstar   = parameters.Tstar;
+    c       = parameters.c;
+
     % Discretisation parameters
     xx = disc.xx.';
     tt = disc.tt.';
@@ -15,7 +22,7 @@ function F = compute_rhs(f, mesh, disc)
     ndofs = 4 * (nx + 1) * (nt + 1);
     
     % Quadrature variables
-    nq = 4;
+    nq = 8;
     [xq, wq] = gaussquad(nq);
 
     % Local quadrature nodes and weights
@@ -24,18 +31,14 @@ function F = compute_rhs(f, mesh, disc)
     wqx = hx * wq;
     wqt = ht * wq;
     wqxt = kron(wqt, wqx);
-    xxqh = kron(ones(nq,1), xqh.');
-    ttqh = kron(tqh, ones(1,nq));
-    %% Quadrature of basis functions
+    xxqh = kron(ones(nq, 1), xqh);
+    ttqh = kron(tqh, ones(nq, 1));
+    %% Evaluation of basis functions
     % Component basis evaluations
-    psiB = (-2*xq.^3+3*xq.^2);
-    psiA = 2*xq.^3-3*xq.^2+1;
-    psiD = xq.^3-xq.^2;
-    psiC = xq.^3-2*xq.^2+xq;
-    % Tensor product of X and T component kron(T,X)
-    xb_eval = [psiA, psiB, psiC, psiD];
-    tb_eval = [psiA, psiB, psiC, psiD];
-    ref_eval = kron(tb_eval, xb_eval);  
+    % When using dpsi and ddpsi, remember to divide by hx and ht to account
+    % for derivation chain rule scaling.
+    [psi, dpsi, ddpsi] = BasisEvaluation(nq);
+    
     %% Element-wise assembly
     F = zeros(ndofs, 1);
     for e = 1:n_elms
@@ -46,10 +49,14 @@ function F = compute_rhs(f, mesh, disc)
         el_xq = xxqh + xx(pivots(e));
         el_tq = ttqh + tt(pivots(e));
         % Function local evaluation
-        % Need to transpose f(el_xq, el_tq) because reshape stacks columns
-        % as the x varies first and varies across cols.
-        f_eval = reshape(f(el_xq, el_tq).', [], 1);
-        % Integrate over local element
-        F(el_dofs) = F(el_dofs) + sum(f_eval .* ref_eval .* wqxt).';
+        f_eval = f(el_xq, el_tq);
+        % Evaluate Zv
+        Zv = - el_xq .* kron(psi, dpsi) * hx^(-1) * xi + ...
+            el_tq .* kron(dpsi, psi) * ht^(-1) * beta + ...
+            kron(dpsi, psi) * ht^(-1) * beta * Tstar;
+        % Evaluate Wv
+        Wv = kron(ddpsi, psi) * ht^(-2) - kron(psi, ddpsi) * c^2;
+        % Integrate using Gauss quadrature
+        F(el_dofs) = F(el_dofs) + sum( f_eval .* (A * Wv - Zv) .* wqxt).';
     end
 end
