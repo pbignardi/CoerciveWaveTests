@@ -1,5 +1,19 @@
 function S = stiffness(ord_u, ord_v, force)
     % Function to compute integrals of stiffness matrices
+    %% Load existing matrix
+    if force
+        string_force = "x";
+    else
+        string_force = "";
+    end
+    f = strcat("K_", string(ord_u), string(ord_v), string_force, ".mat");
+    if exist(f, "file") == 2
+        %disp(strcat("Loading stiffness matrix from file ", f));
+        load(f, "S");
+        return
+    end
+    
+    %% Defining basis functions
     syms x
 
     psiB = (-2*x.^3+3*x.^2);
@@ -38,7 +52,7 @@ function S = stiffness(ord_u, ord_v, force)
         case 2
             V = ddpsi;
     end
-    
+    %% Computing reference stiffness matrix
     S = zeros(4,4);
 
     for i = 1:4
@@ -52,5 +66,6 @@ function S = stiffness(ord_u, ord_v, force)
             end
         end
     end
-
+    %% Save to file
+    save(strcat("local_stiffness/", f), "S");
 end
