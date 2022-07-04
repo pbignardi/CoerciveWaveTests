@@ -61,8 +61,4 @@ function [U, X, T] = SolutionEval(u, mesh, disc, varargin)
             T(J, I) = el_t;
         end
     end
-    % Reshape matrices
-    U = reshape(U, nq * nx, nq * nt);
-    X = reshape(X, nq * nx, nq * nt);
-    T = reshape(T, nq * nx, nq * nt);
 end
