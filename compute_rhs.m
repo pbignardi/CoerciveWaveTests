@@ -12,7 +12,7 @@ function F = compute_rhs(f, mesh, disc)
     ht = disc.ht;
     nx = disc.nx;
     nt = disc.nt;
-    ndofs = 4 * (nx + 1) * (nx + 1);
+    ndofs = 4 * (nx + 1) * (nt + 1);
     
     % Quadrature variables
     nq = 4;
