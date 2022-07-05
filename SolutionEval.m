@@ -3,7 +3,6 @@ function [U, X, T] = SolutionEval(u, mesh, disc, varargin)
     % Mesh parameters
     elms = mesh.elms;
     pivots = mesh.pivots;
-    n_elms = size(elms, 1);
 
     % Discretisation paramters
     nx = disc.nx;
