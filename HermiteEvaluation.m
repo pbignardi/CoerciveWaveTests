@@ -15,10 +15,10 @@ function E = HermiteEvaluation(h, pos)
     end
 
     E = struct();
-    E.d0d0 = eval_matrix(v,v);
-    E.d0d1 = h^(-1) * eval_matrix(v, dv);
-    E.d1d0 = h^(-1) * eval_matrix(dv, v);
-    E.d1d1 = h^(-2) * eval_matrix(dv,dv);
+    E.d0d0 = eval_matrix(v, v);
+    E.d0d1 = h^(-1) * eval_matrix(dv, v);
+    E.d1d0 = h^(-1) * eval_matrix(v, dv);
+    E.d1d1 = h^(-2) * eval_matrix(dv, dv);
 end
 function M = eval_matrix(i,j)
     M = zeros(4,4);

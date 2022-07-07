@@ -9,7 +9,8 @@ function S = stiffness(ord_u, ord_v, force)
     f = strcat("K_", string(ord_u), string(ord_v), string_force, ".mat");
     if exist(f, "file") == 2
         %disp(strcat("Loading stiffness matrix from file ", f));
-        load(f, "S");
+        mat_struct = load(f, "S");
+        S = mat_struct.S;
         return
     end
     
@@ -56,9 +57,9 @@ function S = stiffness(ord_u, ord_v, force)
     S = zeros(4,4);
 
     for i = 1:4
-        u = U{i};
+        v = V{i};
         for j = 1:4
-            v = V{j};
+            u = U{j};
             if force == 0
                 S(i,j) = int(u*v, [0,1]);
             else
