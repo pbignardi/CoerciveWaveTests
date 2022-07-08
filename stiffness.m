@@ -1,5 +1,10 @@
 function S = stiffness(ord_u, ord_v, force)
     % Function to compute integrals of stiffness matrices
+    %% Check if local_stiffness folder exists
+    if exist("local_stiffness", "dir") == 0
+        mkdir("local_stiffness");
+    end
+    
     %% Load existing matrix
     if force
         string_force = "x";
