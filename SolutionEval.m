@@ -1,4 +1,13 @@
 function [U, X, T] = SolutionEval(u, mesh, disc, varargin)
+    % Evaluate solution over the gauss quadrature nodes
+    % Parameters
+    %   u       : solution of the linear system
+    %   mesh    : mesh of the problem
+    %   disc    : discretization struct
+    % Optional parameters
+    %   nq      : number of quadrature nodes in each direction
+    %   xq      : specific evaluation points
+    
     %% Unpacking structs
     % Mesh parameters
     elms = mesh.elms;

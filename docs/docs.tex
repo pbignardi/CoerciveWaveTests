@@ -5,6 +5,11 @@
 \usepackage[]{tikz}
 \usepackage[]{listings}
 \usepackage[]{amssymb}
+\usepackage[]{pgfplots}
+\usepackage[left=3cm,right=3cm]{geometry}
+
+\renewcommand{\familydefault}{\sfdefault}
+\renewcommand{\arraystretch}{1.5}
 
 \title{%
     Spacetime coercive wave equation tests\\
@@ -17,9 +22,234 @@
     \maketitle
 
     \section*{Introduction}
+    Bla bla bla
+    \section*{Problem geometry}
+    Since we are considering the $1+1d$ problem, we can introduce the grid with $x$ on the horizontal axis, and $t$ on the vertical one. We discretize the space-time cylinder using rectangles.
+    \begin{center}
+        \begin{tikzpicture}% coordinates%\begin{}[]%\addplot coordinates {};%\end{}%\end{}
+            \coordinate (1) at (0,0);
+            \coordinate (2) at (2,0);
+            \coordinate (3) at (4,0);
+            \coordinate (4) at (6,0);
+            \coordinate (5) at (0,3);
+            \coordinate (6) at (2,3);
+            \coordinate (7) at (4,3);
+            \coordinate (8) at (6,3);
+            \coordinate (9) at (0,6);
+            \coordinate (10) at (2,6);
+            \coordinate (11) at (4,6);
+            \coordinate (12) at (6,6);
 
-    \section*{Local operators}
+            \coordinate (x) at (7,0);
+            \coordinate (t) at (0,7);
+
+            \draw (1) rectangle (6);
+            \draw (2) rectangle (7);
+            \draw (3) rectangle (8);
+            \draw (5) rectangle (10);
+            \draw (6) rectangle (11);
+            \draw (7) rectangle (12);
+
+            \draw[->,ultra thick] (1)--(x) node[below, pos=.95]{$x$};
+            \draw[->,ultra thick] (1)--(t) node[left, pos=.98]{$t$};
+            
+            \filldraw (1) circle (2pt) node[below left]{1};
+            \filldraw (2) circle (2pt) node[below]{2};
+            \filldraw (3) circle (2pt) node[below]{3};
+            \filldraw (4) circle (2pt) node[below]{4};
+            \filldraw (5) circle (2pt) node[left]{5};
+            \filldraw (6) circle (2pt) node[below left]{6};
+            \filldraw (7) circle (2pt) node[below right]{7};
+            \filldraw (8) circle (2pt) node[right]{8};
+            \filldraw (9) circle (2pt) node[above left]{9};
+            \filldraw (10) circle (2pt) node[above]{10};
+            \filldraw (11) circle (2pt) node[above]{11};
+            \filldraw (12) circle (2pt) node[above right]{12};
+        \end{tikzpicture}
+    \end{center}
+    Here we have numbered all the nodes of the mesh, in a \textit{left-to-right} and \textit{bottom-to-top} fashion, therefore we can compute easily the boundary nodes. In general assume we have $N_x$ space nodes, and $N_t$ time nodes.
+    \begin{enumerate}
+        \item Bottom boundary: $[1,\dots,N_x]$,
+        \item Top boundary: $[(N_t - 1)N_x + 1, \dots, N_x N_t]$,
+        \item Left boundary: $[1, N_x + 1, 2N_x + 1, \dots, (N_t - 1) N_x + 1]$,
+        \item Right boundary: $[N_x, 2N_x, \dots, N_t N_x]$.
+    \end{enumerate}
+    All the elements of the space-time cylinder are enumerated in terms of their nodes in a \textbf{counterclockwise} fashion. In our example, the first element is stored in the first entry of an array (for now) as the tuple $(1,2,6,5)$. This needs to be consistent with the way the elements of the basis are ordered: those are also enumerated CCW.
+    \section*{1d Hermite basis}
+    The basis of the element in 1d is given by
+    \begin{align*}
+        \hat H_1(x) &= 2x^3-3x^2+1, \\
+        \hat H_2(x) &= -2x^3+3x^2, \\
+        \hat H_3(x) &= x^3-2x^2+x, \\
+        \hat H_4(x) &= x^3 - x^2.
+    \end{align*}
+    Below we explain how they are associated to the degree of freedom
+    \begin{center}
+        \begin{tabular}[]{|c|c|}
+            \hline
+            Basis function & Associated DOF \\
+            \hline \hline
+            $\hat{H}_1(x) = 2x^3-3x^2+1$ & $v \mapsto v(0)$ \\
+            \hline
+            $\hat{H}_2(x) = -2x^3+3x^2$ & $v \mapsto v(1)$ \\
+            \hline
+            $\hat{H}_3(x) = x^3-2x^2+x$ & $v \mapsto v'(0)$ \\ 
+            \hline
+            $\hat{H}_4(x) = x^3 - x^2$ & $v \mapsto v'(1)$ \\
+            \hline
+        \end{tabular}
+    \end{center}
+    \begin{center}
+        \begin{tikzpicture}
+            \begin{axis}[
+                axis lines = left,
+                line width = .25mm,
+                legend style = {at = {(.5,-.15)}, anchor=north, legend columns=-1},
+                ]
+            \addplot[ 
+                domain = 0:1,
+                samples = 100,
+                color = red,
+                ]
+                {2*x^3-3*x^2+1};
+            \addlegendentry{\(\hat{H}_1\)};
+            \addplot[
+                domain = 0:1,
+                samples = 100,
+                color = blue,
+            ]   {-2*x^3+3*x^2};
+            \addlegendentry{\(\hat{H}_2\)};
+            \addplot[
+                domain = 0:1,
+                samples = 100,
+                color = violet,
+            ]   {x^3-2*x^2+x};
+            \addlegendentry{\(\hat{H}_3\)};
+            \addplot[
+                domain = 0:1,
+                samples = 100,
+                color = orange,
+            ]   {x^3-x^2};
+            \addlegendentry{\(\hat{H}_4\)};
+            \end{axis}
+        \end{tikzpicture}
+    \end{center}
+    Consider the transformation $\phi$ to the reference element $[0,1]$ from a local element $[x_k, x_{k+1}]$, given by
+    \begin{equation*}
+        \phi(x) = \frac{x-x_k}{h}, \qquad x \in [x_k,x_{k+1}],
+    \end{equation*}
+    then the local basis $H_i$ is written in terms of reference basis as
+    \begin{equation*}
+        H_i(x) = \hat{H}_i(\phi(x)).
+    \end{equation*}
+    When we compute the derivatives of the local element, we need to take into account also the derivative of the transformation $\phi$
+    \begin{align*}
+        H'_i(x) &= \hat{H}'_i(\phi(x)) \phi'(x) = \frac{1}{h} \hat{H}'_i(\hat{x}), \\
+        H''_i(x) &= \hat{H}''_i(\phi(x)) \phi'(x)^2 = \frac{1}{h^2} \hat{H}''_i(\hat{x}), \\
+        H^{(k)}_i(x) &= \hat{H}^{(k)}_i(\phi(x)) \phi'(x)^k = \frac{1}{h^k}\hat{H}^{(k)}_i(\hat{x}),
+    \end{align*}
+    for $k \in \N$. We also need to take into account the jacobian of the trasformation when integrating over the local element. Let $\psi$ the inverse of $\phi$ defined by $\psi(\hat{x}) = h \hat{x} + x_k$. 
+    \begin{align*}
+        \int_{x_k}^{x_{k+1}} H_i(x)H_j(x)dx = \int_0^1 \hat{H}_i(\hat{x}) \hat{H}_j(\hat{x}) |\psi'(\hat{x})| d\hat{x} = h \int_0^1 \hat{H}_i(\hat{x}) \hat{H}_j(\hat{x}) d\hat{x}.
+    \end{align*}
+    {\color{red} So when construting the local matrix we need to multiply by $h$, and divide by $h$ as many times as the order of the derivative.}
+
+    \section*{2d Hermite basis}
+    To obtain the 2d Hermite basis, the simple and sensible thing to do is to construct the local operators by tensor product with the 1d operators, as seen in the next section. 
+    The standard basis function is of the form:
+    \begin{equation}
+        H_n(x,y) = H_{j_n}(x) H_{k_n}(y), \qquad x, y \in [0,1].
+    \end{equation}
+
+    \begin{center}
+        \begin{tikzpicture}[scale=4]
+            \coordinate (1) at (0,0);
+            \coordinate (2) at (1,0);
+            \coordinate (3) at (1,1);
+            \coordinate (4) at (0,1);
+
+            \draw[] (0,0) rectangle (1,1);
+            \node[below left]  (v1) at (1) {$V_1$};
+            \node[below right] (v2) at (2) {$V_2$};
+            \node[above right] (v3) at (3) {$V_3$};
+            \node[above left]  (v4) at (4) {$V_4$};
+            
+            \filldraw (1) circle (.5pt);
+            \filldraw (2) circle (.5pt);
+            \filldraw (3) circle (.5pt);
+            \filldraw (4) circle (.5pt);
+
+            \draw (1) circle (1pt);
+            \draw (2) circle (1pt);
+            \draw (3) circle (1pt);
+            \draw (4) circle (1pt);
+
+            \draw[color=red] (1) circle (1.5pt);
+            \draw[color=red] (2) circle (1.5pt);
+            \draw[color=red] (3) circle (1.5pt);
+            \draw[color=red] (4) circle (1.5pt);
+        \end{tikzpicture}
+        \boxed{
+            \begin{tikzpicture}[scale=4]% coordinates%\begin{}[]%\addplot coordinates {};%\end{}%\end{}
+                \node[circle, draw, anchor=west, label=right:{Gradient evaluation}] at (0,-.25) { };
+                \node[fill=black, circle, draw, scale = .65, anchor=west, label=right:{Function evaluation}] at (-1,-.25) { };
+                \node[red, circle, draw, scale = 1.25, anchor=west, label=right:{$\partial^2_{xy}$ evaluation}] at (1,-.25) { };
+            \end{tikzpicture}
+        }
+    \end{center}
+    
+
+    There are 4 degrees of freedom for each node, and for the vertex $V_i$ they are:
+    \begin{align*}
+        v &\mapsto v(V_i), \\
+        v &\mapsto \partial_x v(V_i), \\
+        v &\mapsto \partial_y v(V_i), \\
+        v &\mapsto \partial^2_{xy} v(V_i).
+    \end{align*}
+    Of course though, we would like to preserve the order of the basis we had in the 1d case. We would like to have shape funcion evaluations dofs in the first elements of the basis, and derivative as last elements. If we take Kronecker product of the local operator matrices, we do not preserve this order.
+    What we want to achieve is the following ordering:
+    \begin{align*}
+        \left[
+            v_1, v_2, v_3, v_4,
+            (v_1)_x, (v_2)_x, (v_3)_x, (v_4)_x,
+            (v_1)_y, (v_2)_y, (v_3)_y, (v_4)_y,
+            (v_1)_{xy}, (v_2)_{xy}, (v_3)_{xy}, (v_4)_{xy} 
+            \right],
+    \end{align*}
+    instead after Kronecker product, the ordering of the basis is the following:
+    \begin{align*}
+        \left[
+            v_1, v_4, (v_1)_y, (v_4)_y,
+            v_2, v_3, (v_2)_y, (v_3)_y,
+            (v_1)_x, (v_4)_x, (v_1)_{xy}, (v_4)_{xy},
+            (v_2)_x, (v_3)_x, (v_2)_{xy}, (v_3)_{xy}
+            \right].
+    \end{align*}
+    Therefore we need to select the row and columns from the local matrix in the following order:
+    \begin{lstlisting}
+        [1,5,6,2,9,13,14,10,3,7,8,4,11,15,16,12].
+    \end{lstlisting}
+    The reference element we always consider is the following, with the numbered degrees of freedom in the order specified above:
+    \begin{center}
+        \begin{tikzpicture}[scale=4]% coordinates%\begin{}[]%\addplot coordinates {};%\end{}%\end{}
+            \coordinate (1) at (0,0);
+            \coordinate (2) at (1,0);
+            \coordinate (3) at (1,1);
+            \coordinate (4) at (0,1);
+
+            \draw (1) rectangle (3);
+
+            \filldraw (1) circle (.5pt) node[below left, scale=.65]{$[1,2,3,4]$}; 
+            \filldraw (2) circle (.5pt) node[below right, scale=.65]{$[5,6,7,8]$}; 
+            \filldraw (3) circle (.5pt) node[above right, scale=.65]{$[9,10,11,12]$}; 
+            \filldraw (4) circle (.5pt) node[above left, scale=.65]{$[13,14,15,16]$}; 
+        \end{tikzpicture}
+    \end{center}
+    
+    \section*{Reference operators}
     To construct the operators of the bilinear form, introduce the local operators for the space and time component, $S$ is for space, $T$ is for time. 
+
+    
     Apices will be used to denote the order of derivation for the trial and test functions: for example, $S^{00}$ is the \textbf{local mass matrix} for the space component. In general $S^{ij}$ is the local matrix associated to the local operator
     \begin{equation*}
         \int_{\hat{R}} \partial_i u \cdot \partial_j v dx,
@@ -31,8 +261,10 @@
     \end{equation*}
     letting $u$ and $v$ vary among all the time local basis functions.
     
+    {\bfseries \color{red} Important note: see the previous section to reorder the degrees of freedom! It is assumed that after each Kronecker product the basis are reordered, though I will omit writing the reordering matrix. }
+    
     \subsection*{$H^1(Q)$ terms}
-    Scalar terms of the $H^1(Q)$ space are easy to compute.
+    Scalar products of the $H^1(Q)$ space are easy to compute.
     \begin{align*}
         &\int_Q u_tv_t = S^{00} \otimes T^{11}\\
         &\int_Q \Grad u \cdot \Grad v = S^{11} \otimes T^{00}
@@ -43,19 +275,37 @@
     \begin{equation*}
         \int_Q \left[ u_{tt} v_{tt} - c^2 u_{tt} \Lap v - c^2 v_{tt} \Lap v +c^4 \Lap u \Lap v \right],
     \end{equation*}
-    Each terms is
-    \begin{align*}
-        &\int_Q u_{tt}v_{tt} = S^{00} \otimes T^{22}\\
-        &\int_Q u_{tt}\Lap v = S^{20} \otimes T^{02}\\
-        &\int_Q v_{tt}\Lap u = S^{02} \otimes T^{20}\\
-        &\int_Q \Lap u \Lap v = S^{22} \otimes T^{00}
-    \end{align*}
+    Each terms is collected in the table below
+    \begin{center}
+        \begin{tabular}[]{|c||c|c|}
+            \hline
+                        & $u_{tt}$    & $\Lap u$ \\
+            \hline \hline
+            $v_{tt}$    & $S^{00} \otimes T^{22}$ & $S^{20} \otimes T^{02}$ \\
+            \hline
+            $\Lap v$    & $S^{02} \otimes T^{20}$ & $S^{22} \otimes T^{00}$ \\
+            \hline
+        \end{tabular}
+    \end{center}
 
     \subsection*{$\int_Q {Z}u {W}v$ term}
     Expanding all terms we get
     \begin{equation*}
         \int_Q Zu Wv = ...
     \end{equation*}
+    Note the there are variable terms that need to be taken into account, so we consider the local integral for the local matrix.
+    \begin{center}
+        \begin{tabular}[]{|c||c|c|c|}
+            \hline
+                        & $u_{t}$ & $t u_t$ & $\vec{x} \cdot \Grad u$ \\
+            \hline \hline
+            $v_{tt}$    & $h^{-3} S^{00} \otimes T^{22}$ & $h^{-3} S^{20} \otimes T^{02}$ \\
+            \hline
+            $\Lap v$    & $h^{-3} S^{02} \otimes T^{20}$ & $h^{-3} S^{22} \otimes T^{00}$ \\
+            \hline
+        \end{tabular}
+    \end{center}
+
     \begin{align*}
         &\int_Q t u_t v_{tt} = S^{00} \otimes T^{12}_t \\
         &\int_Q t u_t \Lap v = S^{02} \otimes T^{10}_t \\
@@ -65,7 +315,68 @@
         &\int_Q \vec{x} \cdot \Grad u \Lap v = S^{12}_x \otimes T^{00}
     \end{align*}
 
-    
+    \subsection*{Variable operators}
+    Operators of the form 
+    \begin{equation*}
+        \int_Q \vec{x} \cdot \Grad u v_{tt}, \qquad \int_Q t u_t v_{tt}, ...
+    \end{equation*}
+    must be computed carefully. Taking $u$ and $v$ to be trial and test function respectively, we can still split the integral, and obtain the following expression
+    \begin{equation*}
+        \int_{\Omega} \vec{x} H_{i_k}'(x) H_{i_l}(x) dx \cdot \int_0^T H''_{j_k}(t) H_{j_l}(t) dt.
+    \end{equation*}
+    Hence we only have to compute the matrix associated to the 1d problem of the first integral, and then Kronecker-multiply by the respective other. The first integral depends on the element we compute it on, indeed
+    \begin{align*}
+        \int_{x_i}^{x_{i+1}} x H'_{i_k}(x) H_{i_l}(x) dx &= \int_0^1 h (\hat{x}h + x_i) H'_{i_k}(\hat{x}h + x_i) H_{i_l}(\hat{x}h + x_i) d\hat{x} \\
+        &= h \int_0^1 \hat{x} H'_{i_k}(\hat{x})H_{i_l}(\hat{x}) d\hat{x} + x_i \int_0^1 H'_{i_k}(\hat{x})H_{i_l}(\hat{x}) d\hat{x}.
+    \end{align*}
+    To compute those contributions in the global matrix, we need to sum those terms over their respective degrees of freedom. For the case considered above the code would look like this
+    \begin{verbatim}
+        for e in elms
+            p = first(e)                                # get the pivot index
+            x_p, y_p = nodes[p]                         # get its coordinates
+            stencil = ...                               # compute the DOFs stencil
+            KlocVar = kron(h*S_10x + x_p*S_10, T_20)    # compute local matrix
+            K[stencil, stencil] += KlocVar              # update global matrix
+        end
+    \end{verbatim}
+
+    We need to take into account the $h_x$ and $h_t$ factors. Note that for both reference matrix $S^{ij}$ and $T^{kl}$ we multiply by $h_x$ and $h_t$ respectively. Then the derivation reduce the order of $h_x$ and $h_t$; multiplier $\vec{x} \cdot$ and $t$ increase by one the exponent.
+
+    So local operators are:
+    \begin{center}
+        \begin{tabular}[]{|c|c|}
+            \hline
+            Reference operator on $[0,1]$ & Local operator on $[x_n,x_{n+1}] \times [t_m, t_{m+1}]$\\
+            \hline \hline
+            $S^{ij} \otimes T^{kl}$ & $h_x^{1 - i - j} S^{ij} \otimes h_t^{1 - k - l} T^{kl}$ \\
+            \hline
+            $S_x^{ij} \otimes T^{kl}$ & $\left[h_x^{2 - i - j} S_x^{ij} + x_{n} h_x^{1 - i - j} S^{ij}\right]  \otimes h_t^{1 - k - l} T^{kl}$ \\
+            \hline
+            $S^{ij} \otimes T_t^{kl}$ & $ h_x^{1 - i - j} S^{ij} \otimes \left[h_t^{2 - k - l} T_t^{kl} + t_{m} h_t^{1 - k - l} T^{kl}\right] $ \\
+            \hline
+        \end{tabular}
+    \end{center}
+
+    \section*{Boundary operators}
+    Over the boundary we have several boundary terms, and we can use the same assemble strategy to compute those boundary terms. 
+    We can cycle over the boundary $\Sigma$ and the boundary $\Omega_0$ and $\Omega_T$, and sum over and over the local stiffness matrix of the boundary terms, which can be constructed. These will be a 4\times4 matrix that can be constructed appropriately.
+
+    \subsection*{\Sigma\ boundary term}
+    Since the space domain is only one-dimensional, the gradient term are actually only derivatives. Also the boundary is only given by two points, so effectively we only have to integrate over $\{x_0\}\times [0,T]$ and over $\{x_1\} \times [0,T]$. Effectively, this amounts to evaluating the space terms of the integral, and multiplying by the time derivative operators. For example, consider the term
+    \begin{equation*}
+        \int_{\Sigma} Zv u_t = \int_{\Sigma} \vec{x} \cdot \Grad v u_t + \beta(t-T^*) v_t u_t
+    \end{equation*}
+    We can split the integral into space and time part, and consider the basis functions $H_i(x,t) = H_{j_i}(x)H_{k_i}(t)$, (and consider for simplicity only the boundary $x_0$)
+    \begin{equation*}
+        \int_0^T H'_{k_n}(t)H'_{k_m}(t) \cdot \int_{\{x_0\}} H_{j_n}(x) H_{j_m}(x) = \left(\int_0^T H'_{k_n}(t)H'_{k_m}(t)\right) \cdot H_{j_n}(x_0)H_{j_m}(x_0)
+    \end{equation*}
+    Note that the product $ H_{j_n}(x_0) H_{j_m}(x_0)$ is always 0 except when $j_n = j_m$. To make things simpler, we can use the Kronecker product and use the same strategy as for any other element.
+    Hence the local operator of the example becomes:
+    \begin{equation*}
+        S^{00}\Big|_{x_0} \otimes T^{11}
+    \end{equation*}
+
+    Note that $S^{00}\Big|_{x_0}$ has only a 1 element on the diagonal in position (1,1). Whereas, the matrix $S^{00}\Big|_{x_1}$ as a 1 element in position $(2,2)$.
 
     \section*{Appendix A: FEM matrix assembly}
     Consider $\Omega = [0,1]^2$ as the domain, and the following subdivision:
@@ -128,14 +439,8 @@
     
     How do we treat more general elements? \dots
 
-    Suppose we have a finite element that has $k$ local degree of freedom, then wo assemble the stiffness matrix we would generally 
+    Suppose we have a finite element that has $k$ local degree of freedom, then the situation is similar as if we had multiple nodes in the same point in space. So for each node of the mesh, we have $k$ columns (and rows) corresponding to the degrees of freedom over that node. The stencil to access the global matrix is not just a column of the connectivity matrix, but it is a more general vector, that depends on how the basis functions are ordered!!
 
     \section*{Appendix B: Load vector assembly}
 
-
-
-    
-
-
-    
 \end{document}
