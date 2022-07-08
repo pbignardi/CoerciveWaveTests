@@ -74,7 +74,7 @@
         \item Left boundary: $[1, N_x + 1, 2N_x + 1, \dots, (N_t - 1) N_x + 1]$,
         \item Right boundary: $[N_x, 2N_x, \dots, N_t N_x]$.
     \end{enumerate}
-    All the elements of the space-time cylinder are enumerated in terms of their nodes in a \textbf{counterclockwise} fashion. In our example, the first element is stored in the first entry of an array (for now) as the tuple $(1,2,6,5)$. This needs to be consistent with the way the elements of the basis are ordered: those are also enumerated CCW.
+    All the elements of the space-time cylinder are enumerated in terms of their nodes left-right and bottom-top. In our example, the first element is stored in the first entry of an array (for now) as the tuple $(1,2,5,6)$. This needs to be consistent with the way the elements of the basis are ordered.
     \section*{1d Hermite basis}
     The basis of the element in 1d is given by
     \begin{align*}
@@ -165,14 +165,14 @@
         \begin{tikzpicture}[scale=4]
             \coordinate (1) at (0,0);
             \coordinate (2) at (1,0);
-            \coordinate (3) at (1,1);
-            \coordinate (4) at (0,1);
+            \coordinate (4) at (1,1);
+            \coordinate (3) at (0,1);
 
             \draw[] (0,0) rectangle (1,1);
             \node[below left]  (v1) at (1) {$V_1$};
             \node[below right] (v2) at (2) {$V_2$};
-            \node[above right] (v3) at (3) {$V_3$};
-            \node[above left]  (v4) at (4) {$V_4$};
+            \node[above left] (v3) at (3) {$V_3$};
+            \node[above right]  (v4) at (4) {$V_4$};
             
             \filldraw (1) circle (.5pt);
             \filldraw (2) circle (.5pt);
@@ -206,23 +206,15 @@
         v &\mapsto \partial_y v(V_i), \\
         v &\mapsto \partial^2_{xy} v(V_i).
     \end{align*}
-    Of course though, we would like to preserve the order of the basis we had in the 1d case. We would like to have shape funcion evaluations dofs in the first elements of the basis, and derivative as last elements. If we take Kronecker product of the local operator matrices, we do not preserve this order.
-    What we want to achieve is the following ordering:
+    We would like to have shape funcion evaluations dofs in the first elements of the basis, and derivative as last elements globally. 
+    {\itshape This is not good for the sparsity pattern of the matrix, but it should not be a problem for the solver.}
+    If we take Kronecker product of the local operator matrices, we get the following order:
     \begin{align*}
         \left[
-            v_1, v_2, v_3, v_4,
-            (v_1)_x, (v_2)_x, (v_3)_x, (v_4)_x,
-            (v_1)_y, (v_2)_y, (v_3)_y, (v_4)_y,
-            (v_1)_{xy}, (v_2)_{xy}, (v_3)_{xy}, (v_4)_{xy} 
-            \right],
-    \end{align*}
-    instead after Kronecker product, the ordering of the basis is the following:
-    \begin{align*}
-        \left[
-            v_1, v_4, (v_1)_y, (v_4)_y,
-            v_2, v_3, (v_2)_y, (v_3)_y,
-            (v_1)_x, (v_4)_x, (v_1)_{xy}, (v_4)_{xy},
-            (v_2)_x, (v_3)_x, (v_2)_{xy}, (v_3)_{xy}
+            v_1, v_2, (v_1)_x, (v_2)_x,
+            v_3, v_4, (v_3)_x, (v_4)_x,
+            (v_1)_y, (v_2)_y, (v_1)_{xy}, (v_2)_{xy},
+            (v_3)_y, (v_4)_y, (v_3)_{xy}, (v_4)_{xy}
             \right].
     \end{align*}
     Therefore we need to select the row and columns from the local matrix in the following order:
