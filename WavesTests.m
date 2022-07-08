@@ -11,14 +11,14 @@ p = WaveProblem(4);
 % Define domain
 Q = Domain(-1, 1, 1);
 % Discretise the domain
-nx = 80; nt = 80;
+nx = 8; nt = 8;
 d = Discretization(nx, nt, Q);
 % Build mesh
 mesh = CartesianMesh(d);
 
 %% Custom form parameters
 form = struct();
-form.A  = 2;
+form.A  = 1;
 form.nu = 2;
 form.xi = 1;
 form.beta = 10;
