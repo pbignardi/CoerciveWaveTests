@@ -7,7 +7,7 @@ addpath(genpath("local_stiffness"));
 
 %% Define problem, discretization and mesh
 % Create simple problem
-p = WaveProblem(4);
+p = WaveProblem(3);
 % Define domain
 Q = Domain(-1, 1, 1);
 % Discretise the domain
@@ -34,3 +34,7 @@ xlabel("X"); ylabel("T");
 %% Compute errors
 errors = ComputeErrors(u, p, mesh, d);
 errors.L2E
+
+%% Animate
+[U, X, T] = SolutionEval(u, mesh, d, linspace(0,1,10).');
+animate(X, T, U);
