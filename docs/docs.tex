@@ -20,11 +20,22 @@
 
 \begin{document}
     \maketitle
-
+    \chapter*{Problem description}
     \section*{Introduction}
-    Bla bla bla
+    We want to solve the problem:
+    \begin{equation}
+        \begin{cases}
+            u_{tt} - c^2 \Lap u = f \qquad &\text{in } Q = \Omega \times (0,T)\\
+            \Grad u \cdot \normal - (\theta c)^{-1}u_t = g \qquad &\text{in } \Sigma = \partial \Omega \times (0,T) \\
+            u = u_0  \qquad  & \text{in } \Omega \times \{0\} \\
+            u_t = u_1 \qquad & \text{in } \Omega \times \{0\}
+        \end{cases}
+    \end{equation}
+    To solve this problem we use the coercive formulation. See report for the actual terms of the bilinear form.
+
+    Here we show discretization and implementation details.
     \section*{Problem geometry}
-    Since we are considering the $1+1d$ problem, we can introduce the grid with $x$ on the horizontal axis, and $t$ on the vertical one. We discretize the space-time cylinder using rectangles.
+    Since we are considering the $(1+1)$-d problem, we can introduce the grid with $x$ on the horizontal axis, and $t$ on the vertical one. We discretize the space-time cylinder using rectangles.
     \begin{center}
         \begin{tikzpicture}% coordinates%\begin{}[]%\addplot coordinates {};%\end{}%\end{}
             \coordinate (1) at (0,0);
@@ -217,26 +228,11 @@
             (v_3)_y, (v_4)_y, (v_3)_{xy}, (v_4)_{xy}
             \right].
     \end{align*}
-    Therefore we need to select the row and columns from the local matrix in the following order:
-    \begin{lstlisting}
-        [1,5,6,2,9,13,14,10,3,7,8,4,11,15,16,12].
-    \end{lstlisting}
-    The reference element we always consider is the following, with the numbered degrees of freedom in the order specified above:
-    \begin{center}
-        \begin{tikzpicture}[scale=4]% coordinates%\begin{}[]%\addplot coordinates {};%\end{}%\end{}
-            \coordinate (1) at (0,0);
-            \coordinate (2) at (1,0);
-            \coordinate (3) at (1,1);
-            \coordinate (4) at (0,1);
-
-            \draw (1) rectangle (3);
-
-            \filldraw (1) circle (.5pt) node[below left, scale=.65]{$[1,2,3,4]$}; 
-            \filldraw (2) circle (.5pt) node[below right, scale=.65]{$[5,6,7,8]$}; 
-            \filldraw (3) circle (.5pt) node[above right, scale=.65]{$[9,10,11,12]$}; 
-            \filldraw (4) circle (.5pt) node[above left, scale=.65]{$[13,14,15,16]$}; 
-        \end{tikzpicture}
-    \end{center}
+    We need to define a function that maps node numbers to their respective degrees of freedom. Given that we have $N_x + 1$ nodes in the $x$ direction, and $N_t + 1$ nodes in the $t$ direction, then we have $N_n = (N_x + 1) (N_t + 1)$ number of nodes in the mesh. The mapper function is defined as
+    \begin{align*}
+        M: i \mapsto (i, i + N_n, i + 2 N_n, i + 3 N_n).
+    \end{align*}
+    When assembling the global stiffness matrix, we need to take into account that matrix computed with Kronecker product are not ordered in the way we want. {\color{red} So we either reorder the Kronecker matrix, or we reorder the mapper function after computing the degrees of freedom for the element.}
     
     \section*{Reference operators}
     To construct the operators of the bilinear form, introduce the local operators for the space and time component, $S$ is for space, $T$ is for time. 
@@ -253,13 +249,13 @@
     \end{equation*}
     letting $u$ and $v$ vary among all the time local basis functions.
     
-    {\bfseries \color{red} Important note: see the previous section to reorder the degrees of freedom! It is assumed that after each Kronecker product the basis are reordered, though I will omit writing the reordering matrix. }
+    {\bfseries Important note: in Kronecker product the first element is associated to the column terms, wherease the second is associated to the rows.} So when computing Kronecker product first comes the time component matrix (vertical component - i.e. columns) and then the space component matrix (horizontal component - i.e. columns).
     
     \subsection*{$H^1(Q)$ terms}
     Scalar products of the $H^1(Q)$ space are easy to compute.
     \begin{align*}
-        &\int_Q u_tv_t = S^{00} \otimes T^{11}\\
-        &\int_Q \Grad u \cdot \Grad v = S^{11} \otimes T^{00}
+        &\int_Q u_tv_t = T^{11} \otimes S^{00}\\
+        &\int_Q \Grad u \cdot \Grad v =  T^{00} \otimes S^{11}
     \end{align*}
 
     \subsection*{Least square term}
@@ -291,20 +287,20 @@
             \hline
                         & $u_{t}$ & $t u_t$ & $\vec{x} \cdot \Grad u$ \\
             \hline \hline
-            $v_{tt}$    & $h^{-3} S^{00} \otimes T^{22}$ & $h^{-3} S^{20} \otimes T^{02}$ \\
+            $v_{tt}$    & $h^{-3} T^{22} \otimes S^{00} $ & $h^{-3}  T^{02} \otimes S^{20}$ \\
             \hline
-            $\Lap v$    & $h^{-3} S^{02} \otimes T^{20}$ & $h^{-3} S^{22} \otimes T^{00}$ \\
+            $\Lap v$    & $h^{-3} T^{20} \otimes S^{02}$ & $h^{-3}  T^{00} \otimes S^{22}$ \\
             \hline
         \end{tabular}
     \end{center}
 
     \begin{align*}
-        &\int_Q t u_t v_{tt} = S^{00} \otimes T^{12}_t \\
-        &\int_Q t u_t \Lap v = S^{02} \otimes T^{10}_t \\
-        &\int_Q u_t v_{tt} = S^{00} \otimes T^{12} \\
-        &\int_Q u_t \Lap v = S^{02} \otimes T^{10} \\
-        &\int_Q \vec{x} \cdot \Grad u v_{tt} = S^{10}_x \otimes T^{02} \\
-        &\int_Q \vec{x} \cdot \Grad u \Lap v = S^{12}_x \otimes T^{00}
+        &\int_Q t u_t v_{tt} =  T^{12}_t \otimes S^{00} \\
+        &\int_Q t u_t \Lap v = T^{10}_t \otimes S^{02}  \\
+        &\int_Q u_t v_{tt} = T^{12} \otimes S^{00}  \\
+        &\int_Q u_t \Lap v =  T^{10} \otimes S^{02}  \\
+        &\int_Q \vec{x} \cdot \Grad u v_{tt} = T^{02} \otimes S^{10}_x \\
+        &\int_Q \vec{x} \cdot \Grad u \Lap v = T^{00}  \otimes S^{12}_x 
     \end{align*}
 
     \subsection*{Variable operators}
@@ -340,11 +336,11 @@
             \hline
             Reference operator on $[0,1]$ & Local operator on $[x_n,x_{n+1}] \times [t_m, t_{m+1}]$\\
             \hline \hline
-            $S^{ij} \otimes T^{kl}$ & $h_x^{1 - i - j} S^{ij} \otimes h_t^{1 - k - l} T^{kl}$ \\
+            $T^{kl} \otimes S^{ij}$ & $h_x^{1 - i - j} T^{kl} \otimes h_t^{1 - k - l}S^{ij}$ \\
             \hline
-            $S_x^{ij} \otimes T^{kl}$ & $\left[h_x^{2 - i - j} S_x^{ij} + x_{n} h_x^{1 - i - j} S^{ij}\right]  \otimes h_t^{1 - k - l} T^{kl}$ \\
+            $T^{kl} \otimes S_x^{ij}$ & $h_t^{1 - k - l} T^{kl}\otimes \left[h_x^{2 - i - j} S_x^{ij} + x_{n} h_x^{1 - i - j} S^{ij}\right]$ \\
             \hline
-            $S^{ij} \otimes T_t^{kl}$ & $ h_x^{1 - i - j} S^{ij} \otimes \left[h_t^{2 - k - l} T_t^{kl} + t_{m} h_t^{1 - k - l} T^{kl}\right] $ \\
+            $T_t^{kl} \otimes S^{ij}$ & $ \left[h_t^{2 - k - l} T_t^{kl} + t_{m} h_t^{1 - k - l} T^{kl}\right] \otimes h_x^{1 - i - j} S^{ij}$ \\
             \hline
         \end{tabular}
     \end{center}
@@ -368,7 +364,54 @@
         S^{00}\Big|_{x_0} \otimes T^{11}
     \end{equation*}
 
-    Note that $S^{00}\Big|_{x_0}$ has only a 1 element on the diagonal in position (1,1). Whereas, the matrix $S^{00}\Big|_{x_1}$ as a 1 element in position $(2,2)$.
+    Note that $S^{00}\Big|_{x_0}$ has only a 1 element on the diagonal in position (1,1). Whereas, the matrix $S^{00}\Big|_{x_1}$ as a 1 element in position $(2,2)$. The fact that evaluation matrices only have a single non-zero element, the Kronecker matrix has 16 non-zeros, which are associated to the right degrees of freedom.
+
+    \section*{Degrees of freedom mapping}
+    In this section we describe the mapping from the global degrees of freedom to the reference element ones. We want to produce a vector of indices that maps columns and rows of the local stiffness matrix to the global matrix.
+
+    Recall the mapping function for each node $i$. Consider the element given by the nodes $I = (i_1, i_2, i_3, i_4)$, then we can compute the degrees of freedom of the element as
+    \begin{align*}
+        I \otimes \bm{1}_4 + N_n \bm{1}_4 \otimes (0,1,2,3),
+    \end{align*}
+    where $\bm{1}_n$ is the n-vector containing all ones. The above vector is just
+    \begin{align*}
+        \big(M(i_1), M(i_2), M(i_3), M(i_4)\big).
+    \end{align*}
+    Though, the local matrix we build with Kronecker products do not reflect this ordering of the elements, so we need to reorder the vector. The order we take the element of the vector above is given by
+    \begin{verbatim}
+        [1, 5, 2, 6, 9, 13, 10, 14, 3, 7, 4, 8, 11, 15, 12, 16],
+    \end{verbatim}
+    and this yields a vector that select the degrees of freedom in the prescribed order
+    \begin{align*}
+        \left[
+            v_1, v_2, (v_1)_x, (v_2)_x,
+            v_3, v_4, (v_3)_x, (v_4)_x,
+            (v_1)_y, (v_2)_y, (v_1)_{xy}, (v_2)_{xy},
+            (v_3)_y, (v_4)_y, (v_3)_{xy}, (v_4)_{xy}
+            \right].
+    \end{align*}
+    As an example, consider the element defined by nodes $(1,2,4,5)$ and assume we have $N_n = 9$, then unordered vector is
+    \begin{verbatim}
+        [1, 10, 19, 28, 2, 11, 20, 29, 4, 13, 22, 31, 5, 14, 23, 32]
+    \end{verbatim}
+    and the mapping vector is
+    \begin{verbatim}
+        [1, 2, 10, 11, 4, 5, 13, 14, 19, 20, 28, 29, 22, 23, 31, 32].
+    \end{verbatim}
+
+    \section*{Load vector}
+    To compute the load vector, we use Gauss quadrature. We just need to compute quadrature points \texttt{xq} and weights \texttt{wq} for the reference element. Then we evaluate the Hermite basis function, its first and second derivative and combine them using Kronecker products to assemble the term $\operator{Z} v$ and $\operator{W} v$.
+    
+    When computing the derivative of the basis function, we need to take into account the constant $h_x$ and $h_t$ coming up because of the derivation. 
+
+    Then for each operator we have a matrix that contains 16 columns (one for each basis function) and \texttt{nq * nq} rows, depending on the number of quadrature points on the reference square. This matrix must be multiplied column-wise with the vector of evaluation of the function $f$ over the element.
+
+    To integrate then we multiply column-wise with the weights \texttt{wqxt} which are the Kronecker product of the local weights in each direction (multiplied by $h_x$ and $h_t$ for their respective direction). 
+    Then sum across the columns, and use the mapper function described in the previous section to map the local load vector to the global load vector.
+    \section*{Solution evaluation}
+
+
+    \chapter*{Matlab functions rundown}
 
     \section*{Appendix A: FEM matrix assembly}
     Consider $\Omega = [0,1]^2$ as the domain, and the following subdivision:
