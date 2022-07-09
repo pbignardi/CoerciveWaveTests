@@ -31,14 +31,23 @@ function K = assemble(Kloc, mesh, disc, varargin)
         error("Must specify KlocVar and component to integrate");
     end
     %% Assemble matrix
-    K = spalloc(ndofs, ndofs, 16*ndofs);
+    Kg = zeros(16*16, n_elms);
+    Ig = zeros(16*16, n_elms);
+    Jg = zeros(16*16, n_elms);
+
     for e = 1:n_elms
         % Element nodes ids
         el_ids  = elms(e, :);
         el_dofs = mapper(el_ids, nx, nt);
+        
+        % Compute index matrices
+        Jg(:, e) = reshape(kron(el_dofs, ones(16,1)), [], 1);
+        Ig(:, e) = reshape(kron(ones(1,16), el_dofs.'), [], 1);
+        
         % Pivot offset
         Koffset = pp(pivots(e)) * KlocVar;
         % Combine Kloc and variable local matrix
-        K(el_dofs, el_dofs) = K(el_dofs, el_dofs) + Kloc + Koffset;
+        Kg(:, e) = Kloc(:) + Koffset(:);
     end
+    K = sparse(Ig, Jg, Kg, ndofs, ndofs);
 end

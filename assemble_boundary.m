@@ -30,18 +30,28 @@ function K = assemble_boundary(Kloc, mesh, disc, boundary, varargin)
     else
         error("Must specify KlocVar and component to integrate");
     end
+    %% Boundary elements
+    
+
      %% Assemble matrix
-    K = spalloc(ndofs, ndofs, 16*ndofs);
+    Kg = zeros(16*16, n_elms);
+    Ig = zeros(16*16, n_elms);
+    Jg = zeros(16*16, n_elms);
+    
     for e = 1:n_elms
         % Element nodes ids
         el_ids  = elms(e, :);
         el_dofs = mapper(el_ids, nx, nt);
-        % Only continue if any of the element nodes are in the boundary
+        
+        % Compute index matrices
+        Jg(:, e) = reshape(kron(el_dofs, ones(16,1)), [], 1);
+        Ig(:, e) = reshape(kron(ones(1,16), el_dofs.'), [], 1);
         if any(ismember(boundary, el_ids))
             % Pivot offset
             Koffset = pp(pivots(e)) * KlocVar;
             % Combine Kloc and variable local matrix
-            K(el_dofs, el_dofs) = K(el_dofs, el_dofs) + Kloc + Koffset;
+            Kg(:, e) = Kloc(:) + Koffset(:);
         end
     end
+    K = sparse(Ig, Jg, Kg, ndofs, ndofs);   
 end
