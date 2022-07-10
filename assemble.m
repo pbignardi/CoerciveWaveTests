@@ -34,6 +34,7 @@ function K = assemble(Kloc_struct, mesh, disc)
         Ig(:, e) = reshape(kron(ones(1,16), el_dofs.'), [], 1);
         
         % Combine Kloc and variable local matrix
+        % So only one assemble call is necessary
         Kg(:, e) = opQ(:) + ...
             opQx(:) + opQxVar(:) * xx(pivots(e)) + ...
             opQt(:) + opQtVar(:) * tt(pivots(e));
