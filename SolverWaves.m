@@ -69,6 +69,8 @@ function u = SolverWaves(problem, domain, mesh, disc, varargin)
     ndofs = 4*n_nodes;
     dofs = 1:ndofs;
     d = 1;
+    x_var = 1;
+    t_var = 2;
     
     %% Local operator structs
     Xb = HermiteBasis(hx);
@@ -164,29 +166,47 @@ function u = SolverWaves(problem, domain, mesh, disc, varargin)
     opSbt = opSbt - kron(Tb.d1d1x, Eb.d0d0) * c / theta * beta;
     opSbtVar = opSbtVar - kron(Tb.d1d1, Eb.d0d0) * c / theta * beta;
     % --- Formulation above is correct ---
+    
+    %% Pack-up local matrix
+    % Q domain
+    KlocQ = struct();
+    KlocQ.op        = opQ;
+    KlocQ.opx       = opQx;
+    KlocQ.opt       = opQt;
+    KlocQ.opxVar    = opQxVar;
+    KlocQ.optVar    = opQtVar;
+    
+    % OmegaT domain
+    KlocT           = struct();
+    KlocT.op        = opO;
+    KlocT.opx       = opOx;
+    KlocT.opxVar    = opOxVar;
+    
+    % Sigma=a domain
+    KlocSa          = struct();
+    KlocSa.op       = opSa;
+    KlocSa.opx      = opSat;
+    KlocSa.opxVar   = opSatVar;
+    
+    % Sigma=b domain
+    KlocSb          = struct();
+    KlocSb.op       = opSb;
+    KlocSb.opx      = opSbt;
+    KlocSb.opxVar   = opSbtVar;
 
     %% Internal matrix assembly
     % Poisson testing
-    KQ = assemble(opQ, mesh, disc);
-    
-    % Wave equation
-    KQ = assemble(opQ, mesh, disc) + ...
-        assemble(opQx, mesh, disc, opQxVar, 1) + ...
-        assemble(opQt, mesh, disc, opQtVar, 2);
-
+    KQ = assemble(KlocQ, mesh, disc);
+   
     %% Boundary matrix assembly
     % Omega T boundary
-    KT = assemble_boundary(opO, mesh, disc, top_elms) + ...
-        assemble_boundary(opOx, mesh, disc, top_elms, opOxVar, 1);
+    KT = assemble_boundary(KlocT, mesh, disc, top_elms, x_var); 
     
     % Sigma=a boundary
-    Ka = assemble_boundary(opSa, mesh, disc, left_elms) + ...
-        assemble_boundary(opSat, mesh, disc, left_elms, opSatVar, 2);
+    Ka = assemble_boundary(KlocSa, mesh, disc, left_elms, t_var);
 
     % Sigma=b boundary
-    Kb = assemble_boundary(opSb, mesh, disc, right_elms) + ...
-        assemble_boundary(opSbt, mesh, disc, right_elms, opSbtVar, 2);
-
+    Kb = assemble_boundary(KlocSb, mesh, disc, right_elms, t_var);
     %% Global matrix computation
     if testing 
         K = assemble(kron(Tb.d1d1, Xb.d0d0) + kron(Tb.d0d0, Xb.d1d1), ...

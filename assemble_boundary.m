@@ -1,4 +1,4 @@
-function K = assemble_boundary(Kloc, mesh, disc, bound_elms, varargin)
+function K = assemble_boundary(Kloc, mesh, disc, bound_elms, component)
     %% Unpack parameters
     % Discretisation parameters
     nx = disc.nx;
@@ -12,23 +12,17 @@ function K = assemble_boundary(Kloc, mesh, disc, bound_elms, varargin)
     % Other parameters
     n_nodes = (nx + 1) * (nt + 1);
     ndofs = 4*n_nodes;
-    % Extract varargin parameters
-    if length(varargin) == 2
-        % Variable term integration parameters
-        KlocVar     = varargin{1};
-        component   = varargin{2};
-        % Select the component along which to integrate variable terms
-        if component == 1
-            pp = xx;
-        else 
-            pp = tt;
-        end
-    elseif isempty(varargin)
-        % Fixed term integration parameters
-        KlocVar     = zeros(size(Kloc));
-        pp          = zeros(size(xx));
-    else
-        error("Must specify KlocVar and component to integrate");
+    
+    % Extract Kloc matrices
+    opB     = Kloc.op;
+    opBx    = Kloc.opx;
+    opBxVar = Kloc.opxVar;
+
+    % Select the component along which to integrate variable terms
+    if component == 1
+        pp = xx;
+    else 
+        pp = tt;
     end
    
     %% Assemble matrix
@@ -45,10 +39,8 @@ function K = assemble_boundary(Kloc, mesh, disc, bound_elms, varargin)
         Jg(:, e) = reshape(kron(el_dofs, ones(16,1)), [], 1);
         Ig(:, e) = reshape(kron(ones(1,16), el_dofs.'), [], 1);
 
-        % Pivot offset
-        Koffset = pp(pivots(e)) * KlocVar;
         % Combine Kloc and variable local matrix
-        Kg(:, e) = Kloc(:) + Koffset(:);
+        Kg(:, e) = opB(:) + opBx(:) + pp(pivots(e)) * opBxVar(:);
     end
     K = sparse(Ig, Jg, Kg, ndofs, ndofs);   
 end
