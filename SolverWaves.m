@@ -21,14 +21,18 @@ function u = SolverWaves(problem, domain, mesh, disc, varargin)
     nt = disc.nt;
     hx = disc.hx;
     ht = disc.ht;
-    elms    = mesh.elms;
-    pivots  = mesh.pivots;
     
     % Boundary unpacking
     top     = mesh.top;
     bot     = mesh.bot;
     left    = mesh.left;
     right   = mesh.right;
+
+    % Boundary elms unpacking
+    top_elms    = mesh.top_elms;
+    bot_elms    = mesh.bot_elms;
+    right_elms  = mesh.right_elms;
+    left_elms   = mesh.left_elms;
     
     % Formulation unpacking
     if isempty(varargin)
@@ -172,16 +176,16 @@ function u = SolverWaves(problem, domain, mesh, disc, varargin)
 
     %% Boundary matrix assembly
     % Omega T boundary
-    KT = assemble_boundary(opO, mesh, disc, top) + ...
-        assemble_boundary(opOx, mesh, disc, top, opOxVar, 1);
+    KT = assemble_boundary(opO, mesh, disc, top_elms) + ...
+        assemble_boundary(opOx, mesh, disc, top_elms, opOxVar, 1);
     
     % Sigma=a boundary
-    Ka = assemble_boundary(opSa, mesh, disc, left) + ...
-        assemble_boundary(opSat, mesh, disc, left, opSatVar, 2);
+    Ka = assemble_boundary(opSa, mesh, disc, left_elms) + ...
+        assemble_boundary(opSat, mesh, disc, left_elms, opSatVar, 2);
 
     % Sigma=b boundary
-    Kb = assemble_boundary(opSb, mesh, disc, right) + ...
-        assemble_boundary(opSbt, mesh, disc, right, opSbtVar, 2);
+    Kb = assemble_boundary(opSb, mesh, disc, right_elms) + ...
+        assemble_boundary(opSbt, mesh, disc, right_elms, opSbtVar, 2);
 
     %% Global matrix computation
     if testing 
@@ -196,7 +200,7 @@ function u = SolverWaves(problem, domain, mesh, disc, varargin)
     if testing
         F = compute_rhs_poisson(f, mesh, disc);
     else
-        F = compute_rhs(f, mesh, disc, parameters);
+        F = compute_rhs(problem, mesh, disc, parameters);
     end
     
     %% Imposing boundary conditions
