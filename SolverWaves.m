@@ -63,6 +63,8 @@ function u = SolverWaves(problem, domain, mesh, disc, varargin)
     parameters.xi = xi;
     parameters.c = c;
     parameters.T = T;
+    parameters.a = domain.xmin;
+    parameters.b = domain.xmax;
     
     % Other parameters
     n_nodes = (nx + 1) * (nt + 1);
@@ -243,8 +245,9 @@ function u = SolverWaves(problem, domain, mesh, disc, varargin)
     % calcolare la media e aggiungerla alla soluzione?
 
     %% Solving
-    %u(internal) = K(internal, internal) \ F(internal);
-    u = K \ F;
+    u = zeros(ndofs,1);
+    u(internal) = K(internal, internal) \ F(internal);
+    %u = K \ F;
     %u(internal) = gmres(K(internal, internal), F(internal), 15, 1e-6, 200);
     
 

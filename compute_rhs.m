@@ -23,6 +23,8 @@ function F = compute_rhs(p, mesh, disc, parameters)
     Tstar   = parameters.Tstar;
     T       = parameters.T;
     c       = parameters.c;
+    a       = parameters.a;
+    b       = parameters.b; 
 
     % Discretisation parameters
     hx = disc.hx;
@@ -129,7 +131,7 @@ function F = compute_rhs(p, mesh, disc, parameters)
         U0x     = u0x(el_xq);
         U1      = u1(el_xq);
 
-        % Integrand
+        % Integrand evaluation
         integrand = beta * Tstar * (U1 .* vt_0 + c^2 * U0x .* vx_0) + ...;
                     xi * el_xq .* (vx_0 .* U1 + U0x .* vt_0);
         local_rhs_0 = sum( integrand .* wqx ).';  
@@ -146,7 +148,29 @@ function F = compute_rhs(p, mesh, disc, parameters)
         el_tq = ttqh(nq*(1:nq)) + tt(pivots(e));
 
         % g evaluation
-        
+        G = g(a, el_tq);
 
+        % Zv boundary evaluation
+        Zv_bound = a * vx_a * xi + (el_tq - Tstar) .* vt_a * beta;
+        local_rhs_a = sum(Zv_bound .* G .* wqt).';
+        F(el_dofs) = F(el_dofs) + local_rhs_a;
+    end
+
+    %% Sigma=b- Element-wise assembly
+    for e = left_elms
+        % Get element nodes and DOFs
+        el_ids  = elms(e, :);
+        el_dofs = mapper(el_ids, nx, nt);
+
+        % Move quadrature nodes
+        el_tq = ttqh(nq*(1:nq)) + tt(pivots(e));
+
+        % g evaluation
+        G = g(b, el_tq);
+
+        % Zv boundary evaluation
+        Zv_bound = - b * vx_b * xi + (el_tq - Tstar) .* vt_b * beta;
+        local_rhs_b = sum(Zv_bound .* G .* wqt).';
+        F(el_dofs) = F(el_dofs) + local_rhs_b;
     end
 end
