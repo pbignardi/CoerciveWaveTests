@@ -61,13 +61,17 @@ function F = compute_rhs(p, mesh, disc, parameters)
     ddpsi_X = hx^(-2) * ddpsi;
     
     % Basis function evaluation at boundary
-    [Ea_d0, Ea_d1] = BasisBoundaryEval(0, nq);
-    [Eb_d0, Eb_d1] = BasisBoundaryEval(1, nq);
-    [E0_d0, E0_d1] = BasisBoundaryEval(0, nq);
-
-    Ea_d1 = Ea_d1 * hx^(-1);
-    Eb_d1 = Eb_d1 * hx^(-1);
-    E0_d1 = E0_d1 * ht^(-1);
+    Estart_d0 = [1, 0, 0, 0];
+    Estart_d1 = [0, 0, 1, 0];
+    Eend_d0 = [0, 1, 0, 0];
+    Eend_d1 = [0, 0, 0, 1];
+    
+    Ea_d0 = Estart_d0;
+    Ea_d1 = Estart_d1 * hx^(-1);
+    Eb_d0 = Eend_d0;
+    Eb_d1 = Eend_d1 * hx^(-1);
+    E0_d0 = Estart_d0;
+    E0_d1 = Estart_d1 * ht^(-1);
     
     %% Operator evaluations
     % Q local terms
@@ -78,15 +82,15 @@ function F = compute_rhs(p, mesh, disc, parameters)
     
     % Omega0 local terms
     vt_0    = kron(E0_d1, psi_X);
-    gradv_0 = kron(E0_d0, dpsi_X);
+    vx_0    = kron(E0_d0, dpsi_X);
 
     % Sigma=a local terms
     vt_a    = kron(dpsi_T, Ea_d0);
-    gradv_a = kron(psi_T, Ea_d1);
+    vx_a    = kron(psi_T, Ea_d1);
    
     % Sigma=b local terms
     vt_b    = kron(dpsi_T, Eb_d0);
-    gradv_b = kron(psi_T, Eb_d1);
+    vx_b    = kron(psi_T, Eb_d1);
 
     %% Q- Element-wise assembly
     F = zeros(ndofs, 1);
@@ -104,7 +108,7 @@ function F = compute_rhs(p, mesh, disc, parameters)
         % Compute Zv
         Zv = - el_xq .* gradv_Q * xi + (el_tq - Tstar) .* vt_Q * beta;
         % Compute Wv
-        Wv = kron(ddpsi_T, psi_X) - kron(psi_T, ddpsi_X) * c^2;
+        Wv = vtt_Q - Lapv_Q * c^2;
         % Integrate using Gauss quadrature
         local_rhs_Q = sum( f_eval .* (- Zv + Wv * A / (T^2)) .* wqxt).';
         
@@ -113,40 +117,36 @@ function F = compute_rhs(p, mesh, disc, parameters)
     end
 
     %% Omega0- Element-wise assembly
-    for e = 1:length(bot_elms)
+    for e = bot_elms
         % Get element nodes and DOFs
-        el_ids  = elms(bot_elms(e), :);
+        el_ids  = elms(e, :);
         el_dofs = mapper(el_ids, nx, nt);
         
         % Move quadrature nodes
-        el_xq = xxqh + xx(pivots(e));
+        el_xq = xxqh(1:nq) + xx(pivots(e));
     
         % u1 and u0x evaluation 
-        u0x_eval    = u0x(el_xq);
-        u1_eval     = u1(el_xq);
+        U0x     = u0x(el_xq);
+        U1      = u1(el_xq);
 
         % Integrand
-        int_0 = beta * Tstar * u1_eval .* vt_0;
-        int_0 = int_0 + beta * Tstar * c^2 * u0x_eval .* gradv_0;
-        int_0 = int_0 + xi * el_xq .* gradv_0 .* u1_eval;
-        int_0 = int_0 + xi * el_xq .* u0x_eval .* vt_0;
-        local_rhs_0 = sum( int_0 .* wqxt ).';  
-
+        integrand = beta * Tstar * (U1 .* vt_0 + c^2 * U0x .* vx_0) + ...;
+                    xi * el_xq .* (vx_0 .* U1 + U0x .* vt_0);
+        local_rhs_0 = sum( integrand .* wqx ).';  
         F(el_dofs) = F(el_dofs) + local_rhs_0;
+    end
 
+    %% Sigma=a- Element-wise assembly
+    for e = left_elms
+        % Get element nodes and DOFs
+        el_ids  = elms(e, :);
+        el_dofs = mapper(el_ids, nx, nt);
+
+        % Move quadrature nodes
+        el_tq = ttqh(nq*(1:nq)) + tt(pivots(e));
+
+        % g evaluation
+        
 
     end
-end
-function [psi_b, dpsi_b] = BasisBoundaryEval(pos, nq)
-    if pos == 0
-        v = 1;
-        d = 3;
-    elseif pos == 1
-        v = 2;
-        d = 4;
-    end
-    psi_b = zeros(nq, 4);
-    dpsi_b = zeros(nq, 4);
-    psi_b(1, v) = 1;
-    dpsi_b(1, d) = 1;
 end
