@@ -83,8 +83,8 @@ function problem = WaveProblem(prob_num)
             
             % Exact solution
             problem.u       = @(x,t) sin(t).^2 .* (cos(pi*x) + 1);
-            problem.dx_u    = @(x,t) t.^2 .* (-pi*sin(pi*x));
-            problem.dt_u    = @(x,t) 2 * t .* (cos(pi * x) + 1);
+            problem.dx_u    = @(x,t) -pi*sin(pi*x).*sin(t).^2;
+            problem.dt_u    = @(x,t) 2*cos(t).*sin(t).*(cos(pi*x) + 1);
             problem.ddt_u   = @(x,t) 2*cos(t).^2.*(cos(pi*x) + 1) - ...
                 2*sin(t).^2 .* (cos(pi*x) + 1);
             problem.ddx_u   = @(x,t) -pi^2 * cos(pi*x) .* sin(t).^2;
