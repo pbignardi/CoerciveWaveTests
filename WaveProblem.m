@@ -104,6 +104,25 @@ function problem = WaveProblem(prob_num)
             problem.u    = @(x,t) sin(t).^2 .* (cos(pi*x) + 1);
             problem.dx_u = @(x,t) t.^2 .* (-pi*sin(pi*x));
             problem.dt_u = @(x,t) 2 * t .* (cos(pi * x) + 1);
+        %% Exact solution is in discrete space
+        case 6
+            % Data functions
+            problem.f   = @(x,t) 2*x.^2 - 2*t.^2;
+            problem.g   = @(x,t) 2 * x .* t.^2 + 2 * x.^2 .* t;
+            %problem.g   = @(x,t) x.*0 + t.*0;
+            problem.u0  = @(x) x.*0;
+            problem.u1  = @(x) x.*0;
+
+            %Parameters
+            problem.c       = 1;
+            problem.theta   = 1;
+
+            % Exact solution
+            problem.u       = @(x,t) x.^2 .* t.^2;
+            problem.dx_u    = @(x,t) 2*x.*t.^2;
+            problem.dt_u    = @(x,t) 2*t.*x.^2;
+            problem.ddx_u   = @(x,t) 2*t.^2;
+            problem.ddt_u   = @(x,t) 2*x.^2;
         otherwise
             %warning("No matching problem number");
     end
