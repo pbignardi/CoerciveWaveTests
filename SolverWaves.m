@@ -230,19 +230,21 @@ function u = SolverWaves(problem, domain, mesh, disc, varargin)
     right_dofs      = unique([right+n_nodes right+2*n_nodes]);
     dirichlet_dofs  = unique([bot top left right ...
         n_nodes+bot n_nodes+top 2*n_nodes+left 2*n_nodes+right]);
-    
-    %internal = setdiff(dofs, unique([initial_dofs, left_dofs, right_dofs]));
+
     if testing
         internal = setdiff(dofs, dirichlet_dofs);
     else
         internal = setdiff(dofs, initial_dofs);
     end
-    %internal = setdiff(internal,left_dofs);
-    %internal = setdiff(internal, right_dofs);
     
+    %% Imposive null mean initial condition
+    % Problema: il sistema lineare non è più quadrato... È un problema?
+    % Proposta: Risolvere il problema senza il vincolo della media nulla,
+    % calcolare la media e aggiungerla alla soluzione?
+
     %% Solving
-    u = zeros(ndofs, 1);
-    u(internal) = K(internal, internal) \ F(internal);
+    %u(internal) = K(internal, internal) \ F(internal);
+    u = K \ F;
     %u(internal) = gmres(K(internal, internal), F(internal), 15, 1e-6, 200);
     
 
