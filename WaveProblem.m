@@ -108,7 +108,7 @@ function problem = WaveProblem(prob_num)
         case 6
             % Data functions
             problem.f   = @(x,t) 2*x.^2 - 2*t.^2;
-            problem.g   = @(x,t) 2 * x .* t.^2 + 2 * x.^2 .* t;
+            problem.g   = @(x,t) 2 * abs(x) .* t.^2 + 2 * x.^2 .* t;
             %problem.g   = @(x,t) x.*0 + t.*0;
             problem.u0  = @(x) x.*0;
             problem.u1  = @(x) x.*0;
