@@ -157,7 +157,7 @@ function F = compute_rhs(p, mesh, disc, parameters)
     end
 
     %% Sigma=b- Element-wise assembly
-    for e = left_elms
+    for e = right_elms
         % Get element nodes and DOFs
         el_ids  = elms(e, :);
         el_dofs = mapper(el_ids, nx, nt);
