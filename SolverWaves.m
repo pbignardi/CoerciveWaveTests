@@ -1,11 +1,6 @@
 function u = SolverWaves(problem, domain, mesh, disc, varargin)
-    testing = 0;
     %% Unpacking parameters
     % Problem unpacking
-    f       = problem.f;
-    g       = problem.g;
-    u0      = problem.u0;
-    u1      = problem.u1;
     c       = problem.c;
     theta   = problem.theta;
 
@@ -23,14 +18,10 @@ function u = SolverWaves(problem, domain, mesh, disc, varargin)
     ht = disc.ht;
     
     % Boundary unpacking
-    top     = mesh.top;
     bot     = mesh.bot;
-    left    = mesh.left;
-    right   = mesh.right;
 
     % Boundary elms unpacking
     top_elms    = mesh.top_elms;
-    bot_elms    = mesh.bot_elms;
     right_elms  = mesh.right_elms;
     left_elms   = mesh.left_elms;
     
@@ -210,35 +201,17 @@ function u = SolverWaves(problem, domain, mesh, disc, varargin)
     % Sigma=b boundary
     Kb = assemble_boundary(KlocSb, mesh, disc, right_elms, t_var);
     %% Global matrix computation
-    if testing 
-        K = assemble(kron(Tb.d1d1, Xb.d0d0) + kron(Tb.d0d0, Xb.d1d1), ...
-            mesh,disc);
-    else
-        K = KQ;
-        K = K + KT;
-        K = K + Ka + Kb; 
-    end
+    K = KQ;
+    K = K + KT;
+    K = K + Ka + Kb; 
     %% Load vector assembly
-    if testing
-        F = compute_rhs_poisson(f, mesh, disc);
-    else
-        F = compute_rhs(problem, mesh, disc, parameters);
-    end
+    F = compute_rhs(problem, mesh, disc, parameters);
     
     %% Imposing boundary conditions
     initial_dofs = unique([bot n_nodes+bot 2*n_nodes+bot 3*n_nodes+bot]);
     
-    left_dofs       = unique([left+n_nodes left+2*n_nodes]);
-    right_dofs      = unique([right+n_nodes right+2*n_nodes]);
-    dirichlet_dofs  = unique([bot top left right ...
-        n_nodes+bot n_nodes+top 2*n_nodes+left 2*n_nodes+right]);
-
-    if testing
-        internal = setdiff(dofs, dirichlet_dofs);
-    else
-        internal = setdiff(dofs, initial_dofs);
-    end
-    
+    % Internal DOFs. Remove initial condition dofs
+    internal = setdiff(dofs, initial_dofs);    
     %% Imposive null mean initial condition
     % Problema: il sistema lineare non è più quadrato... È un problema?
     % Proposta: Risolvere il problema senza il vincolo della media nulla,
@@ -248,8 +221,6 @@ function u = SolverWaves(problem, domain, mesh, disc, varargin)
     u = zeros(ndofs,1);
     u(internal) = K(internal, internal) \ F(internal);
     %u = K \ F;
-    %u(internal) = gmres(K(internal, internal), F(internal), 15, 1e-6, 200);
-    
 
     %% Internal stiffness conditioning
     %fprintf("Condition number is: %e \n", condest(K(internal, internal)))
