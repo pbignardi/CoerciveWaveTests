@@ -30,9 +30,10 @@ function K = assemble_boundary(Kloc, mesh, disc, bound_elms, component)
     Ig = zeros(16*16, nb_elms); 
     Jg = zeros(16*16, nb_elms);
     
-    for e = 1:length(bound_elms)
+    for e = 1:nb_elms
+        el = bound_elms(e);
         % Element nodes ids
-        el_ids  = elms(bound_elms(e), :);
+        el_ids  = elms(el, :);
         el_dofs = mapper(el_ids, nx, nt);
         
         % Compute index matrices
@@ -40,7 +41,8 @@ function K = assemble_boundary(Kloc, mesh, disc, bound_elms, component)
         Ig(:, e) = reshape(kron(ones(1,16), el_dofs.'), [], 1);
 
         % Combine Kloc and variable local matrix
-        Kg(:, e) = opB(:) + opBx(:) + pp(pivots(e)) * opBxVar(:);
+        Kg(:, e) = opB(:) + opBx(:) + ... 
+            pp(pivots(el)) * opBxVar(:);
     end
     K = sparse(Ig, Jg, Kg, ndofs, ndofs);   
 end
