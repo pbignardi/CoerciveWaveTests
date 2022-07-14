@@ -151,9 +151,9 @@ function F = compute_rhs(p, mesh, disc, parameters)
         G = g(a, el_tq);
 
         % Zv boundary evaluation
-        Zv_bound = a * vx_a * xi + (el_tq - Tstar) .* vt_a * beta;
+        Zv_bound = - a * vx_a * xi + (el_tq - Tstar) .* vt_a * beta;
         local_rhs_a = sum(Zv_bound .* G .* wqt).';
-        F(el_dofs) = F(el_dofs) + local_rhs_a;
+        F(el_dofs) = F(el_dofs) - c^2 * local_rhs_a;
     end
 
     %% Sigma=b- Element-wise assembly
@@ -171,6 +171,6 @@ function F = compute_rhs(p, mesh, disc, parameters)
         % Zv boundary evaluation
         Zv_bound = - b * vx_b * xi + (el_tq - Tstar) .* vt_b * beta;
         local_rhs_b = sum(Zv_bound .* G .* wqt).';
-        F(el_dofs) = F(el_dofs) + local_rhs_b;
+        F(el_dofs) = F(el_dofs) - c^2 * local_rhs_b;
     end
 end
