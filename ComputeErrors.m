@@ -68,11 +68,13 @@ function errors = ComputeErrors(u, problem, mesh, disc)
     errors.H1N = sqrt(H1Nsq);
     errors.OPN = sqrt(OPNsq);
     errors.GRN = sqrt(OPNsq + L2Nsq);   % Graph norm
+    errors.SUPN = max(abs(U_ex));
 
     errors.L2E = sqrt(L2Esq / L2Nsq);
     errors.H1E = sqrt(H1Esq / H1Nsq);
     errors.OPE = sqrt(OPEsq / OPNsq);
     errors.GRE = sqrt((OPEsq + L2Esq)/ (OPNsq + L2Nsq));
+    errors.SUPE = max(abs(U_ex - U));
    
 
 end
