@@ -20,7 +20,7 @@ function problem = WaveProblem(prob_num)
         %% Dirichlet Poisson problem
         case 1
             % Data functions
-            problem.f   = @(x,t) - 2 * (x.^2 + t.^2 - t - 1);
+            problem.f   = @(x,t) x.*0 + t.*0;
             problem.g   = @(x,t) x.*0;
             problem.u0  = @(x) x.*0;
             problem.u1  = @(x) x.*0;
@@ -123,6 +123,35 @@ function problem = WaveProblem(prob_num)
             problem.dt_u    = @(x,t) 2*t.*x.^2;
             problem.ddx_u   = @(x,t) 2*t.^2;
             problem.ddt_u   = @(x,t) 2*x.^2;
+        %% Bouncing wave (variable theta)
+        case 7
+            c = 2;
+            problem.c       = c;
+            problem.theta   = 4;
+            phi = (1 - 1/problem.theta)/(1 + 1/problem.theta);
+
+            problem.f   = @(x,t) x.*0 + t.*0;
+            problem.g   = @(x,t) x.*0 + t.*0;
+            a = 20;
+            % Define gaussian and derivatives
+            n   = @(x, c) exp(-a*(x - c).^2);
+            dn  = @(x, c) a*exp(-a*(c - x).^2).*(2*c - 2*x);
+            ddn = @(x, c) a^2*exp(-a*(c - x).^2).*(2*c - 2*x).^2 - ... 
+                            2*a*exp(-a*(c - x).^2);
+            % Define initial wave
+            w   = @(x) n(x, 0.1) - n(x, -0.1);
+            dw  = @(x) dn(x, 0.1) - dn(x, -0.1); 
+            ddw = @(x) ddn(x, 0.1) - ddn(x, -0.1);
+
+            problem.u0  = @(x) dw(x) - phi * dw(2 - x);
+            problem.u1  = @(x) - c * dw(x) - c * phi * dw(2 - x);
+
+            problem.u       = @(x,t) w(x - c*t) + phi * w(2 - x - c*t);
+            problem.dx_u    = @(x,t) dw(x - c*t) - phi * dw(2 - x - c*t);
+            problem.dt_u    = @(x,t) -c * dw(x - c*t) - ...
+                                     c * phi * dw(2 - x - c*t);
+            problem.ddx_u   = @(x,t) ddw(x - c*t) + phi * ddw(2 - x - c*t);
+            problem.ddt_u   = @(x,t) c^2*(ddw(x - c*t) + phi * ddw(2 - x - c*t));
         otherwise
             %warning("No matching problem number");
     end
