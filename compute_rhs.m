@@ -95,7 +95,7 @@ function F = compute_rhs(p, mesh, disc, parameters)
     vx_b    = kron(psi_T, Eb_d1);
 
     %% Q- Element-wise assembly
-    F = zeros(ndofs, 1);
+    F = zeros(ndofs + 1, 1);
     for e = 1:n_elms
         % Get element nodes and DOFs
         el_ids  = elms(e, :);
@@ -132,7 +132,7 @@ function F = compute_rhs(p, mesh, disc, parameters)
         U1      = u1(el_xq);
 
         % Integrand evaluation
-        integrand = beta * Tstar * (U1 .* vt_0 + c^2 * U0x .* vx_0) + ...;
+        integrand = beta * Tstar * (U1 .* vt_0 + c^2 * U0x .* vx_0) + ...
                     xi * el_xq .* (vx_0 .* U1 + U0x .* vt_0);
         local_rhs_0 = sum( integrand .* wqx ).';  
         F(el_dofs) = F(el_dofs) + local_rhs_0;

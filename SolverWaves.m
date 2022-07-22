@@ -1,4 +1,4 @@
-function u = SolverWaves(problem, domain, mesh, disc, varargin)
+function [u, Kcond] = SolverWaves(problem, domain, mesh, disc, varargin)
     %% Unpacking parameters
     % Problem unpacking
     c       = problem.c;
@@ -216,12 +216,15 @@ function u = SolverWaves(problem, domain, mesh, disc, varargin)
     % Problema: il sistema lineare non è più quadrato... È un problema?
     % Proposta: Risolvere il problema senza il vincolo della media nulla,
     % calcolare la media e aggiungerla alla soluzione?
+    K(end, bot) = hx * ones(1, length(bot));
 
     %% Solving
-    u = zeros(ndofs,1);
-    u(internal) = K(internal, internal) \ F(internal);
-    %u = K \ F;
-
+    u = zeros(ndofs + 1, 1);
+    
+    % Start timer
+    tic
+    u = K \ F;
+        
     %% Internal stiffness conditioning
     %fprintf("Condition number is: %e \n", condest(K(internal, internal)))
 end
