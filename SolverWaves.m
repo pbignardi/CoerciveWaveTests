@@ -224,7 +224,16 @@ function [u, Kcond] = SolverWaves(problem, domain, mesh, disc, varargin)
     % Start timer
     tic
     u = K \ F;
-        
+    
+    solving_time = toc;
+    % Log time result
+    fprintf("Linear system solving time:\t %.4f seconds\n", solving_time);
+    
+    %% Post-processing solution
+    % Compute condest of matrix K :TODO
+    Kcond = 1;
+    %Kcond = condest(K);
+    
     %% Internal stiffness conditioning
     %fprintf("Condition number is: %e \n", condest(K(internal, internal)))
 end
