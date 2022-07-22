@@ -1,4 +1,4 @@
-function errors = ComputeErrors(u, problem, mesh, disc)
+function errors = ComputeErrors(u, problem, mesh, disc, err_type)
     %% Unpack structs
     u_ex    = problem.u;
     ux_ex   = problem.dx_u;
@@ -70,11 +70,18 @@ function errors = ComputeErrors(u, problem, mesh, disc)
     errors.GRN = sqrt(OPNsq + L2Nsq);   % Graph norm
     errors.SUPN = max(abs(U_ex));
 
-    errors.L2E = sqrt(L2Esq / L2Nsq);
-    errors.H1E = sqrt(H1Esq / H1Nsq);
-    errors.OPE = sqrt(OPEsq / OPNsq);
-    errors.GRE = sqrt((OPEsq + L2Esq)/ (OPNsq + L2Nsq));
+    if err_type == "relative"
+        errors.L2E = sqrt(L2Esq / L2Nsq);
+        errors.H1E = sqrt(H1Esq / H1Nsq);
+        errors.OPE = sqrt(OPEsq / OPNsq);
+        errors.GRE = sqrt((OPEsq + L2Esq)/ (OPNsq + L2Nsq));
+    elseif err_type == "absolute"
+        errors.L2E = sqrt(L2Esq);
+        errors.H1E = sqrt(H1Esq);
+        errors.OPE = sqrt(OPEsq);
+        errors.GRE = sqrt((OPEsq + L2Esq));
+    end
+
     errors.SUPE = max(abs(U_ex - U));
-   
 
 end

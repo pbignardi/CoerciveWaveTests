@@ -32,7 +32,7 @@ surf(X, T, U);
 xlabel("X"); ylabel("T");
 
 %% Compute errors
-errors = ComputeErrors(u, p, mesh, d);
+errors = ComputeErrors(u, p, mesh, d, "relative");
 errors.L2E
 
 %% Animate

@@ -33,16 +33,17 @@ for n = N
     form.beta = 20;
 
     % Solve problem
-    u = SolverWaves(p, Q, mesh, d);
+    [u, ~] = SolverWaves(p, Q, mesh, d);
     
     
     % Compute errors
-    errors = ComputeErrors(u, p, mesh, d);
+    errors = ComputeErrors(u, p, mesh, d, "relative");
     L2errors(i) = errors.L2E;
     H1errors(i) = errors.H1E;
     GRerrors(i) = errors.GRE;
     OPerrors(i) = errors.OPE;
     SUPerrors(i) = errors.SUPE;
+    %Kconds(i) = Kcond;
     i = i + 1;
 end
 
