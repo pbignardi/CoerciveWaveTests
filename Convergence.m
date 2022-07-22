@@ -68,11 +68,11 @@ loglog_plot(H, H1errors, "-s", linewidth, RED, markersize);
 loglog_plot(H, GRerrors, "-^", linewidth, GREEN, markersize);
 loglog_plot(H, SUPerrors, "-o", linewidth, YELLOW, markersize);
 
-p_l2 = polyfit(log(H), log(L2errors), 1);
-p_h1 = polyfit(log(H), log(H1errors), 1);
-p_op = polyfit(log(H), log(OPerrors), 1);
-p_gr = polyfit(log(H), log(GRerrors), 1);
-p_sup = polyfit(log(H), log(SUPerrors), 1);
+p_l2 = polyfit(log(H(end-2:end)), log(L2errors(end-2:end)), 1);
+p_h1 = polyfit(log(H(end-2:end)), log(H1errors(end-2:end)), 1);
+p_op = polyfit(log(H(end-2:end)), log(OPerrors(end-2:end)), 1);
+p_gr = polyfit(log(H(end-2:end)), log(GRerrors(end-2:end)), 1);
+p_sup = polyfit(log(H(end-2:end)), log(SUPerrors(end-2:end)), 1);
 
 legend_entries = {strcat("L2 error - order: ", string(p_l2(1))),...
                   strcat("H1 error - order: ", string(p_h1(1))),...
