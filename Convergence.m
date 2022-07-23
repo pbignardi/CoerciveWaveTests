@@ -6,12 +6,13 @@ addpath(genpath("local_stiffness"));
 
 %% Define problem, discretization and mesh
 % Create simple problem
-p = WaveProblem(3);
+p = WaveProblem(7);
 % Define domain
 Q = Domain(-1, 1, 1);
-
+% Choose error norms
+errs = ["l2", "h1","op"];
 %% Iterate for different number of elements
-N = [4, 8, 16, 32, 64, 128];
+N = [4, 8, 16, 32, 64, 100, 200, 300, 400];
 L2errors = zeros(length(N), 1);
 H1errors = zeros(length(N), 1);
 GRerrors = zeros(length(N), 1);
@@ -62,25 +63,37 @@ Hx = (Q.xmax - Q.xmin) ./ N;
 Ht = Q.T ./ N;
 H = sqrt(Hx .^ 2 + Ht .^ 2);
 
-loglog_plot(H, L2errors, "-d", linewidth, BLUE, markersize);
-hold on, grid on
-loglog_plot(H, H1errors, "-s", linewidth, RED, markersize);
-loglog_plot(H, GRerrors, "-^", linewidth, GREEN, markersize);
-loglog_plot(H, SUPerrors, "-o", linewidth, YELLOW, markersize);
+lgd_entries = {}; 
+for err = errs
+    if err == "l2"
+        loglog_plot(H, L2errors, "-d", linewidth, BLUE, markersize);
+        p_l2 = polyfit(log(H(end-2:end)), log(L2errors(end-2:end)), 1);
+        lgd_entries{end + 1} = strcat("L2 error - order: ", string(p_l2(1)));
+        hold on, grid on
+    elseif err == "h1"
+        loglog_plot(H, H1errors, "-s", linewidth, RED, markersize);
+        p_h1 = polyfit(log(H(end-2:end)), log(H1errors(end-2:end)), 1);
+        lgd_entries{end + 1} = strcat("H1 error - order: ", string(p_h1(1)));
+        hold on, grid on
+    elseif err == "linf"
+        loglog_plot(H, SUPerrors, "-o", linewidth, YELLOW, markersize);
+        p_sup = polyfit(log(H(end-2:end)), log(SUPerrors(end-2:end)), 1);
+        lgd_entries{end + 1} = strcat("Linf error - order: ", string(p_sup(1)));
+        hold on, grid on
+    elseif err == "graph"
+        loglog_plot(H, GRerrors, "-^", linewidth, GREEN, markersize);
+        p_gr = polyfit(log(H(end-2:end)), log(GRerrors(end-2:end)), 1);
+        lgd_entries{end + 1} = strcat("Graph error - order: ", string(p_gr(1)));
+        hold on, grid on
+    elseif err == "op"
+        loglog_plot(H, OPerrors, "-+", linewidth, PURPLE, markersize);
+        p_op = polyfit(log(H(end-2:end)), log(OPerrors(end-2:end)), 1);
+        lgd_entries{end + 1} = strcat("LSQ error - order: ", string(p_op(1)));
+        hold on, grid on
+    end
+end
 
-p_l2 = polyfit(log(H(end-2:end)), log(L2errors(end-2:end)), 1);
-p_h1 = polyfit(log(H(end-2:end)), log(H1errors(end-2:end)), 1);
-p_op = polyfit(log(H(end-2:end)), log(OPerrors(end-2:end)), 1);
-p_gr = polyfit(log(H(end-2:end)), log(GRerrors(end-2:end)), 1);
-p_sup = polyfit(log(H(end-2:end)), log(SUPerrors(end-2:end)), 1);
-
-legend_entries = {strcat("L2 error - order: ", string(p_l2(1))),...
-                  strcat("H1 error - order: ", string(p_h1(1))),...
-                  strcat("LeastSq error - order: ", string(p_op(1))),...
-                  strcat("Linf error - order: ", string(p_sup(1)))};%,...
-                  %strcat("Graph error - order: ", string(p_gr(1)))};
-
-legend(legend_entries, ...
+legend(lgd_entries, ...
     "Location", "southeast", "NumColumns", legend_cols);
 
 function loglog_plot(x, y, line_style, linewidth, color, markersize)
@@ -90,12 +103,6 @@ function loglog_plot(x, y, line_style, linewidth, color, markersize)
         "MarkerFaceColor", color, ...
         "MarkerSize", markersize)
 end
-
-%% PRove
-%{
-- soluzione esatta nello spazio discreto.
-- 
-%}
 
 
 
