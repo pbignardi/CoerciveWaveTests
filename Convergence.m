@@ -6,18 +6,19 @@ addpath(genpath("local_stiffness"));
 
 %% Define problem, discretization and mesh
 % Create simple problem
-p = WaveProblem(7);
+p = WaveProblem(4);
 % Define domain
 Q = Domain(-1, 1, 1);
 % Choose error norms
-errs = ["l2", "h1","op"];
+errs = ["l2", "h1", "op", "cond"];
 %% Iterate for different number of elements
-N = [4, 8, 16, 32, 64, 100, 200, 300, 400];
+N = [4, 8, 16, 32, 64, 100, 128];
 L2errors = zeros(length(N), 1);
 H1errors = zeros(length(N), 1);
 GRerrors = zeros(length(N), 1);
 OPerrors = zeros(length(N), 1);
 SUPerrors = zeros(length(N), 1);
+Kconds = zeros(length(N), 1);
 
 i = 1;
 for n = N 
@@ -34,7 +35,7 @@ for n = N
     form.beta = 20;
 
     % Solve problem
-    [u, ~] = SolverWaves(p, Q, mesh, d);
+    [u, Kcond] = SolverWaves(p, Q, mesh, d);
     
     
     % Compute errors
@@ -44,7 +45,7 @@ for n = N
     GRerrors(i) = errors.GRE;
     OPerrors(i) = errors.OPE;
     SUPerrors(i) = errors.SUPE;
-    %Kconds(i) = Kcond;
+    Kconds(i) = Kcond;
     i = i + 1;
 end
 
@@ -89,6 +90,11 @@ for err = errs
         loglog_plot(H, OPerrors, "-+", linewidth, PURPLE, markersize);
         p_op = polyfit(log(H(end-2:end)), log(OPerrors(end-2:end)), 1);
         lgd_entries{end + 1} = strcat("LSQ error - order: ", string(p_op(1)));
+        hold on, grid on
+    elseif err == "cond"
+        loglog(H,  1 ./ Kconds, "--", "Color", [0.3 0.3 0.3]);
+        p_cond = polyfit(log(H(end-2:end)), - log(Kconds(end-2:end)),1);
+        lgd_entries{end + 1} = strcat("1/cond(K) - order: ", string(p_cond(1)));
         hold on, grid on
     end
 end
