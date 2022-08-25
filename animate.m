@@ -35,10 +35,10 @@ function [] = animate(X, T, U)
         u = U(f, :);
         plot(x, u);
         axis([x_min x_max u_min u_max]);
+        grid on;
         drawnow
         pause(1/fps);
         %exportgraphics(gcf,"solution.gif","Append", true);
-        grid on
     end
 
 end
