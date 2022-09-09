@@ -1,0 +1,350 @@
+[
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   CXSparse\\Source\\cs_ri_bundle.c -Fobuild\\win64\\cs_ri_bundle.obj",
+    "file": "CXSparse/Source/cs_ri_bundle.c",
+    "output": "build/win64/cs_ri_bundle.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   CXSparse\\Source\\cs_ci_bundle.c -Fobuild\\win64\\cs_ci_bundle.obj",
+    "file": "CXSparse/Source/cs_ci_bundle.c",
+    "output": "build/win64/cs_ci_bundle.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   CXSparse\\CXSparseSupport\\solve_from_lu.c -Fobuild\\win64\\solve_from_lu.obj",
+    "file": "CXSparse/CXSparseSupport/solve_from_lu.c",
+    "output": "build/win64/solve_from_lu.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   CXSparse\\CXSparseSupport\\solve_from_qr.c -Fobuild\\win64\\solve_from_qr.obj",
+    "file": "CXSparse/CXSparseSupport/solve_from_qr.c",
+    "output": "build/win64/solve_from_qr.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   CXSparse\\CXSparseSupport\\makeCXSparseMatrix.c -Fobuild\\win64\\makeCXSparseMatrix.obj",
+    "file": "CXSparse/CXSparseSupport/makeCXSparseMatrix.c",
+    "output": "build/win64/makeCXSparseMatrix.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   CXSparse\\CXSparseSupport\\unpackCXStruct.c -Fobuild\\win64\\unpackCXStruct.obj",
+    "file": "CXSparse/CXSparseSupport/unpackCXStruct.c",
+    "output": "build/win64/unpackCXStruct.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   main_data.c -Fobuild\\win64\\main_data.obj",
+    "file": "main_data.c",
+    "output": "build/win64/main_data.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   rt_nonfinite.c -Fobuild\\win64\\rt_nonfinite.obj",
+    "file": "rt_nonfinite.c",
+    "output": "build/win64/rt_nonfinite.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   main_initialize.c -Fobuild\\win64\\main_initialize.obj",
+    "file": "main_initialize.c",
+    "output": "build/win64/main_initialize.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   main_terminate.c -Fobuild\\win64\\main_terminate.obj",
+    "file": "main_terminate.c",
+    "output": "build/win64/main_terminate.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   main.c -Fobuild\\win64\\main.obj",
+    "file": "main.c",
+    "output": "build/win64/main.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   linspace.c -Fobuild\\win64\\linspace.obj",
+    "file": "linspace.c",
+    "output": "build/win64/linspace.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   kron.c -Fobuild\\win64\\kron.obj",
+    "file": "kron.c",
+    "output": "build/win64/kron.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   CartesianMesh.c -Fobuild\\win64\\CartesianMesh.obj",
+    "file": "CartesianMesh.c",
+    "output": "build/win64/CartesianMesh.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   colon.c -Fobuild\\win64\\colon.obj",
+    "file": "colon.c",
+    "output": "build/win64/colon.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   SolverWaves.c -Fobuild\\win64\\SolverWaves.obj",
+    "file": "SolverWaves.c",
+    "output": "build/win64/SolverWaves.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   HermiteBasis.c -Fobuild\\win64\\HermiteBasis.obj",
+    "file": "HermiteBasis.c",
+    "output": "build/win64/HermiteBasis.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   HermiteEvaluation.c -Fobuild\\win64\\HermiteEvaluation.obj",
+    "file": "HermiteEvaluation.c",
+    "output": "build/win64/HermiteEvaluation.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   assemble.c -Fobuild\\win64\\assemble.obj",
+    "file": "assemble.c",
+    "output": "build/win64/assemble.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   tic.c -Fobuild\\win64\\tic.obj",
+    "file": "tic.c",
+    "output": "build/win64/tic.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   timeKeeper.c -Fobuild\\win64\\timeKeeper.obj",
+    "file": "timeKeeper.c",
+    "output": "build/win64/timeKeeper.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   mapper.c -Fobuild\\win64\\mapper.obj",
+    "file": "mapper.c",
+    "output": "build/win64/mapper.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   sparse.c -Fobuild\\win64\\sparse.obj",
+    "file": "sparse.c",
+    "output": "build/win64/sparse.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   sparse1.c -Fobuild\\win64\\sparse1.obj",
+    "file": "sparse1.c",
+    "output": "build/win64/sparse1.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   assertValidSizeArg.c -Fobuild\\win64\\assertValidSizeArg.obj",
+    "file": "assertValidSizeArg.c",
+    "output": "build/win64/assertValidSizeArg.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   toc.c -Fobuild\\win64\\toc.obj",
+    "file": "toc.c",
+    "output": "build/win64/toc.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   assemble_boundary.c -Fobuild\\win64\\assemble_boundary.obj",
+    "file": "assemble_boundary.c",
+    "output": "build/win64/assemble_boundary.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   binOp.c -Fobuild\\win64\\binOp.obj",
+    "file": "binOp.c",
+    "output": "build/win64/binOp.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   bigProduct.c -Fobuild\\win64\\bigProduct.obj",
+    "file": "bigProduct.c",
+    "output": "build/win64/bigProduct.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   compute_rhs.c -Fobuild\\win64\\compute_rhs.obj",
+    "file": "compute_rhs.c",
+    "output": "build/win64/compute_rhs.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   sum.c -Fobuild\\win64\\sum.obj",
+    "file": "sum.c",
+    "output": "build/win64/sum.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   sumMatrixIncludeNaN.c -Fobuild\\win64\\sumMatrixIncludeNaN.obj",
+    "file": "sumMatrixIncludeNaN.c",
+    "output": "build/win64/sumMatrixIncludeNaN.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   indexShapeCheck.c -Fobuild\\win64\\indexShapeCheck.obj",
+    "file": "indexShapeCheck.c",
+    "output": "build/win64/indexShapeCheck.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   unique.c -Fobuild\\win64\\unique.obj",
+    "file": "unique.c",
+    "output": "build/win64/unique.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   eml_setop.c -Fobuild\\win64\\eml_setop.obj",
+    "file": "eml_setop.c",
+    "output": "build/win64/eml_setop.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   issorted.c -Fobuild\\win64\\issorted.obj",
+    "file": "issorted.c",
+    "output": "build/win64/issorted.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   warning.c -Fobuild\\win64\\warning.obj",
+    "file": "warning.c",
+    "output": "build/win64/warning.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   ComputeErrors.c -Fobuild\\win64\\ComputeErrors.obj",
+    "file": "ComputeErrors.c",
+    "output": "build/win64/ComputeErrors.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   SolutionEval.c -Fobuild\\win64\\SolutionEval.obj",
+    "file": "SolutionEval.c",
+    "output": "build/win64/SolutionEval.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   mtimes.c -Fobuild\\win64\\mtimes.obj",
+    "file": "mtimes.c",
+    "output": "build/win64/mtimes.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   OperatorEval.c -Fobuild\\win64\\OperatorEval.obj",
+    "file": "OperatorEval.c",
+    "output": "build/win64/OperatorEval.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   power.c -Fobuild\\win64\\power.obj",
+    "file": "power.c",
+    "output": "build/win64/power.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   abs.c -Fobuild\\win64\\abs.obj",
+    "file": "abs.c",
+    "output": "build/win64/abs.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   interface\\_coder_main_api.c -Fobuild\\win64\\_coder_main_api.obj",
+    "file": "interface/_coder_main_api.c",
+    "output": "build/win64/_coder_main_api.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   interface\\_coder_main_mex.c -Fobuild\\win64\\_coder_main_mex.obj",
+    "file": "interface/_coder_main_mex.c",
+    "output": "build/win64/_coder_main_mex.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   eml_int_forloop_overflow_check.c -Fobuild\\win64\\eml_int_forloop_overflow_check.obj",
+    "file": "eml_int_forloop_overflow_check.c",
+    "output": "build/win64/eml_int_forloop_overflow_check.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   insertionsort.c -Fobuild\\win64\\insertionsort.obj",
+    "file": "insertionsort.c",
+    "output": "build/win64/insertionsort.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   introsort.c -Fobuild\\win64\\introsort.obj",
+    "file": "introsort.c",
+    "output": "build/win64/introsort.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   heapsort.c -Fobuild\\win64\\heapsort.obj",
+    "file": "heapsort.c",
+    "output": "build/win64/heapsort.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   fillIn.c -Fobuild\\win64\\fillIn.obj",
+    "file": "fillIn.c",
+    "output": "build/win64/fillIn.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   exp.c -Fobuild\\win64\\exp.obj",
+    "file": "exp.c",
+    "output": "build/win64/exp.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   eml_mtimes_helper.c -Fobuild\\win64\\eml_mtimes_helper.obj",
+    "file": "eml_mtimes_helper.c",
+    "output": "build/win64/eml_mtimes_helper.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   function_handle.c -Fobuild\\win64\\function_handle.obj",
+    "file": "function_handle.c",
+    "output": "build/win64/function_handle.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   main_emxutil.c -Fobuild\\win64\\main_emxutil.obj",
+    "file": "main_emxutil.c",
+    "output": "build/win64/main_emxutil.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   main_mexutil.c -Fobuild\\win64\\main_mexutil.obj",
+    "file": "main_mexutil.c",
+    "output": "build/win64/main_mexutil.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   interface\\_coder_main_info.c -Fobuild\\win64\\_coder_main_info.obj",
+    "file": "interface/_coder_main_info.c",
+    "output": "build/win64/_coder_main_info.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   \"C:\\Program Files\\MATLAB\\R2021b\\extern\\version\\c_mexapi_version.c\" -Fobuild\\win64\\c_mexapi_version.obj",
+    "file": "C:/Program Files/MATLAB/R2021b/extern/version/c_mexapi_version.c",
+    "output": "build/win64/c_mexapi_version.obj"
+  },
+  {
+    "directory": "C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\\codegen\\mex\\main",
+    "command": "lcc64 -nodeclspec -Zp8 -dll -c -I\"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\include64\" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I\".\" -I\"C:\\Users\\paolo\\Documents\\Coercive Wave Equation\\CoerciveWaves_tests\" -I\".\\CXSparse\\Include\" -I\".\\CXSparse\\SuiteSparse_config\" -I\".\\CXSparse\\CXSparseSupport\" -I\".\\interface\" -I\"C:\\Program Files\\MATLAB\\R2021b\\extern\\include\" -I\".\" -DMODEL=main_mex   \"C:\\Program Files\\MATLAB\\R2021b\\sys\\lcc64\\lcc64\\mex\\lccstub.c\" -Fobuild\\win64\\lccstub.obj",
+    "file": "C:/Program Files/MATLAB/R2021b/sys/lcc64/lcc64/mex/lccstub.c",
+    "output": "build/win64/lccstub.obj"
+  }
+]

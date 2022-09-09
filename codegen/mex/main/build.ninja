@@ -1,0 +1,97 @@
+# CompilerName=lcc64
+# Mode=optim
+ninja_required_version = 1.3
+
+# Basic folders
+root = .
+builddir = $root\build\win64
+matlabdir = C:\Program Files\MATLAB\R2021b
+startdir = C:\Users\paolo\Documents\Coercive Wave Equation\CoerciveWaves_tests
+
+# Toolchain information
+cc = lcc64
+cxx = 
+linker = lcclnk64
+linkerxx = 
+
+cflags =  -nodeclspec -Zp8 -dll -c -I"$matlabdir\sys\lcc64\lcc64\include64" -DMATLAB_MEX_FILE -noregistrylookup -DNDEBUG -I"$root" -I"$startdir" -I"$root\CXSparse\Include" -I"$root\CXSparse\SuiteSparse_config" -I"$root\CXSparse\CXSparseSupport" -I"$root\interface" -I"$matlabdir\extern\include" -I"." -DMODEL=main_mex  
+
+cxxflags =  -I"$root" -I"$startdir" -I"$root\CXSparse\Include" -I"$root\CXSparse\SuiteSparse_config" -I"$root\CXSparse\CXSparseSupport" -I"$root\interface" -I"$matlabdir\extern\include" -I"." -DMODEL=main_mex  
+
+ldflags =  -dll -L"$matlabdir\sys\lcc64\lcc64\lib64" -L"$matlabdir\extern\lib\win64\microsoft" -entry LibMain libmx.lib libmex.lib libmat.lib libemlrt.lib libcovrt.lib libut.lib libmwmathutil.lib -o main_mex.mexw64 -s -L"$matlabdir\extern\lib\win64\microsoft" libmwblas.lib  main_mex.def
+
+# Build Rules
+rule cc
+    command = $cc $cflags $in -Fo$out
+
+rule cxx
+    command = $cxx $cxxflags $in -Fo$out
+
+rule link
+    command = $linker $in $ldflags
+
+rule linkxx
+    command = $linkerxx $in $ldflags
+
+# Build
+build $builddir\cs_ri_bundle.obj : cc $root\CXSparse\Source\cs_ri_bundle.c
+build $builddir\cs_ci_bundle.obj : cc $root\CXSparse\Source\cs_ci_bundle.c
+build $builddir\solve_from_lu.obj : cc $root\CXSparse\CXSparseSupport\solve_from_lu.c
+build $builddir\solve_from_qr.obj : cc $root\CXSparse\CXSparseSupport\solve_from_qr.c
+build $builddir\makeCXSparseMatrix.obj : cc $root\CXSparse\CXSparseSupport\makeCXSparseMatrix.c
+build $builddir\unpackCXStruct.obj : cc $root\CXSparse\CXSparseSupport\unpackCXStruct.c
+build $builddir\main_data.obj : cc $root\main_data.c
+build $builddir\rt_nonfinite.obj : cc $root\rt_nonfinite.c
+build $builddir\main_initialize.obj : cc $root\main_initialize.c
+build $builddir\main_terminate.obj : cc $root\main_terminate.c
+build $builddir\main.obj : cc $root\main.c
+build $builddir\linspace.obj : cc $root\linspace.c
+build $builddir\kron.obj : cc $root\kron.c
+build $builddir\CartesianMesh.obj : cc $root\CartesianMesh.c
+build $builddir\colon.obj : cc $root\colon.c
+build $builddir\SolverWaves.obj : cc $root\SolverWaves.c
+build $builddir\HermiteBasis.obj : cc $root\HermiteBasis.c
+build $builddir\HermiteEvaluation.obj : cc $root\HermiteEvaluation.c
+build $builddir\assemble.obj : cc $root\assemble.c
+build $builddir\tic.obj : cc $root\tic.c
+build $builddir\timeKeeper.obj : cc $root\timeKeeper.c
+build $builddir\mapper.obj : cc $root\mapper.c
+build $builddir\sparse.obj : cc $root\sparse.c
+build $builddir\sparse1.obj : cc $root\sparse1.c
+build $builddir\assertValidSizeArg.obj : cc $root\assertValidSizeArg.c
+build $builddir\toc.obj : cc $root\toc.c
+build $builddir\assemble_boundary.obj : cc $root\assemble_boundary.c
+build $builddir\binOp.obj : cc $root\binOp.c
+build $builddir\bigProduct.obj : cc $root\bigProduct.c
+build $builddir\compute_rhs.obj : cc $root\compute_rhs.c
+build $builddir\sum.obj : cc $root\sum.c
+build $builddir\sumMatrixIncludeNaN.obj : cc $root\sumMatrixIncludeNaN.c
+build $builddir\indexShapeCheck.obj : cc $root\indexShapeCheck.c
+build $builddir\unique.obj : cc $root\unique.c
+build $builddir\eml_setop.obj : cc $root\eml_setop.c
+build $builddir\issorted.obj : cc $root\issorted.c
+build $builddir\warning.obj : cc $root\warning.c
+build $builddir\ComputeErrors.obj : cc $root\ComputeErrors.c
+build $builddir\SolutionEval.obj : cc $root\SolutionEval.c
+build $builddir\mtimes.obj : cc $root\mtimes.c
+build $builddir\OperatorEval.obj : cc $root\OperatorEval.c
+build $builddir\power.obj : cc $root\power.c
+build $builddir\abs.obj : cc $root\abs.c
+build $builddir\_coder_main_api.obj : cc $root\interface\_coder_main_api.c
+build $builddir\_coder_main_mex.obj : cc $root\interface\_coder_main_mex.c
+build $builddir\eml_int_forloop_overflow_check.obj : cc $root\eml_int_forloop_overflow_check.c
+build $builddir\insertionsort.obj : cc $root\insertionsort.c
+build $builddir\introsort.obj : cc $root\introsort.c
+build $builddir\heapsort.obj : cc $root\heapsort.c
+build $builddir\fillIn.obj : cc $root\fillIn.c
+build $builddir\exp.obj : cc $root\exp.c
+build $builddir\eml_mtimes_helper.obj : cc $root\eml_mtimes_helper.c
+build $builddir\function_handle.obj : cc $root\function_handle.c
+build $builddir\main_emxutil.obj : cc $root\main_emxutil.c
+build $builddir\main_mexutil.obj : cc $root\main_mexutil.c
+build $builddir\_coder_main_info.obj : cc $root\interface\_coder_main_info.c
+build $builddir\c_mexapi_version.obj : cc $matlabdir\extern\version\c_mexapi_version.c
+build $builddir\lccstub.obj : cc $matlabdir\sys\lcc64\lcc64\mex\lccstub.c
+
+# Link
+build $root\main_mex.mexw64 : link $builddir\cs_ri_bundle.obj $builddir\cs_ci_bundle.obj $builddir\solve_from_lu.obj $builddir\solve_from_qr.obj $builddir\makeCXSparseMatrix.obj $builddir\unpackCXStruct.obj $builddir\main_data.obj $builddir\rt_nonfinite.obj $builddir\main_initialize.obj $builddir\main_terminate.obj $builddir\main.obj $builddir\linspace.obj $builddir\kron.obj $builddir\CartesianMesh.obj $builddir\colon.obj $builddir\SolverWaves.obj $builddir\HermiteBasis.obj $builddir\HermiteEvaluation.obj $builddir\assemble.obj $builddir\tic.obj $builddir\timeKeeper.obj $builddir\mapper.obj $builddir\sparse.obj $builddir\sparse1.obj $builddir\assertValidSizeArg.obj $builddir\toc.obj $builddir\assemble_boundary.obj $builddir\binOp.obj $builddir\bigProduct.obj $builddir\compute_rhs.obj $builddir\sum.obj $builddir\sumMatrixIncludeNaN.obj $builddir\indexShapeCheck.obj $builddir\unique.obj $builddir\eml_setop.obj $builddir\issorted.obj $builddir\warning.obj $builddir\ComputeErrors.obj $builddir\SolutionEval.obj $builddir\mtimes.obj $builddir\OperatorEval.obj $builddir\power.obj $builddir\abs.obj $builddir\_coder_main_api.obj $builddir\_coder_main_mex.obj $builddir\eml_int_forloop_overflow_check.obj $builddir\insertionsort.obj $builddir\introsort.obj $builddir\heapsort.obj $builddir\fillIn.obj $builddir\exp.obj $builddir\eml_mtimes_helper.obj $builddir\function_handle.obj $builddir\main_emxutil.obj $builddir\main_mexutil.obj $builddir\_coder_main_info.obj $builddir\c_mexapi_version.obj $builddir\lccstub.obj 
