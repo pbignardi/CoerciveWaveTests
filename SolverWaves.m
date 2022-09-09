@@ -231,7 +231,7 @@ function [u, Kcond] = SolverWaves(problem, domain, mesh, disc, varargin)
     
     %% Post-processing solution
     % Compute condest of matrix K :TODO
-    Kcond = condest(K(internal,internal));
+    %Kcond = condest(K(internal,internal));
     %Kcond = condest(K);
 
     %% Internal stiffness conditioning

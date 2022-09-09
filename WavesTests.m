@@ -11,17 +11,21 @@ p = WaveProblem(7);
 % Define domain
 Q = Domain(-1, 1, 1);
 % Discretise the domain
-nx = 128; nt = 128;
+nx = 64; nt = 64;
 d = Discretization(nx, nt, Q);
 % Build mesh
 mesh = CartesianMesh(d);
 
 %% Custom form parameters
 form = struct();
-form.A  = 1;
-form.nu = 2;
-form.xi = 1;
-form.beta = 10;
+
+form.A       = 1;
+form.nu      = 2;
+form.xi      = 1;
+form.beta    = form.xi / (form.nu - 1) * min([Q.L/(p.c*Q.T) + 1, ...
+                Q.L/(p.c*Q.T) * (Q.delta * p.theta + (Q.delta * p.theta)^(-1))]);
+
+C = min(form.A/Q.T^2, form.xi * Q.delta / 4);
 
 %% Solve problem
 u = SolverWaves(p, Q, mesh, d);

@@ -1,32 +1,43 @@
 function mesh = CartesianMesh(disc)
     % Enumerate the nodes and construct the elements by their indices.
     % Nodes are ordered according to Kronecker product of T and X.
-    mesh = struct();
     %% Unpacking parameters
     nx = disc.nx;
     nt = disc.nt;
     n_nodes = (nx + 1) * (nt + 1);
     n_elms = nx * nt;
     %% Enumerate nodes and pivots
-    mesh.ids = 1:n_nodes;
-    mesh.pivots = mesh.ids(and(...
-        mod(mesh.ids, nx + 1), ...
-        mesh.ids <= (nx + 1) * nt));
+    ids = 1:n_nodes;
+    pivots = ids(and(...
+        mod(ids, nx + 1), ...
+        ids <= (nx + 1) * nt));
     %% Build and enumerate elements
-    mesh.elms = zeros(nx * nt, 4);
+    elms = zeros(nx * nt, 4);
     for e = 1:n_elms
-        p = mesh.pivots(e);
-        mesh.elms(e, :) = [p, p + 1, p + nx + 1, p + nx + 2];
+        p = pivots(e);
+        elms(e, :) = [p, p + 1, p + nx + 1, p + nx + 2];
     end
     %% Boundary definition
-    mesh.bot    = 1:(nx + 1);
-    mesh.top    = mesh.ids(end - nx:end);
-    mesh.left   = 1:(nx + 1):n_nodes;
-    mesh.right  = (nx+1):(nx + 1):n_nodes;
+    bot    = 1:(nx + 1);
+    top    = ids(end - nx:end);
+    left   = 1:(nx + 1):n_nodes;
+    right  = (nx+1):(nx + 1):n_nodes;
 
     %% Boundary elments
-    mesh.bot_elms   = 1:nx;
-    mesh.top_elms   = ((nx - 1) * nt + 1):n_elms;
-    mesh.left_elms  = 1:nt:n_elms;
-    mesh.right_elms = nx:nt:n_elms;
+    bot_elms   = 1:nx;
+    top_elms   = ((nx - 1) * nt + 1):n_elms;
+    left_elms  = 1:nt:n_elms;
+    right_elms = nx:nt:n_elms;
+
+    mesh = struct("ids", ids, ...
+        "pivots", pivots, ...
+        "elms", elms, ...
+        "bot", bot, ...
+        "top", top, ...
+        "left", left, ...
+        "right", right, ...
+        "bot_elms", bot_elms, ...
+        "top_elms", top_elms, ...
+        "left_elms", left_elms, ...
+        "right_elms", right_elms);
 end

@@ -119,8 +119,10 @@ function F = compute_rhs(p, mesh, disc, parameters)
     end
 
     %% Omega0- Element-wise assembly
-    for e = bot_elms
+    n_bot_elms = length(bot_elms);
+    for ie = 1:n_bot_elms
         % Get element nodes and DOFs
+        e = bot_elms(ie);
         el_ids  = elms(e, :);
         el_dofs = mapper(el_ids, nx, nt);
         
@@ -139,8 +141,10 @@ function F = compute_rhs(p, mesh, disc, parameters)
     end
 
     %% Sigma=a- Element-wise assembly
-    for e = left_elms
+    n_left_elms = length(left_elms);
+    for ie = 1:n_left_elms
         % Get element nodes and DOFs
+        e = left_elms(ie);
         el_ids  = elms(e, :);
         el_dofs = mapper(el_ids, nx, nt);
 
@@ -157,8 +161,10 @@ function F = compute_rhs(p, mesh, disc, parameters)
     end
 
     %% Sigma=b- Element-wise assembly
-    for e = right_elms
+    n_right_elms = length(right_elms);
+    for ie = 1:n_right_elms
         % Get element nodes and DOFs
+        e = right_elms(ie);
         el_ids  = elms(e, :);
         el_dofs = mapper(el_ids, nx, nt);
 

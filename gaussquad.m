@@ -9,6 +9,7 @@ function [x, w] = gaussquad(n)
         % Initial estimate.
         z = cos(pi*(ii-.25)/(n+.5));                        
         z1 = z+1;
+        pp = 0;
         while abs(z-z1)>eps
             p1 = 1;
             p2 = 0;

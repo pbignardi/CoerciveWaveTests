@@ -1,27 +1,11 @@
 function problem = WaveProblem(prob_num)
     problem = struct();
     switch prob_num
-        %% Null problem
-        case 0
-            % Data functions
-            problem.f   = @(x,t) x.* 0;
-            problem.g   = @(x,t) x.*0;
-            problem.u0  = @(x) x.*0;
-            problem.u1  = @(x) x.*0;
-            
-            % Parameters
-            problem.c       = 1;
-            problem.theta   = 1;
-            
-            % Exact solution
-            problem.u       = @(x,t) 0;
-            problem.dx_u    = @(x,t) t.^2 .* (-pi*sin(pi*x));
-            problem.dt_u    = @(x,t) 2 * t .* (cos(pi * x) + 1);
         %% Dirichlet Poisson problem
         case 1
             % Data functions
             problem.f   = @(x,t) x.*0 + t.*0;
-            problem.g   = @(x,t) x.*0;
+            problem.g   = @(x,t) x.*0 + t.*0;
             problem.u0  = @(x) x.*0;
             problem.u1  = @(x) x.*0;
             
@@ -36,7 +20,7 @@ function problem = WaveProblem(prob_num)
         %% Plane wave problem
         case 2
             % Data functions
-            problem.f   = @(x,t) x.*0;
+            problem.f   = @(x,t) x.*0 + t.*0;
             problem.g   = @(x,t) x.*0 + t.*0;
             problem.u0  = @(x) -5*sin(5*x);
             problem.u1  = @(x) sin(5*x);
@@ -54,7 +38,7 @@ function problem = WaveProblem(prob_num)
             % Data functions
             problem.f   = @(x,t) 2 * (cos(pi * x) + 1) + ...
                                 t.^2 .* (pi^2 * cos(pi*x));
-            problem.g   = @(x,t) x.*0;
+            problem.g   = @(x,t) x.*0 + t.*0;
             problem.u0  = @(x) x.*0;
             problem.u1  = @(x) x.*0;
             
@@ -73,7 +57,7 @@ function problem = WaveProblem(prob_num)
             % Data functions
             problem.f   = @(x,t) 2 * (cos(pi * x) + 1) .* cos(2*t) + ...
                         pi^2 * cos(pi * x) .* sin(t).^2;
-            problem.g   = @(x,t) x.*0;
+            problem.g   = @(x,t) x.*0 + t.*0;
             problem.u0  = @(x) x.*0;
             problem.u1  = @(x) x.*0;
             
@@ -91,8 +75,8 @@ function problem = WaveProblem(prob_num)
         %% Non-homogeneous boundary
         case 5
             % Data functions
-            problem.f   = @(x,t) x.*0;
-            problem.g   = @(x,t) x.*0;
+            problem.f   = @(x,t) x.*0 + t.*0;
+            problem.g   = @(x,t) x.*0 + t.*0;
             problem.u0  = @(x) -sin(x);
             problem.u1  = @(x) x.*0;
             
