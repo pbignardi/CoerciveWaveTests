@@ -18,6 +18,9 @@ function [u, Kcond] = SolverWaves(problem, domain, mesh, disc, varargin)
     ht = disc.ht;
     
     % Boundary unpacking
+    top     = mesh.top;
+    left    = mesh.left;
+    right   = mesh.right;
     bot     = mesh.bot;
 
     % Boundary elms unpacking
@@ -27,11 +30,12 @@ function [u, Kcond] = SolverWaves(problem, domain, mesh, disc, varargin)
     
     % Formulation unpacking
     if isempty(varargin)
-        A       = 1;
         nu      = 2;
         xi      = 1;
         beta    = xi / (nu - 1) * min([L/(c*T) + 1, ...
                 L/(c*T) * (delta * theta + (delta * theta)^(-1))]);
+        %A       = T^2 * xi * delta / 4;
+        A       = 1;
     elseif length(varargin) == 1
         form = varargin{1};
         A   = form.A;
@@ -64,7 +68,8 @@ function [u, Kcond] = SolverWaves(problem, domain, mesh, disc, varargin)
     d = 1;
     x_var = 1;
     t_var = 2;
-    
+    poisson = 1;
+
     %% Local operator structs
     Xb = HermiteBasis(hx);
     Tb = HermiteBasis(ht);
@@ -201,17 +206,24 @@ function [u, Kcond] = SolverWaves(problem, domain, mesh, disc, varargin)
     % Sigma=b boundary
     Kb = assemble_boundary(KlocSb, mesh, disc, right_elms, t_var);
     %% Global matrix computation
-    K = KQ;
-    K = K + KT;
-    K = K + Ka + Kb; 
+    if poisson == 1
+        Kloc = kron(Tb.d0d0, Xb.d1d1) + kron(Tb.d1d1, Xb.d0d0);
+        K = assembleLS(Kloc, mesh, disc);
+    else
+        K = KQ;
+        K = K + KT;
+        K = K + Ka + Kb; 
+    end
+    
     %% Load vector assembly
     F = compute_rhs(problem, mesh, disc, parameters);
     
     %% Imposing boundary conditions
     initial_dofs = unique([bot n_nodes+bot 2*n_nodes+bot 3*n_nodes+bot]);
-    
+    int_dofs = unique([bot top left right ...
+        bot + n_nodes top + n_nodes left + 2*n_nodes right + 2*n_nodes]);
     % Internal DOFs. Remove initial condition dofs
-    internal = setdiff(dofs, initial_dofs);    
+    internal = setdiff(dofs, int_dofs);    
     %% Imposive null mean initial condition
     % Problema: il sistema lineare non è più quadrato... È un problema?
     % Proposta: Risolvere il problema senza il vincolo della media nulla,
@@ -219,20 +231,34 @@ function [u, Kcond] = SolverWaves(problem, domain, mesh, disc, varargin)
     K(end, bot) = hx * ones(1, length(bot));
 
     %% Solving
-    u = zeros(ndofs + 1, 1);
+    if poisson == 1
+        u = zeros(ndofs, 1);
+        u(internal) = K(internal, internal) \ F(internal);
+    else
+        u = zeros(ndofs + 1, 1);
+        % Start timer
+        tic
+        u(1:end-1) = K(1:end-1, :) \ F(1:end-1);
+        %u = K \ F;
+        %u = lsqr(K, F);
+        
+        solving_time = toc;
+        % Log time result
+        fprintf("Linear system solving time:\t %.4f seconds\n", solving_time);
+    end
     
-    % Start timer
-    tic
-    u = K \ F;
     
-    solving_time = toc;
-    % Log time result
-    fprintf("Linear system solving time:\t %.4f seconds\n", solving_time);
+    
     
     %% Post-processing solution
     % Compute condest of matrix K :TODO
-    Kcond = condest(K(internal,internal));
-    %Kcond = condest(K);
+    %Kcond = condest(K(internal,internal));
+    %Kcond = condest(K(1:end-1,:));
+
+    % Compute mean
+    omega0_mean = ComputeMean(u, 0, mesh, disc);
+    % Remove computed mean
+    %u = u - omega0_mean;
 
     %% Internal stiffness conditioning
     %fprintf("Condition number is: %e \n", condest(K(internal, internal)))

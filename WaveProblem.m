@@ -4,9 +4,9 @@ function problem = WaveProblem(prob_num)
         %% Null problem
         case 0
             % Data functions
-            problem.f   = @(x,t) x.* 0;
+            problem.f   = @(x,t) x .* 0 + t .* 0 + 1;
             problem.g   = @(x,t) x.*0;
-            problem.u0  = @(x) x.*0;
+            problem.du0 = @(x) x.*0;
             problem.u1  = @(x) x.*0;
             
             % Parameters
@@ -20,14 +20,19 @@ function problem = WaveProblem(prob_num)
         %% Dirichlet Poisson problem
         case 1
             % Data functions
-            problem.f   = @(x,t) x.*0 + t.*0;
+            a = 1000;
+            % Define gaussian and derivatives
+            n   = @(x, c) exp(-a*(x - c).^2);
+
+            problem.f   = @(x,t) n(x, 0) .* sin(pi * 4 * t);
             problem.g   = @(x,t) x.*0;
+            problem.du0 = @(x) x.*0;
             problem.u0  = @(x) x.*0;
             problem.u1  = @(x) x.*0;
             
             % Parameters
             problem.c       = 1;
-            problem.theta   = 1;
+            problem.theta   = 4;
             
             % Exact solution
             problem.u       = @(x,t) (x.^2 - 1) .* (t.^2 - t);
@@ -38,7 +43,7 @@ function problem = WaveProblem(prob_num)
             % Data functions
             problem.f   = @(x,t) x.*0;
             problem.g   = @(x,t) x.*0 + t.*0;
-            problem.u0  = @(x) -5*sin(5*x);
+            problem.du0  = @(x) -5*sin(5*x);
             problem.u1  = @(x) sin(5*x);
             
             % Parameters
@@ -55,6 +60,7 @@ function problem = WaveProblem(prob_num)
             problem.f   = @(x,t) 2 * (cos(pi * x) + 1) + ...
                                 t.^2 .* (pi^2 * cos(pi*x));
             problem.g   = @(x,t) x.*0;
+            problem.du0 = @(x) x.*0;
             problem.u0  = @(x) x.*0;
             problem.u1  = @(x) x.*0;
             
@@ -74,6 +80,7 @@ function problem = WaveProblem(prob_num)
             problem.f   = @(x,t) 2 * (cos(pi * x) + 1) .* cos(2*t) + ...
                         pi^2 * cos(pi * x) .* sin(t).^2;
             problem.g   = @(x,t) x.*0;
+            problem.du0 = @(x) x.*0;
             problem.u0  = @(x) x.*0;
             problem.u1  = @(x) x.*0;
             
@@ -93,7 +100,7 @@ function problem = WaveProblem(prob_num)
             % Data functions
             problem.f   = @(x,t) x.*0;
             problem.g   = @(x,t) x.*0;
-            problem.u0  = @(x) -sin(x);
+            problem.du0  = @(x) -sin(x);
             problem.u1  = @(x) x.*0;
             
             % Parameters
@@ -110,7 +117,7 @@ function problem = WaveProblem(prob_num)
             problem.f   = @(x,t) 2*x.^2 - 2*t.^2;
             problem.g   = @(x,t) 2 * abs(x) .* t.^2 + 2 * x.^2 .* t;
             %problem.g   = @(x,t) x.*0 + t.*0;
-            problem.u0  = @(x) x.*0;
+            problem.du0 = @(x) x.*0;
             problem.u1  = @(x) x.*0;
 
             %Parameters
@@ -143,8 +150,93 @@ function problem = WaveProblem(prob_num)
             dw  = @(x) dn(x, 0.1) - dn(x, -0.1); 
             ddw = @(x) ddn(x, 0.1) - ddn(x, -0.1);
 
-            problem.u0  = @(x) dw(x) - phi * dw(2 - x);
+            problem.du0 = @(x) dw(x) - phi * dw(2 - x);
+            problem.u0  = @(x) w(x) + phi * w(2 - x);
             problem.u1  = @(x) - c * dw(x) - c * phi * dw(2 - x);
+
+            problem.u       = @(x,t) w(x - c*t) + phi * w(2 - x - c*t);
+            problem.dx_u    = @(x,t) dw(x - c*t) - phi * dw(2 - x - c*t);
+            problem.dt_u    = @(x,t) -c * dw(x - c*t) - ...
+                                     c * phi * dw(2 - x - c*t);
+            problem.ddx_u   = @(x,t) ddw(x - c*t) + phi * ddw(2 - x - c*t);
+            problem.ddt_u   = @(x,t) c^2*(ddw(x - c*t) + phi * ddw(2 - x - c*t));
+        case 8
+            c = 2;
+            problem.c       = c;
+            problem.theta   = 100;
+            phi = (1 - 1/problem.theta)/(1 + 1/problem.theta);
+
+            problem.f   = @(x,t) x.*0 + t.*0;
+            problem.g   = @(x,t) x.*0 + t.*0;
+            a = 20;
+            % Define gaussian and derivatives
+            n   = @(x, c) exp(-a*(x - c).^2);
+            dn  = @(x, c) a*exp(-a*(c - x).^2).*(2*c - 2*x);
+            ddn = @(x, c) a^2*exp(-a*(c - x).^2).*(2*c - 2*x).^2 - ... 
+                            2*a*exp(-a*(c - x).^2);
+            % Define initial wave
+            w   = @(x) n(x, 0.1) - n(x, -0.1);
+            dw  = @(x) dn(x, 0.1) - dn(x, -0.1); 
+            ddw = @(x) ddn(x, 0.1) - ddn(x, -0.1);
+
+            problem.du0  = @(x) dw(x) - phi * dw(2 - x);
+            problem.u1  = @(x) - c * dw(x) - c * phi * dw(2 - x);
+
+            problem.u       = @(x,t) w(x - c*t) + phi * w(2 - x - c*t);
+            problem.dx_u    = @(x,t) dw(x - c*t) - phi * dw(2 - x - c*t);
+            problem.dt_u    = @(x,t) -c * dw(x - c*t) - ...
+                                     c * phi * dw(2 - x - c*t);
+            problem.ddx_u   = @(x,t) ddw(x - c*t) + phi * ddw(2 - x - c*t);
+            problem.ddt_u   = @(x,t) c^2*(ddw(x - c*t) + phi * ddw(2 - x - c*t));
+        case 9
+            c = 2;
+            problem.c       = c;
+            problem.theta   = 1;
+            phi = (1 - 1/problem.theta)/(1 + 1/problem.theta);
+
+            problem.f   = @(x,t) x.*0 + t.*0;
+            problem.g   = @(x,t) x.*0 + t.*0;
+            a = 20;
+            % Define gaussian and derivatives
+            n   = @(x, c) exp(-a*(x - c).^2);
+            dn  = @(x, c) a*exp(-a*(c - x).^2).*(2*c - 2*x);
+            ddn = @(x, c) a^2*exp(-a*(c - x).^2).*(2*c - 2*x).^2 - ... 
+                            2*a*exp(-a*(c - x).^2);
+            % Define initial wave
+            w   = @(x) n(x, 0.1) - n(x, -0.1);
+            dw  = @(x) dn(x, 0.1) - dn(x, -0.1); 
+            ddw = @(x) ddn(x, 0.1) - ddn(x, -0.1);
+
+            problem.du0  = @(x) dw(x) - phi * dw(2 - x);
+            problem.u1  = @(x) - c * dw(x) - c * phi * dw(2 - x);
+
+            problem.u       = @(x,t) w(x - c*t) + phi * w(2 - x - c*t);
+            problem.dx_u    = @(x,t) dw(x - c*t) - phi * dw(2 - x - c*t);
+            problem.dt_u    = @(x,t) -c * dw(x - c*t) - ...
+                                     c * phi * dw(2 - x - c*t);
+            problem.ddx_u   = @(x,t) ddw(x - c*t) + phi * ddw(2 - x - c*t);
+            problem.ddt_u   = @(x,t) c^2*(ddw(x - c*t) + phi * ddw(2 - x - c*t));
+        case 10
+            c = 2;
+            problem.c       = c;
+            problem.theta   = 1;
+            phi = (1 - 1/problem.theta)/(1 + 1/problem.theta);
+
+            problem.f   = @(x,t) x.*0 + t.*0;
+            problem.g   = @(x,t) x.*0 + t.*0;
+            a = 20;
+            % Define gaussian and derivatives
+            n   = @(x, c) exp(-a*(x - c).^2);
+            dn  = @(x, c) a*exp(-a*(c - x).^2).*(2*c - 2*x);
+            ddn = @(x, c) a^2*exp(-a*(c - x).^2).*(2*c - 2*x).^2 - ... 
+                            2*a*exp(-a*(c - x).^2);
+            % Define initial wave
+            w   = @(x) n(x, 0.1) - n(x, -0.1);
+            dw  = @(x) dn(x, 0.1) - dn(x, -0.1); 
+            ddw = @(x) ddn(x, 0.1) - ddn(x, -0.1);
+
+            problem.du0  = @(x) dn(x, 0);
+            problem.u1  = @(x) x.*0;
 
             problem.u       = @(x,t) w(x - c*t) + phi * w(2 - x - c*t);
             problem.dx_u    = @(x,t) dw(x - c*t) - phi * dw(2 - x - c*t);

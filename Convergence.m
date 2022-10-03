@@ -6,13 +6,13 @@ addpath(genpath("local_stiffness"));
 
 %% Define problem, discretization and mesh
 % Create simple problem
-p = WaveProblem(4);
+p = WaveProblem(7);
 % Define domain
 Q = Domain(-1, 1, 1);
 % Choose error norms
-errs = ["l2", "h1", "op", "cond"];
+errs = ["l2", "h1", "op"];
 %% Iterate for different number of elements
-N = [4, 8, 16, 32, 64, 100, 128];
+N = [4, 8, 16, 32, 64, 128];
 L2errors = zeros(length(N), 1);
 H1errors = zeros(length(N), 1);
 GRerrors = zeros(length(N), 1);
@@ -29,17 +29,20 @@ for n = N
     mesh = CartesianMesh(d);
     
     form = struct();
-    form.A = 1000;
+    form.A = 0.125;
     form.nu = 2;
     form.xi = 1;
     form.beta = 20;
 
     % Solve problem
-    [u, Kcond] = SolverWaves(p, Q, mesh, d);
+    [u, Kcond] = SolverWaves(p, Q, mesh, d, form);
+    omega0_mean = ComputeMean(u, 0, mesh, d);
+    u = MeanShift(u, omega0_mean, mesh);
+
     
     
     % Compute errors
-    errors = ComputeErrors(u, p, mesh, d, "relative");
+    errors = ComputeErrors(u, p, mesh, d, "absolute");
     L2errors(i) = errors.L2E;
     H1errors(i) = errors.H1E;
     GRerrors(i) = errors.GRE;

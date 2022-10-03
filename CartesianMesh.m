@@ -22,7 +22,7 @@ function mesh = CartesianMesh(disc)
     mesh.bot    = 1:(nx + 1);
     mesh.top    = mesh.ids(end - nx:end);
     mesh.left   = 1:(nx + 1):n_nodes;
-    mesh.right  = (nx+1):(nx + 1):n_nodes;
+    mesh.right  = (nx + 1):(nx + 1):n_nodes;
 
     %% Boundary elments
     mesh.bot_elms   = 1:nx;

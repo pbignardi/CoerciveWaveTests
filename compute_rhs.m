@@ -13,8 +13,9 @@ function F = compute_rhs(p, mesh, disc, parameters)
     % Problem parameters
     f   = p.f;
     g   = p.g;
-    u0x = p.u0;
+    u0x = p.du0;
     u1  = p.u1;
+    poisson = 1;
 
     % Formulation parameters
     A       = parameters.A;
@@ -105,7 +106,7 @@ function F = compute_rhs(p, mesh, disc, parameters)
         el_tq = ttqh + tt(pivots(e));
         % Function f local evaluation
         f_eval = f(el_xq, el_tq);
-        
+
         %% Q domain integral
         % Compute Zv
         Zv = - el_xq .* gradv_Q * xi + (el_tq - Tstar) .* vt_Q * beta;
@@ -172,5 +173,27 @@ function F = compute_rhs(p, mesh, disc, parameters)
         Zv_bound = - b * vx_b * xi + (el_tq - Tstar) .* vt_b * beta;
         local_rhs_b = sum(Zv_bound .* G .* wqt).';
         F(el_dofs) = F(el_dofs) - c^2 * local_rhs_b;
+    end
+    
+    if poisson == 1
+        F = zeros(ndofs, 1);
+        for e = 1:n_elms
+            % Get element nodes and DOFs
+            el_ids  = elms(e, :);
+            el_dofs = mapper(el_ids, nx, nt);
+            % Move quadrature nodes
+            el_xq = xxqh + xx(pivots(e));
+            el_tq = ttqh + tt(pivots(e));
+            % Function f local evaluation
+            f_eval = f(el_xq, el_tq);
+    
+            %% Q domain integral
+            % Compute Zv
+            % Integrate using Gauss quadrature
+            local_rhs_Q = sum( f_eval .* kron(psi_T, psi_X) .* wqxt).';
+            
+            %% Sigma=a domain integral
+            F(el_dofs) = F(el_dofs) + local_rhs_Q;
+        end
     end
 end
