@@ -12,7 +12,7 @@ Q = Domain(-1, 1, 1);
 % Choose error norms
 errs = ["l2", "h1", "graph", "cond"];
 %% Iterate for different number of elements
-N = [4, 8, 16, 32, 64, 128, 256];
+N = [4, 8, 16, 32, 64];
 L2errors = zeros(length(N), 1);
 H1errors = zeros(length(N), 1);
 GRerrors = zeros(length(N), 1);
@@ -59,7 +59,7 @@ PURPLE  = "#7E2F8E";
 
 Hx = (Q.xmax - Q.xmin) ./ N;
 Ht = Q.T ./ N;
-H = sqrt(Hx .^ 2 + Ht .^ 2);
+H = sqrt(Hx .^ 2 + Ht .^ 2).';
 
 lgd_entries = {}; 
 for err = errs
@@ -98,6 +98,9 @@ end
 
 legend(lgd_entries, ...
     "Location", "southeast", "NumColumns", legend_cols);
+
+results = [H, L2errors, H1errors, OPerrors, Kconds];
+writematrix(results, "test_results/ls_convergence.csv");
 
 function loglog_plot(x, y, line_style, linewidth, color, markersize)
     loglog(x, y, line_style, ...
