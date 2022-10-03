@@ -10,9 +10,9 @@ p = WaveProblem(7);
 % Define domain
 Q = Domain(-1, 1, 1);
 % Choose error norms
-errs = ["l2", "h1", "graph", "cond"];
+errs = ["l2", "h1", "op", "cond"];
 %% Iterate for different number of elements
-N = [4, 8, 16, 32, 64];
+N = [2, 4, 8, 16, 32, 64, 128, 256, 512];
 L2errors = zeros(length(N), 1);
 H1errors = zeros(length(N), 1);
 GRerrors = zeros(length(N), 1);
