@@ -4,14 +4,15 @@ clc
 %clear
 close all
 addpath(genpath("local_stiffness"));
-
+global poisson;
+poisson = 1;
 %% Define problem, discretization and mesh
 % Create simple problem
 p = WaveProblem(0);
 % Define domain
 Q = Domain(-1, 1, 1);
 % Discretise the domain
-nx = 4; nt = 10;
+nx = 10; nt = 10;
 d = Discretization(nx, nt, Q);
 % Build mesh
 mesh = CartesianMesh(d);

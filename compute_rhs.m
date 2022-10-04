@@ -15,7 +15,7 @@ function F = compute_rhs(p, mesh, disc, parameters)
     g   = p.g;
     u0x = p.du0;
     u1  = p.u1;
-    poisson = 1;
+    global poisson;
 
     % Formulation parameters
     A       = parameters.A;

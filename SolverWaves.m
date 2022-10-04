@@ -68,7 +68,7 @@ function [u, Kcond] = SolverWaves(problem, domain, mesh, disc, varargin)
     d = 1;
     x_var = 1;
     t_var = 2;
-    poisson = 1;
+    global poisson;
 
     %% Local operator structs
     Xb = HermiteBasis(hx);
@@ -234,11 +234,13 @@ function [u, Kcond] = SolverWaves(problem, domain, mesh, disc, varargin)
     if poisson == 1
         u = zeros(ndofs, 1);
         u(internal) = K(internal, internal) \ F(internal);
+        Kcond = condest(K(internal, internal));
     else
         u = zeros(ndofs + 1, 1);
         % Start timer
         tic
         u(1:end-1) = K(1:end-1, :) \ F(1:end-1);
+        Kcond = condest(K(1:end-1, :));
         %u = K \ F;
         %u = lsqr(K, F);
         
