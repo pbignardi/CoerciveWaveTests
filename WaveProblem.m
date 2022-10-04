@@ -4,7 +4,7 @@ function problem = WaveProblem(prob_num)
         %% Null problem
         case 0
             % Data functions
-            problem.f   = @(x,t) x .* 0 + t .* 0 + 1;
+            problem.f   = @(x,t) 2 * pi^2 * sin(pi * x) .* sin(pi * t);
             problem.g   = @(x,t) x.*0;
             problem.du0 = @(x) x.*0;
             problem.u1  = @(x) x.*0;
@@ -14,9 +14,11 @@ function problem = WaveProblem(prob_num)
             problem.theta   = 1;
             
             % Exact solution
-            problem.u       = @(x,t) 0;
-            problem.dx_u    = @(x,t) t.^2 .* (-pi*sin(pi*x));
-            problem.dt_u    = @(x,t) 2 * t .* (cos(pi * x) + 1);
+            problem.u       = @(x,t) sin(pi * x) .* sin(pi * t);
+            problem.dx_u    = @(x,t) pi * cos(pi * x) .* sin(pi * t);
+            problem.dt_u    = @(x,t) pi * cos(pi * t) .* sin(pi * x);
+            problem.ddt_u   = @(x,t) -pi^2 * sin(pi * x) .* sin(pi * t);
+            problem.ddx_u   = @(x,t) -pi^2 * sin(pi * x) .* sin(pi * t);
         %% Dirichlet Poisson problem
         case 1
             % Data functions
