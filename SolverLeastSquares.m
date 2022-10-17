@@ -1,4 +1,4 @@
-function [u, Kcond] = SolverLeastSquares(problem, domain, mesh, disc)
+function [u, Kcond] = SolverLeastSquares(problem, domain, mesh, disc, A)
     %% Unpacking parameters
     % Problem unpacking
     c       = problem.c;
@@ -76,10 +76,10 @@ function [u, Kcond] = SolverLeastSquares(problem, domain, mesh, disc)
 
 
     %% Global matrix computation
-    K = KQ + K0 + Ka + Kb;
+    K = A * KQ + K0 + Ka + Kb;
 
     %% Load vector assembly
-    F = computeLS_rhs(problem, mesh, disc, domain);
+    F = computeLS_rhs(problem, mesh, disc, domain, A);
 
     %% Solving
     % Start timer
@@ -95,6 +95,7 @@ function [u, Kcond] = SolverLeastSquares(problem, domain, mesh, disc)
     %% Post-processing solution
     % Compute condest of matrix K :TODO
     %Kcond = condest(K(internal,internal));
+    %Kcond = condest(K);
     Kcond = condest(K);
 
     % Compute mean

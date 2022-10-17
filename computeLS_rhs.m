@@ -1,4 +1,4 @@
-function F = computeLS_rhs(p, mesh, disc, domain)
+function F = computeLS_rhs(p, mesh, disc, domain, A)
     %% Unpacking parameters
     % Mesh parameters
     elms    = mesh.elms;
@@ -103,7 +103,7 @@ function F = computeLS_rhs(p, mesh, disc, domain)
         % Compute Wv
         Wv = vtt_Q - Lapv_Q * c^2;
         % Integrate using Gauss quadrature
-        local_rhs_Q = sum( f_eval .* Wv .* wqxt ).';
+        local_rhs_Q = A * sum( f_eval .* Wv .* wqxt ).';
         
         F(el_dofs) = F(el_dofs) + local_rhs_Q;
     end
