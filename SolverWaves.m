@@ -240,7 +240,8 @@ function [u, Kcond] = SolverWaves(problem, domain, mesh, disc, varargin)
         % Start timer
         tic
         u(1:end-1) = K(1:end-1, :) \ F(1:end-1);
-        Kcond = condest(K(1:end-1, :));
+        %Kcond = condest(K(1:end-1, :));
+        Kcond = 1;
         %u = K \ F;
         %u = lsqr(K, F);
         

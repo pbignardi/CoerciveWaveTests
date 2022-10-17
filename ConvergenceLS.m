@@ -5,7 +5,7 @@ close all
 addpath(genpath("local_stiffness"));
 to_file = 1;
 %% Define problem, discretization and mesh
-p_num = 4;
+p_num = 7;
 % Create simple problem
 p = WaveProblem(p_num);
 % Define domain
@@ -13,7 +13,7 @@ Q = Domain(-1, 1, 1);
 % Choose error norms
 errs = ["l2", "h1", "op", "cond"];
 %% Iterate for different number of elements
-N = [4, 8, 16, 32, 64, 128];
+N = [4, 8, 16, 32, 64, 128, 300, 500];
 L2errors = zeros(length(N), 1);
 H1errors = zeros(length(N), 1);
 GRerrors = zeros(length(N), 1);
