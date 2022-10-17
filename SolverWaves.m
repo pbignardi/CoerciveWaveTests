@@ -29,19 +29,15 @@ function [u, Kcond] = SolverWaves(problem, domain, mesh, disc, varargin)
     left_elms   = mesh.left_elms;
     
     % Formulation unpacking
-    if isempty(varargin)
-        nu      = 2;
-        xi      = 1;
-        beta    = xi / (nu - 1) * min([L/(c*T) + 1, ...
+    nu      = 2;
+    xi      = 1;
+    beta    = xi / (nu - 1) * min([L/(c*T) + 1, ...
                 L/(c*T) * (delta * theta + (delta * theta)^(-1))]);
-        %A       = T^2 * xi * delta / 4;
+    %A       = T^2 * xi * delta / 4;
+    if isempty(varargin)
         A       = 1;
     elseif length(varargin) == 1
-        form = varargin{1};
-        A   = form.A;
-        nu  = form.nu;
-        xi  = form.xi;
-        beta = form.beta;
+        A = varargin{1};
     end
     Tstar   = nu*T;
 

@@ -32,14 +32,8 @@ for n = N
     % Build mesh
     mesh = CartesianMesh(d);
     
-    form = struct();
-    form.A = A;
-    form.nu = 2;
-    form.xi = 1;
-    form.beta = 20;
-
     % Solve problem
-    [u, Kcond] = SolverWaves(p, Q, mesh, d, form);
+    [u, Kcond] = SolverWaves(p, Q, mesh, d, A);
     omega0_mean = ComputeMean(u, 0, mesh, d);
     u = MeanShift(u, omega0_mean, mesh);
 
