@@ -10,7 +10,7 @@ p = WaveProblem(7);
 Q = Domain(-1, 1, 1);
 
 %% Grid of the parameter $A$
-As = logspace(log10(0.00000001), log10(1), 100);
+As = logspace(log10(0.0000000001), log10(1), 200);
 L2errors = zeros(length(As), 1);
 
 %% Iterate over A
