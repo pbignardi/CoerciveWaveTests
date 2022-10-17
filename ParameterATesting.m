@@ -4,13 +4,15 @@ clear
 addpath(genpath("local_stiffness"));
 
 %% Define problem, discretization and mesh
+p_num = 7;
 % Create simple problem
-p = WaveProblem(7);
+p = WaveProblem(p_num);
 % Define domain
 Q = Domain(-1, 1, 1);
 
 %% Grid of the parameter $A$
-As = logspace(-15, log10(1), 200);
+N = 10;
+As = logspace(-15, log10(1), N);
 %As = logspace(log10(0.0000000001), log10(1), 2);
 L2errors = zeros(length(As), 1);
 Kconds = zeros(length(As), 1);
@@ -42,5 +44,7 @@ for A = As
     Kconds(i) = Kcond;
     i = i + 1;
 end
-results = table(As.', L2errors, Kconds);
-writetable(results, "test_results/LS_A_testing.dat");
+A = As.';
+results = table(A, L2errors, Kconds);
+writetable(results, ...
+    strcat("test_results/p",string(p_num), "LS_par_A_N", string(N),".dat"));
