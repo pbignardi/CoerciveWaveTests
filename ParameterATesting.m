@@ -10,14 +10,16 @@ p = WaveProblem(7);
 Q = Domain(-1, 1, 1);
 
 %% Grid of the parameter $A$
-As = logspace(log10(0.0000000001), log10(1), 200);
+As = logspace(-15, log10(1), 200);
+%As = logspace(log10(0.0000000001), log10(1), 2);
 L2errors = zeros(length(As), 1);
+Kconds = zeros(length(As), 1);
 
 %% Iterate over A
 i = 1;
 for A = As
     % Define number of elements
-    nx = 128; nt = 128;
+    nx = 256; nt = 256;
     % Define discretisation
     d = Discretization(nx, nt, Q);
     % Build mesh
@@ -36,8 +38,9 @@ for A = As
     
     % Compute errors
     errors = ComputeErrors(u, p, mesh, d, "absolute");
-    L2errors(i) = Kcond;
+    L2errors(i) = errors.L2E;
+    Kconds(i) = Kcond;
     i = i + 1;
 end
-
-loglog(As, L2errors);
+results = table(As.', L2errors, Kconds);
+writetable(results, "test_results/LS_A_testing.dat");
