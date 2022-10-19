@@ -33,7 +33,9 @@ for A = As
     
     % Solve problem
     if solver == "LS"
-         [u, Kcond] = SolverLeastSquares(p, Q, mesh, d, A);
+        [u, Kcond] = SolverWaves(p, Q, mesh, d, A);
+        omega0_mean = ComputeMean(u, 0, mesh, d);
+        u = MeanShift(u, omega0_mean, mesh);
     elseif solver == "CO"
          [u, Kcond] = SolverWaves(p, Q, mesh, d, A);
     end
