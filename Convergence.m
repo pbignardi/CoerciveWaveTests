@@ -114,7 +114,7 @@ for n = options.N
         H1errors(i) = errors.H1E;
     end
     Verrors(i) = errors.VnE;
-    SUPerrors(i) = errors.SUPE;
+
     Kconds(i) = Kcond;
     % Compute error of L2 projection
     errors = ComputeErrors(uL2proj, pstruct, mesh, d, options.ERR_TYPE);
