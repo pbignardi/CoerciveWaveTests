@@ -47,14 +47,14 @@ function [U, X, T] = OperatorEval(u, mesh, disc, xq, opname, varargin)
     T = zeros(nqt * nt, nqx * nx);
     for j = 1:nx
         for i = 1:nt
-            e = j + (i - 1) * nx;
+            e = eval_elms(i, j);
             % Get elms dofs
             el_ids      = elms(e, :);
-            el_dofs     = mapper(el_ids, nx, nt);
+            el_dofs     = mapper(el_ids, disc.nx, disc.nt);
 
-	    % create evaluation meshgrid
-	    el_x = xxqh + disc.x(j);
-	    el_t = ttqh + disc.t(i);
+	        % create evaluation meshgrid
+	        el_x = xxqh + disc.x(j);
+	        el_t = ttqh + disc.t(i);
 
             % Evaluate u locally
             el_u = operator * u(el_dofs);
@@ -62,8 +62,8 @@ function [U, X, T] = OperatorEval(u, mesh, disc, xq, opname, varargin)
             J = ((j - 1) * nqx + 1):(j * nqx);
             I = ((i - 1) * nqt + 1):(i * nqt);
             U(I, J) = reshape(el_u, nqt, nqx).';
-	    X(I, J) = el_x;
-	    T(I, J) = el_t;
+	        X(I, J) = el_x;
+	        T(I, J) = el_t;
         end
     end
 end

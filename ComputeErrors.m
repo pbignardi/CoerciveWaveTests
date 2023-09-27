@@ -29,46 +29,37 @@ function errors = ComputeErrors(u, problem, mesh, disc, err_type)
     
     % Quadrature weights
     [xq, wq] = gaussquad(nq);
-    wqt = wq * ht;
-    wqx = wq * hx;
-    wqxt = kron(wqt, wqx);
-    global_wq = reshape(kron(wqxt, ones(1, nx * nt)), TotNQ, 1);
-    wqt = reshape(kron(wqt, ones(1, nt)), [], 1);
-    wqx = reshape(kron(wqx, ones(1, nx)), [], 1);
+    wqt = reshape(wq, [], 1) * ht;
+    wqx = reshape(wq, 1, []) * hx;
+    wqxt = kron(wqt, wqx); % local quadrature weights 
+    wqxt = repmat(wqxt, nt, nx);
+    wqx = repmat(wqx, 1, nx);
+    wqt = repmat(wqt, nt, 1);
+
 
     %% Evaluate u_ex and u
-    [U, X, T] = SolutionEval(u, mesh, disc, xq);
-
-    X = reshape(X.', [], 1);
-    T = reshape(T.', [], 1);
-    U = OperatorEval(u, mesh, disc, {xq, xq}, 'u');
-    U = reshape(U, [], 1);
+    [U, X, T] = OperatorEval(u, mesh, disc, {xq, xq}, 'u');
     Ux = OperatorEval(u, mesh, disc, {xq, xq}, 'ux');
-    Ux = reshape(Ux, [], 1);
     Ut = OperatorEval(u, mesh, disc, {xq, xq}, 'ut');
-    Ut = reshape(Ut, [], 1);
     Uxx = OperatorEval(u, mesh, disc, {xq, xq}, 'uxx');
-    Uxx = reshape(Uxx, [], 1);
     Utt = OperatorEval(u, mesh, disc, {xq, xq}, 'utt');
-    Utt = reshape(Utt, [], 1);
-    UxOT = OperatorEval(u, mesh, disc, {xq, 1}, 'ut', reshape(top_elms, 1, []));
-    UxOT = reshape(UxOT, [], 1);
-    UtOT = OperatorEval(u, mesh, disc, {xq, 1}, 'ux', reshape(top_elms, 1, []));
-    UtOT = reshape(UtOT, [], 1);
-    UxOZ = OperatorEval(u, mesh, disc, {xq, 0}, 'ut', reshape(bot_elms, 1, []));
-    UxOZ = reshape(UxOZ, [], 1);
-    UtOZ = OperatorEval(u, mesh, disc, {xq, 0}, 'ux', reshape(bot_elms, 1, []));
-    UtOZ = reshape(UtOZ, [], 1);
-    UOZ = OperatorEval(u, mesh, disc, {xq, 0}, 'u', reshape(bot_elms, 1, []));
-    UOZ = reshape(UOZ, [], 1);
-    UxSIa = OperatorEval(u, mesh, disc, {xq, 0}, 'ux', reshape(left_elms, [], 1));
-    UxSIa = reshape(UxSIa, [], 1);
-    UtSIa = OperatorEval(u, mesh, disc, {xq, 0}, 'ut', reshape(left_elms, [], 1));
-    UtSIa = reshape(UtSIa, [], 1);
-    UxSIb = OperatorEval(u, mesh, disc, {xq, 1}, 'ux', reshape(right_elms, [], 1));
-    UxSIb = reshape(UxSIb, [], 1);
-    UtSIb = OperatorEval(u, mesh, disc, {xq, 1}, 'ut', reshape(right_elms, [], 1));
-    UtSIb = reshape(UtSIb, [], 1);
+    
+    top_elms = reshape(top_elms, 1, []);
+    [UxOT, XOT, TOT] = OperatorEval(u, mesh, disc, {xq, 1}, 'ut', top_elms);
+    UtOT = OperatorEval(u, mesh, disc, {xq, 1}, 'ux', top_elms);
+    
+    bot_elms = reshape(bot_elms, 1, []);
+    [UxOZ, XOZ, TOZ] = OperatorEval(u, mesh, disc, {xq, 0}, 'ut', bot_elms);
+    UtOZ = OperatorEval(u, mesh, disc, {xq, 0}, 'ux', bot_elms);
+    UOZ = OperatorEval(u, mesh, disc, {xq, 0}, 'u', bot_elms);
+
+    left_elms = reshape(left_elms, [], 1);
+    [UxSIa, XSIa, TSIa] = OperatorEval(u, mesh, disc, {0, xq}, 'ux', left_elms);
+    UtSIa = OperatorEval(u, mesh, disc, {0, xq}, 'ut', left_elms);
+
+    right_elms = reshape(right_elms, [], 1);
+    [UxSIb, XSIb, TSIb] = OperatorEval(u, mesh, disc, {1, xq}, 'ux', right_elms);
+    UtSIb = OperatorEval(u, mesh, disc, {1, xq}, 'ut', right_elms);
 
     % Exact solution evaluations
     U_ex    = u_ex(X, T);
@@ -76,43 +67,45 @@ function errors = ComputeErrors(u, problem, mesh, disc, err_type)
     Ut_ex   = ut_ex(X, T);
     Uxx_ex  = uxx_ex(X, T);
     Utt_ex  = utt_ex(X, T);
-    UxOT_ex = reshape(ux_ex(X(1:(nq*nx)), Q.T), [], 1);
-    UtOT_ex = reshape(ut_ex(X(1:(nq*nx)), Q.T), [], 1);
-    UxOZ_ex = reshape(ux_ex(X(1:(nq*nx)), 0), [], 1);
-    UtOZ_ex = reshape(ut_ex(X(1:(nq*nx)), 0), [], 1);
-    UOZ_ex = reshape(u_ex(X(1:(nq*nx)), 0), [], 1);
-    UxSIa_ex = reshape(ux_ex(Q.xmin, T(1:(nq*nx):end)), [], 1);
-    UtSIa_ex = reshape(ut_ex(Q.xmin, T(1:(nq*nx):end)), [], 1);
-    UxSIb_ex = reshape(ux_ex(Q.xmax, T(1:(nq*nx):end)), [], 1);
-    UtSIb_ex = reshape(ut_ex(Q.xmax, T(1:(nq*nx):end)), [], 1);
+
+    UxOT_ex = ux_ex(XOT, TOT);
+    UtOT_ex = ut_ex(XOT, TOT);
+    UxOZ_ex = ux_ex(XOZ, TOZ);
+    UtOZ_ex = ut_ex(XOZ, TOZ);
+    UOZ_ex = u_ex(XOZ, TOZ);
+
+    UxSIa_ex = ux_ex(XSIa, TSIa);
+    UtSIa_ex = ut_ex(XSIa, TSIa);
+    UxSIb_ex = ux_ex(XSIb, TSIb);
+    UtSIb_ex = ut_ex(XSIb, TSIb);
 
     %% Compute norms
     % L2 norm
-    L2Nsq = sum(U_ex .* U_ex .* global_wq);
+    L2Nsq = sum(U_ex .* U_ex .* wqxt, 'all');
     % H1 grad norm - seminorm
-    H1SNsq = sum((c^2 * (Ux_ex .* Ux_ex) + (Ut_ex .* Ut_ex)) .* global_wq);
+    H1SNsq = sum((c^2 * (Ux_ex .* Ux_ex) + (Ut_ex .* Ut_ex)) .* wqxt, 'all');
     H1Nsq = H1SNsq + problem.Q.T^(-2) * L2Nsq;
     % V-norm
-    VnNsq = H1Nsq + Q.T^2 * sum((Utt_ex - c^2 * Uxx_ex) .^2 .* global_wq) + ...
-        Q.T * sum((UtOT_ex.^2 + c^2 * UxOT_ex.^2).* wqx) + ...
-        Q.T * sum((UtOZ_ex.^2 + c^2 * UxOZ_ex.^2).* wqx) + ...
-        Q.T ^ (-1) * sum((UOZ_ex.^2) .* wqx) + ...
-        Q.L * sum((UtSIa_ex.^2 + c^2 * UxSIa_ex.^2).* wqt) + ...
-        Q.L * sum((UtSIb_ex.^2 + c^2 * UxSIb_ex.^2).* wqt);
+    VnNsq = H1Nsq + Q.T^2 * sum((Utt_ex - c^2 * Uxx_ex) .^2 .* wqxt, 'all') + ...
+        Q.T * sum((UtOT_ex.^2 + c^2 * UxOT_ex.^2).* wqx, 'all') + ...
+        Q.T * sum((UtOZ_ex.^2 + c^2 * UxOZ_ex.^2).* wqx, 'all') + ...
+        Q.T ^ (-1) * sum((UOZ_ex.^2) .* wqx, 'all') + ...
+        Q.L * sum((UtSIa_ex.^2 + c^2 * UxSIa_ex.^2).* wqt, 'all') + ...
+        Q.L * sum((UtSIb_ex.^2 + c^2 * UxSIb_ex.^2).* wqt, 'all');
     %% Compute errors
     % L2 error
-    L2Esq = sum((U - U_ex) .* (U - U_ex) .* global_wq);
+    L2Esq = sum((U - U_ex) .* (U - U_ex) .* wqxt, 'all');
     % H1 error
-    H1SEsq = sum((c^2 * (Ux_ex - Ux).^2 + (Ut_ex - Ut).^2).* global_wq);
+    H1SEsq = sum((c^2 * (Ux_ex - Ux).^2 + (Ut_ex - Ut).^2).* wqxt, 'all');
     H1Esq = H1SEsq + problem.Q.T^(-2)*L2Esq;
     % Operator error
-    VnEsq = sum((c^2 * (Ux_ex - Ux).^2 + (Ut_ex - Ut).^2).* global_wq) + ...
-        Q.T^2 * sum((Utt - Utt_ex - c^2 * (Uxx - Uxx_ex)) .^2 .* global_wq) + ...
-        Q.T * sum(((UtOT_ex-UtOT).^2 + c^2 * (UxOT_ex-UxOT).^2).* wqx) + ...
-        Q.T * sum(((UtOZ_ex-UtOZ).^2 + c^2 * (UxOZ_ex-UxOZ).^2).* wqx) + ...
-        Q.T ^ (-1) * sum((UOZ_ex-UOZ).^2 .* wqx) + ...
-        Q.L * sum(((UtSIa_ex-UtSIa).^2 + c^2 * (UxSIa_ex-UxSIa).^2).* wqt) + ...
-        Q.L * sum(((UtSIb_ex-UtSIb).^2 + c^2 * (UxSIb_ex-UxSIb).^2).* wqt);
+    VnEsq = sum((c^2 * (Ux_ex - Ux).^2 + (Ut_ex - Ut).^2).* wqxt, 'all') + ...
+        Q.T^2 * sum((Utt - Utt_ex - c^2 * (Uxx - Uxx_ex)) .^2 .* wqxt, 'all') % + ...
+        % Q.T * sum(((UtOT_ex-UtOT).^2 + c^2 * (UxOT_ex-UxOT).^2).* wqx, 'all') + ...
+        % Q.T * sum(((UtOZ_ex-UtOZ).^2 + c^2 * (UxOZ_ex-UxOZ).^2).* wqx, 'all') + ...
+        % Q.T ^ (-1) * sum((UOZ_ex-UOZ).^2 .* wqx, 'all') + ...
+        % Q.L * sum(((UtSIa_ex-UtSIa).^2 + c^2 * (UxSIa_ex-UxSIa).^2).* wqt, 'all') + ...
+        % Q.L * sum(((UtSIb_ex-UtSIb).^2 + c^2 * (UxSIb_ex-UxSIb).^2).* wqt, 'all');
     %% Populate struct
     errors.L2N = sqrt(L2Nsq);
     errors.H1N = sqrt(H1Nsq);
