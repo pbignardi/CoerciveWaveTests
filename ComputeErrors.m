@@ -24,9 +24,6 @@ function errors = ComputeErrors(u, problem, mesh, disc, err_type)
     %% Gauss quadrature
     nq = 8;
     
-    % Total number of quadrature points
-    TotNQ = nx * nt * nq * nq;
-    
     % Quadrature weights
     [xq, wq] = gaussquad(nq);
     wqt = reshape(wq, [], 1) * ht;
@@ -45,12 +42,12 @@ function errors = ComputeErrors(u, problem, mesh, disc, err_type)
     Utt = OperatorEval(u, mesh, disc, {xq, xq}, 'utt');
     
     top_elms = reshape(top_elms, 1, []);
-    [UxOT, XOT, TOT] = OperatorEval(u, mesh, disc, {xq, 1}, 'ut', top_elms);
-    UtOT = OperatorEval(u, mesh, disc, {xq, 1}, 'ux', top_elms);
+    [UxOT, XOT, TOT] = OperatorEval(u, mesh, disc, {xq, 1}, 'ux', top_elms);
+    UtOT = OperatorEval(u, mesh, disc, {xq, 1}, 'ut', top_elms);
     
     bot_elms = reshape(bot_elms, 1, []);
-    [UxOZ, XOZ, TOZ] = OperatorEval(u, mesh, disc, {xq, 0}, 'ut', bot_elms);
-    UtOZ = OperatorEval(u, mesh, disc, {xq, 0}, 'ux', bot_elms);
+    [UxOZ, XOZ, TOZ] = OperatorEval(u, mesh, disc, {xq, 0}, 'ux', bot_elms);
+    UtOZ = OperatorEval(u, mesh, disc, {xq, 0}, 'ut', bot_elms);
     UOZ = OperatorEval(u, mesh, disc, {xq, 0}, 'u', bot_elms);
 
     left_elms = reshape(left_elms, [], 1);
@@ -100,12 +97,12 @@ function errors = ComputeErrors(u, problem, mesh, disc, err_type)
     H1Esq = H1SEsq + problem.Q.T^(-2)*L2Esq;
     % Operator error
     VnEsq = sum((c^2 * (Ux_ex - Ux).^2 + (Ut_ex - Ut).^2).* wqxt, 'all') + ...
-        Q.T^2 * sum((Utt - Utt_ex - c^2 * (Uxx - Uxx_ex)) .^2 .* wqxt, 'all') % + ...
-        % Q.T * sum(((UtOT_ex-UtOT).^2 + c^2 * (UxOT_ex-UxOT).^2).* wqx, 'all') + ...
-        % Q.T * sum(((UtOZ_ex-UtOZ).^2 + c^2 * (UxOZ_ex-UxOZ).^2).* wqx, 'all') + ...
-        % Q.T ^ (-1) * sum((UOZ_ex-UOZ).^2 .* wqx, 'all') + ...
-        % Q.L * sum(((UtSIa_ex-UtSIa).^2 + c^2 * (UxSIa_ex-UxSIa).^2).* wqt, 'all') + ...
-        % Q.L * sum(((UtSIb_ex-UtSIb).^2 + c^2 * (UxSIb_ex-UxSIb).^2).* wqt, 'all');
+        Q.T^2 * sum((Utt - Utt_ex - c^2 * (Uxx - Uxx_ex)) .^2 .* wqxt, 'all') + ...
+        Q.T * sum(((UtOT_ex-UtOT).^2 + c^2 * (UxOT_ex-UxOT).^2).* wqx, 'all') + ...
+        Q.T * sum(((UtOZ_ex-UtOZ).^2 + c^2 * (UxOZ_ex-UxOZ).^2).* wqx, 'all') + ...
+        Q.T ^ (-1) * sum((UOZ_ex-UOZ).^2 .* wqx, 'all') + ...
+        Q.L * sum(((UtSIa_ex-UtSIa).^2 + c^2 * (UxSIa_ex-UxSIa).^2).* wqt, 'all') + ...
+        Q.L * sum(((UtSIb_ex-UtSIb).^2 + c^2 * (UxSIb_ex-UxSIb).^2).* wqt, 'all');
     %% Populate struct
     errors.L2N = sqrt(L2Nsq);
     errors.H1N = sqrt(H1Nsq);

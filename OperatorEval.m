@@ -20,6 +20,9 @@ function [U, X, T] = OperatorEval(u, mesh, disc, xq, opname, varargin)
     %% Unpacking structs
     % Mesh parameters
     elms = mesh.elms;
+    pivots = mesh.pivots;
+    xx = disc.xx.';
+    tt = disc.tt.';
  
     % Discretisation paramters
     if isempty(varargin)
@@ -49,12 +52,13 @@ function [U, X, T] = OperatorEval(u, mesh, disc, xq, opname, varargin)
         for i = 1:nt
             e = eval_elms(i, j);
             % Get elms dofs
+            el_pivot = pivots(e);
             el_ids      = elms(e, :);
             el_dofs     = mapper(el_ids, disc.nx, disc.nt);
 
 	        % create evaluation meshgrid
-	        el_x = xxqh + disc.x(j);
-	        el_t = ttqh + disc.t(i);
+	        el_x = xxqh + xx(el_pivot);
+	        el_t = ttqh + tt(el_pivot);
 
             % Evaluate u locally
             el_u = operator * u(el_dofs);
