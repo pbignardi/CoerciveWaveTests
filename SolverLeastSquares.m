@@ -1,4 +1,4 @@
-function [u, Kcond] = SolverLeastSquares(problem, domain, mesh, disc, A)
+function [u, Kcond] = SolverLeastSquares(problem, domain, mesh, disc, varargin)
     %% Unpacking parameters
     % Problem unpacking
     c       = problem.c;
@@ -7,12 +7,18 @@ function [u, Kcond] = SolverLeastSquares(problem, domain, mesh, disc, A)
     % Elements unpacking
     hx = disc.hx;
     ht = disc.ht;
-   
 
     % Boundary elms unpacking
     right_elms  = mesh.right_elms;
     left_elms   = mesh.left_elms;
     bot_elms    = mesh.bot_elms;
+
+    % varargin unpacking
+    if isempty(varargin)
+        A = 1;
+    else
+        A = varargin{1};
+    end
     
     %% Local operator structs
     Xb = HermiteBasis(hx);
@@ -71,9 +77,9 @@ function [u, Kcond] = SolverLeastSquares(problem, domain, mesh, disc, A)
     K0 = assembleLS_boundary(opO, mesh, disc, bot_elms);
     % Sigma = a boundary
     Ka = assembleLS_boundary(opSa, mesh, disc, left_elms);
-    % Sigma = b boundaryu
+    % Sigma = b boundary
     Kb = assembleLS_boundary(opSb, mesh, disc, right_elms);
-
+    
 
     %% Global matrix computation
     K = A * KQ + K0 + Ka + Kb;
@@ -87,19 +93,15 @@ function [u, Kcond] = SolverLeastSquares(problem, domain, mesh, disc, A)
     %u = gmres(K, F);
     u = K \ F;
     %u = lsqr(K, F);
-    
+    Kcond = condest(K);
     solving_time = toc;
-    % Log time result
-    fprintf("Linear system solving time:\t %.4f seconds\n", solving_time);
     
     %% Post-processing solution
     % Compute condest of matrix K :TODO
     %Kcond = condest(K(internal,internal));
     %Kcond = condest(K);
-    Kcond = condest(K);
 
     % Compute mean
-    omega0_mean = ComputeMean(u, 0, mesh, disc);
     % Remove computed mean
     %u = u - omega0_mean;
 end

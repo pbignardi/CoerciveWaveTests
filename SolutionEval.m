@@ -1,4 +1,4 @@
-function [U, X, T] = SolutionEval(u, mesh, disc, varargin)
+function varargout = SolutionEval(u, mesh, disc, varargin)
     % Evaluate solution over the gauss quadrature nodes
     % Parameters
     %   u       : solution of the linear system
@@ -24,7 +24,9 @@ function [U, X, T] = SolutionEval(u, mesh, disc, varargin)
     % Unpack varargin xq parameter
     if isempty(varargin)
         nq = 9;
-        [xq, ~] = gaussquad(nq);
+        [xq, wq] = gaussquad(nq);
+        wqx = wq * hx;
+        wqt = wq * ht;
     else
         xq = varargin{1};
         nq = length(xq);
@@ -33,6 +35,11 @@ function [U, X, T] = SolutionEval(u, mesh, disc, varargin)
     tqh = ht * xq;
     xxqh = kron(ones(nq, 1), xqh.');
     ttqh = kron(tqh, ones(1, nq));
+
+    if nargout == 4 && isempty(varargin)
+        wqxt = kron(wqt, wqx.');
+        W = kron(ones(nt, nx), wqxt);
+    end
 
     %%  Basis functions evaluation
     % Component basis evaluations
@@ -63,5 +70,12 @@ function [U, X, T] = SolutionEval(u, mesh, disc, varargin)
             X(J, I) = el_x;
             T(J, I) = el_t;
         end
+    end
+
+    varargout{1} = U;
+    varargout{2} = X;
+    varargout{3} = T;
+    if nargout == 4
+        varargout{4} = W;
     end
 end

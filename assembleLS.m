@@ -31,5 +31,5 @@ function K = assembleLS(Kloc, mesh, disc)
     end
     K = sparse(Ig, Jg, Kg, ndofs, ndofs);
     assembly_time = toc;
-    fprintf("Global matrix assembly time:\t %.4f seconds\n", assembly_time);
+    % fprintf("Global matrix assembly time:\t %.4f seconds\n", assembly_time);
 end

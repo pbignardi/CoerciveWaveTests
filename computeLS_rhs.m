@@ -12,7 +12,8 @@ function F = computeLS_rhs(p, mesh, disc, domain, A)
 
     % Problem parameters
     f       = p.f;
-    g       = p.g;
+    gI      = p.gI;
+    gD      = p.gD;
     u0      = p.u0;
     u1      = p.u1;
     c       = p.c;
@@ -137,7 +138,7 @@ function F = computeLS_rhs(p, mesh, disc, domain, A)
         el_tq = ttqh(nq * (1:nq)) + tt(pivots(e));
 
         % g evaluation
-        G = g(a, el_tq);
+        G = gI(a, el_tq);
 
         % Impedance boundary evaluation
         test_impedance = - vxa + vta / (theta * c);
@@ -155,7 +156,7 @@ function F = computeLS_rhs(p, mesh, disc, domain, A)
         el_tq = ttqh(nq*(1:nq)) + tt(pivots(e));
 
         % g evaluation
-        G = g(b, el_tq);
+        G = gI(b, el_tq);
 
         % Zv boundary evaluation
         test_impedance = vxb + vtb / (theta * c);

@@ -4,5 +4,5 @@ function domain = Domain(xmin, xmax, T)
     domain.xmax = xmax;
     domain.T = T;
     domain.L = abs(xmin-xmax);
-    domain.delta = min(-1*xmin, xmax) / domain.L;
+    domain.delta = min(abs(xmin), xmax) / domain.L;
 end

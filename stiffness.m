@@ -1,77 +1,163 @@
 function S = stiffness(ord_u, ord_v, force)
-    % Function to compute integrals of stiffness matrices
-    %% Check if local_stiffness folder exists
-    if exist("local_stiffness", "dir") == 0
-        mkdir("local_stiffness");
-    end
-    
-    %% Load existing matrix
-    if force
-        string_force = "x";
-    else
-        string_force = "";
-    end
-    f = strcat("K_", string(ord_u), string(ord_v), string_force, ".mat");
-    if exist(f, "file") == 2
-        %disp(strcat("Loading stiffness matrix from file ", f));
-        mat_struct = load(f, "S");
-        S = mat_struct.S;
-        return
-    end
-    
-    %% Defining basis functions
-    syms x
-
-    psiB = (-2*x.^3+3*x.^2);
-    psiA = 2*x.^3-3*x.^2+1;
-    psiD = x.^3-x.^2;
-    psiC = x.^3-2*x.^2+x;
-    psi = {psiA, psiB, psiC, psiD};
-
-    % first derivatives (used only for CO)
-    dpsiB = -6*x.^2+6*x;
-    dpsiA = 6*x.^2-6*x;
-    dpsiD = 3*x.^2-2*x;
-    dpsiC = 3*x.^2-4*x+1; 
-    dpsi = {dpsiA, dpsiB, dpsiC, dpsiD};
-
-    % second derivatives (used only for LS and CO)
-    ddpsiB = -12*x+6;
-    ddpsiA = 12*x-6;
-    ddpsiD = 6*x-2;
-    ddpsiC = 6*x-4; 
-    ddpsi = {ddpsiA, ddpsiB, ddpsiC, ddpsiD};
-    
-    switch ord_u
-        case 0
-            U = psi;
-        case 1
-            U = dpsi;
-        case 2
-            U = ddpsi;
-    end
-    switch ord_v
-        case 0
-            V = psi;
-        case 1
-            V = dpsi;
-        case 2
-            V = ddpsi;
-    end
-    %% Computing reference stiffness matrix
-    S = zeros(4,4);
-
-    for i = 1:4
-        v = V{i};
-        for j = 1:4
-            u = U{j};
-            if force == 0
-                S(i,j) = int(u*v, [0,1]);
-            else
-                S(i,j) = int(x*u*v, [0,1]);
+    if force == 0
+        if ord_u == 0
+            if ord_v == 0
+                % K_00
+                S = [  
+                    13/35          9/70         11/210       -13/420;   
+                    9/70         13/35         13/420       -11/210;   
+                    11/210        13/420         1/105        -1/140;   
+                    -13/420       -11/210        -1/140         1/105
+                ];   
+            elseif ord_v == 1
+                % K_01
+                S = [   
+                    -1/2          -1/2          -1/10          1/10;
+                    1/2           1/2           1/10         -1/10; 
+                    1/10         -1/10           0            1/60;
+                    -1/10          1/10         -1/60           0
+                ];
+            elseif ord_v == 2
+                % K_02
+                S = [   
+                    -6/5        6/5         -1/10       -1/10;
+                    6/5         -6/5        1/10        1/10;
+                    -11/10      1/10        -2/15       1/30;
+                    -1/10       11/10       1/30        -2/15
+                ];
+            end
+        elseif ord_u == 1
+            if ord_v == 0
+                % K_10
+                S = [
+                    -1/2           1/2           1/10         -1/10;
+                    -1/2           1/2          -1/10          1/10;
+                    -1/10          1/10           0           -1/60;
+                    1/10         -1/10          1/60           0
+                ];
+            elseif ord_v == 1
+                % K_11
+                S = [
+                    6/5          -6/5           1/10          1/10;
+                    -6/5           6/5          -1/10         -1/10;
+                    1/10         -1/10          2/15         -1/30;
+                    1/10         -1/10         -1/30          2/15
+                ];
+            elseif ord_v == 2
+                % K_12
+                S = [
+                    0             0            -1             1;      
+                    0             0             1            -1;     
+                    1            -1           -1/2           1/2;     
+                    -1             1           -1/2           1/2     
+                ];
+            end
+        elseif ord_u == 2
+            if ord_v == 0
+                % K_20
+                S = [
+                    -6/5           6/5         -11/10         -1/10;
+                    6/5          -6/5           1/10         11/10;    
+                    -1/10          1/10         -2/15          1/30;    
+                    -1/10          1/10          1/30         -2/15   
+                ];
+            elseif ord_v == 1
+                % K_21
+                S = [
+                       0             0             1            -1;      
+                       0             0            -1             1;      
+                      -1             1           -1/2          -1/2;     
+                       1            -1            1/2           1/2     
+                ];
+            elseif ord_v == 2
+                % K_22
+                S = [
+                      12            -12            6             6;      
+                      -12           12            -6            -6;      
+                       6            -6             4             2;     
+                       6            -6             2             4          
+                ];
+            end
+        end
+    elseif force == 1
+        if ord_u == 0
+            if ord_v == 0
+                % K_00x
+                S = [  
+                      3/35          9/140         1/60         -1/70;    
+                      9/140         2/7           1/60         -1/28;    
+                      1/60          1/60          1/280        -1/280;   
+                     -1/70         -1/28         -1/280         1/168   
+                ];   
+            elseif ord_v == 1
+                % K_01x
+                S = [
+                    -13/70        -11/35         -3/70          2/35;    
+                     13/70         11/35          3/70         -2/35;    
+                     -1/105       -31/420        -1/210         1/84;    
+                    -11/420        23/210        -1/210        -1/210       
+                ];
+            elseif ord_v == 2
+                % K_02x
+                S = [
+                     -1/10         11/10           0           -1/10;    
+                      1/10        -11/10           0            1/10;    
+                     -1/5           1/5          -1/30           0;      
+                      1/10          9/10          1/30         -1/10        
+                ];
+            end
+        elseif ord_u == 1
+            if ord_v == 0
+                % K_10x
+                S = [
+                    -13/70         13/70         -1/105       -11/420;   
+                    -11/35         11/35        -31/420        23/210;   
+                     -3/70          3/70         -1/210        -1/210;   
+                      2/35         -2/35          1/84         -1/210   
+                ];
+            elseif ord_v == 1
+                % K_11x
+                S = [
+                      3/5          -3/5           1/10           0;      
+                     -3/5           3/5          -1/10           0;      
+                      1/10         -1/10          1/30         -1/60;    
+                       0             0           -1/60          1/10        
+                ];
+            elseif ord_v == 2
+                % K_12x
+                S = [
+                     -3/5           3/5          -3/10          7/10;    
+                      3/5          -3/5           3/10         -7/10;    
+                      1/5          -1/5          -1/15          4/15;    
+                     -4/5           4/5          -7/30         13/30        
+                ];
+            end
+        elseif ord_u == 2
+            if ord_v == 0
+                % K_20x
+                S = [                
+                     -1/10          1/10         -1/5           1/10;    
+                     11/10        -11/10          1/5           9/10;    
+                       0             0           -1/30          1/30;    
+                     -1/10          1/10           0           -1/10        
+                ];
+            elseif ord_v == 1
+                % K_21x
+                S = [
+                     -3/5           3/5           1/5          -4/5;     
+                      3/5          -3/5          -1/5           4/5;     
+                     -3/10          3/10         -1/15         -7/30;    
+                      7/10         -7/10          4/15         13/30    
+                ];
+            elseif ord_v == 2
+                %K_22x
+                S = [
+                     6    -6     2     4;
+                    -6     6    -2    -4;
+                     2    -2     1     1;
+                     4    -4     1     3
+                ];
             end
         end
     end
-    %% Save to file
-    save(strcat("local_stiffness/", f), "S");
 end

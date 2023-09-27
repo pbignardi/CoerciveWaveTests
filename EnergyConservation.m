@@ -1,14 +1,14 @@
 % Coercive wave equation numerical tests
 % Paolo Bignardi 2022
+% Energy conservation
 clc
-%clear
+clear
 close all
 addpath(genpath("local_stiffness"));
 
 %% Define problem, discretization and mesh
 % Create simple problem
-p = WaveProblem(4, 'k', 50);
-% Define domain
+p = WaveProblem(3);
 Q = p.Q;
 % Discretise the domain
 nx = 64; nt = 64;
@@ -17,7 +17,7 @@ d = Discretization(nx, nt, Q);
 mesh = CartesianMesh(d);
 
 %% Custom form parameters
-form = initializeForm(p, Q, 'GEN');
+form = initializeForm(p, Q, 'OPT');
 %% Solve problem
 u = SolverWaves(p, Q, mesh, d, form);
 [~, uproj, ~] = ProjectionBFS(p, d);
@@ -33,10 +33,14 @@ colorbar
 shading flat; 
 xlabel("X"); ylabel("T");
 
-%% Compute errors
-errors = ComputeErrors(u, p, mesh, d, "relative");
-errors.L2E
+%% Compute energy at each time step
+[u_energy, T] = ComputeEnergy(u, mesh, d, p);
 
-%% Animate
-%[U, X, T] = SolutionEval(u, mesh, d, linspace(0,1,10).');
-%animate(X, T, U);
+figure
+u_ex_energy = zeros(size(u_energy));
+for i = 1:numel(T)
+    u_ex_energy(i) = ComputeExactEnergy(T(i), p);
+end
+plot(T, u_energy - u_ex_energy);
+
+%% Compute energy error

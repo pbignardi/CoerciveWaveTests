@@ -9,18 +9,20 @@ function F = compute_rhs(p, mesh, disc, parameters)
     bot_elms    = mesh.bot_elms;
     left_elms   = mesh.left_elms;
     right_elms  = mesh.right_elms;
-
+ 
     % Problem parameters
     f   = p.f;
-    g   = p.g;
+    gI  = p.gI;
+
     u0x = p.du0;
+    u0  = p.u0;
     u1  = p.u1;
-    global poisson;
 
     % Formulation parameters
     A       = parameters.A;
-    beta    = parameters.beta;
-    xi      = parameters.xi;
+    A0      = parameters.A0;
+    BETA    = parameters.BETA;
+    XI      = parameters.XI;
     Tstar   = parameters.Tstar;
     T       = parameters.T;
     c       = parameters.c;
@@ -86,6 +88,7 @@ function F = compute_rhs(p, mesh, disc, parameters)
     % Omega0 local terms
     vt_0    = kron(E0_d1, psi_X);
     vx_0    = kron(E0_d0, dpsi_X);
+    v_0     = kron(E0_d0, psi_X);
 
     % Sigma=a local terms
     vt_a    = kron(dpsi_T, Ea_d0);
@@ -96,7 +99,7 @@ function F = compute_rhs(p, mesh, disc, parameters)
     vx_b    = kron(psi_T, Eb_d1);
 
     %% Q- Element-wise assembly
-    F = zeros(ndofs + 1, 1);
+    F = zeros(ndofs, 1);
     for e = 1:n_elms
         % Get element nodes and DOFs
         el_ids  = elms(e, :);
@@ -109,7 +112,7 @@ function F = compute_rhs(p, mesh, disc, parameters)
 
         %% Q domain integral
         % Compute Zv
-        Zv = - el_xq .* gradv_Q * xi + (el_tq - Tstar) .* vt_Q * beta;
+        Zv = - el_xq .* gradv_Q * XI + (el_tq - Tstar) .* vt_Q * BETA;
         % Compute Wv
         Wv = vtt_Q - Lapv_Q * c^2;
         % Integrate using Gauss quadrature
@@ -129,12 +132,14 @@ function F = compute_rhs(p, mesh, disc, parameters)
         el_xq = xxqh(1:nq) + xx(pivots(e));
     
         % u1 and u0x evaluation 
+        U0      = u0(el_xq);
         U0x     = u0x(el_xq);
         U1      = u1(el_xq);
-
+        
         % Integrand evaluation
-        integrand = beta * Tstar * (U1 .* vt_0 + c^2 * U0x .* vx_0) + ...
-                    xi * el_xq .* (vx_0 .* U1 + U0x .* vt_0);
+        integrand = BETA * Tstar * (U1 .* vt_0 + c^2 * U0x .* vx_0) + ...
+                    XI * el_xq .* (vx_0 .* U1 + U0x .* vt_0) + ...
+                    A0 * T^(-1) * v_0 .* U0;
         local_rhs_0 = sum( integrand .* wqx ).';  
         F(el_dofs) = F(el_dofs) + local_rhs_0;
     end
@@ -149,10 +154,10 @@ function F = compute_rhs(p, mesh, disc, parameters)
         el_tq = ttqh(nq*(1:nq)) + tt(pivots(e));
 
         % g evaluation
-        G = g(a, el_tq);
+        G = gI(a, el_tq);
 
         % Zv boundary evaluation
-        Zv_bound = - a * vx_a * xi + (el_tq - Tstar) .* vt_a * beta;
+        Zv_bound = - a * vx_a * XI + (el_tq - Tstar) .* vt_a * BETA;
         local_rhs_a = sum(Zv_bound .* G .* wqt).';
         F(el_dofs) = F(el_dofs) - c^2 * local_rhs_a;
     end
@@ -167,33 +172,12 @@ function F = compute_rhs(p, mesh, disc, parameters)
         el_tq = ttqh(nq*(1:nq)) + tt(pivots(e));
 
         % g evaluation
-        G = g(b, el_tq);
+        G = gI(b, el_tq);
 
         % Zv boundary evaluation
-        Zv_bound = - b * vx_b * xi + (el_tq - Tstar) .* vt_b * beta;
+        Zv_bound = - b * vx_b * XI + (el_tq - Tstar) .* vt_b * BETA;
         local_rhs_b = sum(Zv_bound .* G .* wqt).';
         F(el_dofs) = F(el_dofs) - c^2 * local_rhs_b;
     end
     
-    if poisson == 1
-        F = zeros(ndofs, 1);
-        for e = 1:n_elms
-            % Get element nodes and DOFs
-            el_ids  = elms(e, :);
-            el_dofs = mapper(el_ids, nx, nt);
-            % Move quadrature nodes
-            el_xq = xxqh + xx(pivots(e));
-            el_tq = ttqh + tt(pivots(e));
-            % Function f local evaluation
-            f_eval = f(el_xq, el_tq);
-    
-            %% Q domain integral
-            % Compute Zv
-            % Integrate using Gauss quadrature
-            local_rhs_Q = sum( f_eval .* kron(psi_T, psi_X) .* wqxt).';
-            
-            %% Sigma=a domain integral
-            F(el_dofs) = F(el_dofs) + local_rhs_Q;
-        end
-    end
 end

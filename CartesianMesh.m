@@ -26,7 +26,7 @@ function mesh = CartesianMesh(disc)
 
     %% Boundary elments
     mesh.bot_elms   = 1:nx;
-    mesh.top_elms   = ((nx - 1) * nt + 1):n_elms;
-    mesh.left_elms  = 1:nt:n_elms;
-    mesh.right_elms = nx:nt:n_elms;
+    mesh.top_elms   = (nx * (nt - 1) + 1):n_elms;
+    mesh.left_elms  = 1:nx:n_elms;
+    mesh.right_elms = nx:nx:n_elms;
 end

@@ -39,7 +39,7 @@ function K = assemble(Kloc_struct, mesh, disc)
             opQx(:) + opQxVar(:) * xx(pivots(e)) + ...
             opQt(:) + opQtVar(:) * tt(pivots(e));
     end
-    K = sparse(Ig, Jg, Kg, ndofs + 1, ndofs);
+    K = sparse(Ig, Jg, Kg, ndofs, ndofs);
     assembly_time = toc;
-    fprintf("Global matrix assembly time:\t %.4f seconds\n", assembly_time);
+%     fprintf("Global matrix assembly time:\t %.4f seconds\n", assembly_time);
 end

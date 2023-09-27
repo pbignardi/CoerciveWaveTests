@@ -44,5 +44,5 @@ function K = assemble_boundary(Kloc, mesh, disc, bound_elms, component)
         Kg(:, e) = opB(:) + opBx(:) + ... 
             pp(pivots(el)) * opBxVar(:);
     end
-    K = sparse(Ig, Jg, Kg, ndofs + 1, ndofs);   
+    K = sparse(Ig, Jg, Kg, ndofs, ndofs);   
 end
