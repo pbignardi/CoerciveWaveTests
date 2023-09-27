@@ -35,53 +35,40 @@ function errors = ComputeErrors(u, problem, mesh, disc, err_type)
     global_wq = reshape(kron(wqxt, ones(1, nx * nt)), TotNQ, 1);
     wqt = reshape(kron(wqt, ones(1, nt)), [], 1);
     wqx = reshape(kron(wqx, ones(1, nx)), [], 1);
-    %% Basis evaluation
-    [psi, dpsi, ddpsi] = BasisEvaluation(xq);
-    % boundary evaluations
-    Estart_d0 = [1, 0, 0, 0];   Estart_d1 = [0, 0, 1, 0];
-    Eend_d0 = [0, 1, 0, 0];     Eend_d1 = [0, 0, 0, 1];
-    
-    % volume local terms 
-    grad_eval   = kron(psi, dpsi * hx^(-1));
-    dt_eval     = kron(dpsi * ht^(-1), psi);
-    lap_eval    = kron(psi, ddpsi * hx^(-2));
-    ddt_eval    = kron(ddpsi * ht^(-2), psi);
-
-    % Omega0 local terms
-    vt_0    = kron(Estart_d1 * ht^(-1), psi);
-    vx_0    = kron(Estart_d0, dpsi * hx ^ (-1));
-    v_0     = kron(Estart_d0, psi);
-
-    % OmegaT local terms
-    vt_T    = kron(Eend_d1 * ht^(-1), psi);
-    vx_T    = kron(Eend_d0, dpsi * hx ^ (-1));
-
-    % Sigma=a local terms
-    vt_a    = kron(dpsi * ht^(-1), Estart_d0);
-    vx_a    = kron(psi, Estart_d1 * hx^(-1));
-   
-    % Sigma=b local terms
-    vt_b    = kron(dpsi * ht^(-1), Eend_d0);
-    vx_b    = kron(psi, Eend_d1 * hx^(-1));
 
     %% Evaluate u_ex and u
     [U, X, T] = SolutionEval(u, mesh, disc, xq);
-    U = reshape(U.', [], 1);
+
     X = reshape(X.', [], 1);
     T = reshape(T.', [], 1);
-    Ux = reshape(OperatorEval(u, mesh, disc, xq, grad_eval).', [], 1);
-    Ut = reshape(OperatorEval(u, mesh, disc, xq, dt_eval).', [], 1);
-    Uxx = reshape(OperatorEval(u, mesh, disc, xq, lap_eval).', [], 1);
-    Utt = reshape(OperatorEval(u, mesh, disc, xq, ddt_eval).', [], 1);
-    UxOT = reshape(OperatorBoundaryEval(u, mesh, disc, xq, vx_T, top_elms).', [], 1);
-    UtOT = reshape(OperatorBoundaryEval(u, mesh, disc, xq, vt_T, top_elms).', [], 1);
-    UxOZ = reshape(OperatorBoundaryEval(u, mesh, disc, xq, vx_0, bot_elms).', [], 1);
-    UtOZ = reshape(OperatorBoundaryEval(u, mesh, disc, xq, vt_0, bot_elms).', [], 1);
-    UOZ = reshape(OperatorBoundaryEval(u, mesh, disc, xq, v_0, bot_elms).', [], 1);
-    UxSIa = reshape(OperatorBoundaryEval(u, mesh, disc, xq, vx_a, left_elms).', [], 1);
-    UtSIa = reshape(OperatorBoundaryEval(u, mesh, disc, xq, vt_a, left_elms).', [], 1);
-    UxSIb = reshape(OperatorBoundaryEval(u, mesh, disc, xq, vx_b, right_elms).', [], 1);
-    UtSIb = reshape(OperatorBoundaryEval(u, mesh, disc, xq, vt_b, right_elms).', [], 1);
+    U = OperatorEval(u, mesh, disc, {xq, xq}, 'u');
+    U = reshape(U, [], 1);
+    Ux = OperatorEval(u, mesh, disc, {xq, xq}, 'ux');
+    Ux = reshape(Ux, [], 1);
+    Ut = OperatorEval(u, mesh, disc, {xq, xq}, 'ut');
+    Ut = reshape(Ut, [], 1);
+    Uxx = OperatorEval(u, mesh, disc, {xq, xq}, 'uxx');
+    Uxx = reshape(Uxx, [], 1);
+    Utt = OperatorEval(u, mesh, disc, {xq, xq}, 'utt');
+    Utt = reshape(Utt, [], 1);
+    UxOT = OperatorEval(u, mesh, disc, {xq, 1}, 'ut', reshape(top_elms, 1, []));
+    UxOT = reshape(UxOT, [], 1);
+    UtOT = OperatorEval(u, mesh, disc, {xq, 1}, 'ux', reshape(top_elms, 1, []));
+    UtOT = reshape(UtOT, [], 1);
+    UxOZ = OperatorEval(u, mesh, disc, {xq, 0}, 'ut', reshape(bot_elms, 1, []));
+    UxOZ = reshape(UxOZ, [], 1);
+    UtOZ = OperatorEval(u, mesh, disc, {xq, 0}, 'ux', reshape(bot_elms, 1, []));
+    UtOZ = reshape(UtOZ, [], 1);
+    UOZ = OperatorEval(u, mesh, disc, {xq, 0}, 'u', reshape(bot_elms, 1, []));
+    UOZ = reshape(UOZ, [], 1);
+    UxSIa = OperatorEval(u, mesh, disc, {xq, 0}, 'ux', reshape(left_elms, [], 1));
+    UxSIa = reshape(UxSIa, [], 1);
+    UtSIa = OperatorEval(u, mesh, disc, {xq, 0}, 'ut', reshape(left_elms, [], 1));
+    UtSIa = reshape(UtSIa, [], 1);
+    UxSIb = OperatorEval(u, mesh, disc, {xq, 1}, 'ux', reshape(right_elms, [], 1));
+    UxSIb = reshape(UxSIb, [], 1);
+    UtSIb = OperatorEval(u, mesh, disc, {xq, 1}, 'ut', reshape(right_elms, [], 1));
+    UtSIb = reshape(UtSIb, [], 1);
 
     % Exact solution evaluations
     U_ex    = u_ex(X, T);
