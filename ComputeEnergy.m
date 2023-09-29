@@ -1,35 +1,34 @@
-function E = ComputeEnergy(u, ts, mesh, disc, problem)
+function E = ComputeEnergy(u, t, mesh, disc, problem)
+    %% Parameters unpacking
+    % Discretisation parameters
     nx = disc.nx;
     nt = disc.nt;
     hx = disc.hx;
-    ht = disc.ht;
 
-    nq = 8;
-    
-    % Total number of quadrature points
-    TotNQ = nx * nt * nq * nq;
-    
-    % Quadrature weights
+    % Problem parameters
+    c = problem.c;
+
+    nq = 9;
     [xq, wq] = gaussquad(nq);
-    wqt = wq * ht;
-    wqx = wq * hx;
-    wqxt = kron(wqt, wqx);
-    global_wq = reshape(kron(wqxt, ones(1, nx * nt)), TotNQ, 1);
-    wqt = reshape(kron(wqt, ones(1, nt)), [], 1);
-    wqx = reshape(kron(wqx, ones(1, nx)), [], 1);
-    %% Basis evaluation
-    [psi, dpsi, ~] = BasisEvaluation(xq);
-    []
-    % volume local terms 
-    grad_eval   = kron(psi, dpsi * hx^(-1));
-    dt_eval     = kron(dpsi * ht^(-1), psi);
-    
-    %% Evaluate gradu and timeder u
-    [~, X, T, W] = SolutionEval(u, mesh, disc);
-    X = reshape(X(1, 1:end), [], 1);
-    T = reshape(T(1:end, 1), [], 1);
-    Ux = OperatorEval(u, mesh, disc, xq, grad_eval);
-    Ut = OperatorEval(u, mesh, disc, xq, dt_eval);
-    E = (problem.c ^ 2 * Ux .* Ux) * wqx;
-    E = E + (Ut .* Ut) * wqx;
+    wqx = reshape(wq, 1, []) * hx;
+    wqx = repmat(wqx, 1, nx);
+
+    E = zeros(size(t));
+    % map time into each reference element
+    i = 1;
+    Omegat_elms = reshape(mesh.bot_elms, 1, []);
+    for k = 1:numel(t)
+        while i < nt && ~(disc.t(i) <= t(k) && disc.t(i + 1) > t(k))
+            i = i + 1;
+            Omegat_elms = Omegat_elms + nx;
+        end
+       
+        
+        % evaluate operators
+        tloc = (t(k) - disc.t(i))/disc.ht;
+        eval_points = {xq, tloc};
+        Ux = OperatorEval(u, mesh, disc, eval_points, 'ux', Omegat_elms);
+        Ut = OperatorEval(u, mesh, disc, eval_points, 'ut', Omegat_elms);
+        E(k) = 1/2 * (c^2 * Ux .* Ux + Ut .* Ut) * wqx.';
+    end
 end
