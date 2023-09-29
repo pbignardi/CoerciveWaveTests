@@ -65,7 +65,7 @@ function [U, X, T] = OperatorEval(u, mesh, disc, xq, opname, varargin)
             % Populate evaluation
             J = ((j - 1) * nqx + 1):(j * nqx);
             I = ((i - 1) * nqt + 1):(i * nqt);
-            U(I, J) = reshape(el_u, nqt, nqx).';
+            U(I, J) = reshape(el_u, nqx, nqt).'; % this is to reshape el_u by rows and not by columns
 	        X(I, J) = el_x;
 	        T(I, J) = el_t;
         end
