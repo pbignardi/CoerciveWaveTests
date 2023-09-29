@@ -27,7 +27,7 @@ function [U, X, T] = OperatorEval(u, mesh, disc, xq, opname, varargin)
     % Discretisation paramters
     if isempty(varargin)
 	    nelms = size(elms, 1);
-	    eval_elms = reshape(1:nelms, [disc.nt, disc.nx]).';
+	    eval_elms = reshape(1:nelms, [disc.nx, disc.nt]).';
     else
 	    eval_elms = varargin{1};
     end
