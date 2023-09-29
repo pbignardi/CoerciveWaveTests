@@ -7,7 +7,7 @@ addpath(genpath("local_stiffness"));
 
 %% Define problem, discretization and mesh
 % Create simple problem
-p = WaveProblem(4, 'k', 50);
+p = WaveProblem(3, 'k', 50);
 % Define domain
 Q = p.Q;
 % Discretise the domain
@@ -22,14 +22,11 @@ form = initializeForm(p, Q, 'GEN');
 u = SolverWaves(p, Q, mesh, d, form);
 [~, uproj, ~] = ProjectionBFS(p, d);
 %% Plot solution
-[U, X, T] = SolutionGridEval(u, mesh, d, linspace(p.Q.xmin, p.Q.xmax, 201), ...
-    linspace(0, p.Q.T, 201));
-[Uproj, ~, ~] = SolutionGridEval(uproj, mesh, d, linspace(p.Q.xmin, p.Q.xmax, 201),...
-    linspace(0, p.Q.T, 201));
-% pcolor(X, T, (p.u(X, T) - U));
+[U, X, T] = OperatorEval(u, mesh, d, {linspace(0, 1, 5), linspace(0, 1,  5)}, 'u');
+[Uproj, ~, ~] = OperatorEval(uproj, mesh, d, {linspace(0, 1, 5), linspace(0, 1, 5)}, 'u');
+
 pcolor(X, T, U);
 colorbar
-% surf(X, T, U);
 shading flat; 
 xlabel("X"); ylabel("T");
 
