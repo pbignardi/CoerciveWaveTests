@@ -117,7 +117,7 @@ set(gcf, 'Position', [1,1, 960, 720]);
 axis padded
 xlabel('h');
 ylabel('absolute error');
-title(sprintf('convergence of energy-norm error at t=%f', t));
+title(sprintf('convergence of energy-norm error at t=%.2f', t));
 
 loglog_plot(HPlot, EnergyNormErrors, '-d', linewidth, BLUE, markersize);
 p_En = polyfit(log(HPlot(end-2:end)), log(EnergyNormErrors(end-2:end)), 1);
