@@ -1,23 +1,15 @@
-function K = assemble(Kloc_struct, mesh, disc)
+function K = assembleLS(Kloc, mesh, disc)
     %% Unpack parameters
     % Discretisation parameters
     nx = disc.nx;
     nt = disc.nt;
-    xx = disc.xx.';
-    tt = disc.tt.';
     % Mesh parameters
     elms    = mesh.elms;
-    pivots  = mesh.pivots;
     n_elms  = size(elms,1);
     % Other parameters
     n_nodes = (nx + 1) * (nt + 1);
     ndofs = 4*n_nodes;
     % Extract opQ* matrix
-    opQ     = Kloc_struct.op;
-    opQx    = Kloc_struct.opx;
-    opQt    = Kloc_struct.opt;
-    opQxVar = Kloc_struct.opxVar;
-    opQtVar = Kloc_struct.optVar;
 
     %% Assemble matrix
     Kg = zeros(16*16, n_elms);
@@ -35,11 +27,9 @@ function K = assemble(Kloc_struct, mesh, disc)
         
         % Combine Kloc and variable local matrix
         % So only one assemble call is necessary
-        Kg(:, e) = opQ(:) + ...
-            opQx(:) + opQxVar(:) * xx(pivots(e)) + ...
-            opQt(:) + opQtVar(:) * tt(pivots(e));
+        Kg(:, e) = Kloc(:);
     end
     K = sparse(Ig, Jg, Kg, ndofs, ndofs);
     assembly_time = toc;
-%     fprintf("Global matrix assembly time:\t %.4f seconds\n", assembly_time);
+    % fprintf("Global matrix assembly time:\t %.4f seconds\n", assembly_time);
 end

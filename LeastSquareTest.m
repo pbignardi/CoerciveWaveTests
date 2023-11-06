@@ -7,27 +7,25 @@ addpath(genpath("local_stiffness"));
 
 %% Define problem, discretization and mesh
 % Create simple problem
-p = WaveProblem(3, 'k', 50);
+p = WaveProblem(7);
 % Define domain
-Q = p.Q;
+Q = Domain(-1, 1, 1);
 % Discretise the domain
-nx = 64; nt = 64;
+nx = 80; nt = 128;
 d = Discretization(nx, nt, Q);
 % Build mesh
 mesh = CartesianMesh(d);
 
-%% Custom form parameters
-form = initializeForm(p, Q, 'GEN');
 %% Solve problem
-u = SolverWaves(p, Q, mesh, d, form);
-[~, uproj, ~] = ProjectionBFS(p, d);
-%% Plot solution
-[U, X, T] = OperatorEval(u, mesh, d, {linspace(0, 1, 5), linspace(0, 1,  5)}, 'u');
-[Uproj, ~, ~] = OperatorEval(uproj, mesh, d, {linspace(0, 1, 5), linspace(0, 1, 5)}, 'u');
+u = SolverLeastSquares(p, Q, mesh, d);
+omega0_mean = ComputeMean(u, 0, mesh, d);
+u = MeanShift(u, omega0_mean, mesh);
 
+%% Plot solution
+[U, X, T] = SolutionEval(u, mesh, d);
 pcolor(X, T, U);
-colorbar
-shading flat; 
+%surf(X, T, U);
+shading flat;
 xlabel("X"); ylabel("T");
 
 %% Compute errors
@@ -35,5 +33,5 @@ errors = ComputeErrors(u, p, mesh, d, "relative");
 errors.L2E
 
 %% Animate
-%[U, X, T] = SolutionEval(u, mesh, d, linspace(0,1,10).');
+[U, X, T] = SolutionEval(u, mesh, d, linspace(0,1,10).');
 %animate(X, T, U);

@@ -1,4 +1,4 @@
-function S = stiffness(ord_u, ord_v, force)
+function S = stiffness_buffered(ord_u, ord_v, force)
     if force == 0
         if ord_u == 0
             if ord_v == 0

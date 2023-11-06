@@ -16,8 +16,7 @@ function disc = Discretization(n_elms_x, n_elms_t, domain)
     disc.x = x_nodes;
     disc.t = t_nodes;
     % Nodes matrices in x and t
-    disc.xx = kron(ones(n_elms_t + 1, 1), x_nodes);
-    disc.tt = kron(t_nodes, ones(1, n_elms_x + 1));
+    [disc.xx, disc.tt] = meshgrid(x_nodes, t_nodes);
 end
 
 

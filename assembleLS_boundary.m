@@ -1,29 +1,14 @@
-function K = assemble_boundary(Kloc, mesh, disc, bound_elms, component)
+function K = assembleLS_boundary(Kloc, mesh, disc, bound_elms)
     %% Unpack parameters
     % Discretisation parameters
     nx = disc.nx;
     nt = disc.nt;
-    xx = disc.xx.';
-    tt = disc.tt.';
     % Mesh parameters
-    pivots  = mesh.pivots;
     elms    = mesh.elms;
     nb_elms = length(bound_elms);
     % Other parameters
     n_nodes = (nx + 1) * (nt + 1);
     ndofs = 4*n_nodes;
-    
-    % Extract Kloc matrices
-    opB     = Kloc.op;
-    opBx    = Kloc.opx;
-    opBxVar = Kloc.opxVar;
-
-    % Select the component along which to integrate variable terms
-    if component == 1
-        pp = xx;
-    else 
-        pp = tt;
-    end
    
     %% Assemble matrix
     Kg = zeros(16*16, nb_elms);
@@ -41,8 +26,7 @@ function K = assemble_boundary(Kloc, mesh, disc, bound_elms, component)
         Ig(:, e) = reshape(kron(ones(1,16), el_dofs.'), [], 1);
 
         % Combine Kloc and variable local matrix
-        Kg(:, e) = opB(:) + opBx(:) + ... 
-            pp(pivots(el)) * opBxVar(:);
+        Kg(:, e) = Kloc(:);
     end
     K = sparse(Ig, Jg, Kg, ndofs, ndofs);   
 end
