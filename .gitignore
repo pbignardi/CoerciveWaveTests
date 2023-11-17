@@ -1,4 +1,10 @@
 *.asv
 *.mat
 figures/
+Results/
 codegen/
+.DS_Store
+*.mlx
+docs/
+batchTests/
+
