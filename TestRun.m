@@ -4,23 +4,23 @@ clc
 %clear
 close all
 addpath(genpath("local_stiffness"));
+addpath(genpath("matlab2tikz"));
 
 %% Define problem, discretization and mesh
 % Create simple problem
-p = WaveProblem(3, 'k', 50);
-% Define domain
-Q = p.Q;
+problem = WaveProblem(1);
 % Discretise the domain
-nx = 64; nt = 64;
-d = Discretization(nx, nt, Q);
+nx = 128; nt = 128;
+d = Discretization(nx, nt, problem.Q);
 % Build mesh
 mesh = CartesianMesh(d);
 
 %% Custom form parameters
-form = initializeForm(p, Q, 'GEN');
+form = initializeForm(problem, Q, 'OPT');
+form.NU = 1.0001;
 %% Solve problem
-u = SolverWaves(p, Q, mesh, d, form);
-[~, uproj, ~] = ProjectionBFS(p, d);
+u = SolverWaves(problem, Q, mesh, d, form);
+[~, uproj, ~] = ProjectionBFS(problem, d);
 %% Plot solution
 [U, X, T] = OperatorEval(u, mesh, d, {linspace(0, 1, 5), linspace(0, 1,  5)}, 'u');
 [Uproj, ~, ~] = OperatorEval(uproj, mesh, d, {linspace(0, 1, 5), linspace(0, 1, 5)}, 'u');
@@ -31,9 +31,5 @@ shading flat;
 xlabel("X"); ylabel("T");
 
 %% Compute errors
-errors = ComputeErrors(u, p, mesh, d, "relative");
+errors = ComputeErrors(u, problem, mesh, d, "relative");
 errors.L2E
-
-%% Animate
-%[U, X, T] = SolutionEval(u, mesh, d, linspace(0,1,10).');
-%animate(X, T, U);

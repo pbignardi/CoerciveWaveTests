@@ -1,24 +1,9 @@
-%% Test with beta = xi = 1
-[err3, ~] = Convergence(3, 'PAR_TYPE', 'CUSTOM', 'BETA', 1, 'XI', 1);
-[err2, ~] = Convergence(2, 'PAR_TYPE', 'CUSTOM', 'BETA', 1, 'XI', 1);
-
-%% Compute quasi optimality constant in that case (theoretical and numerical)
-qo_3 = {err3.L2errors ./ err3.L2projErrors, ...
-    err3.H1errors ./ err3.H1projErrors, ... 
-    err3.Verrors ./ err3.VprojErrors};
-qo_2 = {err2.L2errors ./ err2.L2projErrors, ...
-    err2.H1errors ./ err2.H1projErrors, ... 
-    err2.Verrors ./ err2.VprojErrors};
-qo_table_3 = table(qo_3{:});
-qo_table_2 = table(qo_2{:});
-
-
 %% Fix xi or not?
-pnum = 3;
-N = 1;
-xi_list = logspace(-3, 3, 7*(2*N+1));
+pnum = 2;
+xi_list = logspace(-3, 3, 100);
 % ratio_list = logspace(0, 4, numel(xi_list)); % beta / xi
 beta_list = logspace(-5, 5, numel(xi_list));
+
 pdata = WaveProblem(pnum);
 ddata = Discretization(32, 32, pdata.Q);
 mesh = CartesianMesh(ddata);
@@ -30,8 +15,9 @@ R_min = @(nu) max([1./(nu-1)*(pdata.Q.L/pdata.c/pdata.Q.T + 1), ...
 
 %% 2d surf plot
 
-l2err_beta_xi_comb = zeros(numel(xi_list), numel(beta_list));
-wp_idx = zeros(numel(xi_list), numel(beta_list));
+l2err_beta_xi_comb = nan(numel(beta_list), numel(xi_list));
+kcond_beta_xi_comb = nan(numel(beta_list), numel(xi_list));
+wp_idx = zeros(numel(beta_list), numel(xi_list));
 for i = 1:numel(beta_list)
     beta = beta_list(i);
     parfor j = 1:numel(xi_list)
@@ -41,10 +27,11 @@ for i = 1:numel(beta_list)
         %     'PLOT', false, 'VERBOSE', false);
         fdata = initializeForm(pdata, pdata.Q, 'CUSTOM', ...
             'BETA', beta, 'xi', xi);
-        [u, ~] = SolverWaves(pdata, pdata.Q, mesh, ddata, fdata);
+        [u, Kcond] = SolverWaves(pdata, pdata.Q, mesh, ddata, fdata);
         err = ComputeErrors(u, pdata, mesh, ddata, 'relative');
         % l2err_beta_xi_comb(j, i) = err_table.L2errors(end-1);
-        l2err_beta_xi_comb(j, i) = err.L2E;
+        l2err_beta_xi_comb(i, j) = err.L2E;
+        kcond_beta_xi_comb(i, j) = Kcond;
         % if CheckConvergence(err_table, 3, 4, 3, 2, 1e-1)
         %     wp_idx(j, i) = 1;
         % end
@@ -53,29 +40,83 @@ for i = 1:numel(beta_list)
 end
 
 %% Make plot
-[Beta, Xi] = meshgrid(beta_list, xi_list);
+set(groot,'defaultAxesTickLabelInterpreter','latex'); 
+set(groot,'defaulttextinterpreter','latex');
+set(groot,'defaultLegendInterpreter','latex');
+set(0,'DefaultTextInterpreter','latex')
+set(0,'DefaultLegendInterpreter','latex')
+
+% create dotted area
+[xi_area, beta_area] = meshgrid(xi_list(2:6:end), beta_list(2:6:end));
+wp_idx = zeros(size(xi_area));
+BetaMin = @(xi) max(xi.*(pdata.Q.L/pdata.c/pdata.Q.T + 1), xi.*pdata.Q.L/pdata.c/pdata.Q.T*(pdata.theta+1/(pdata.theta*pdata.Q.delta)));
+for i = 1:size(xi_area, 1)
+    for j = 1:size(beta_area, 2)
+        xi = xi_area(i, j);
+        beta = beta_area(i, j);
+        if beta >= BetaMin(xi)
+            wp_idx(i, j) = true;
+        end
+    end
+end
+
+[Xi, Beta] = meshgrid(xi_list, beta_list);
 l2err_comb = figure;
 fs = 20;                                                       
+surf(Xi, Beta, min(l2err_beta_xi_comb, 1));
 h = gca;
-surf(Beta, Xi, min(l2err_beta_xi_comb, 1));
-hold on
-scatter3(Beta, Xi, 2 * (Beta ./ Xi < R_min(2)), 'xw', 'LineWidth', 1);
-scatter3(Beta, Xi, wp_idx, 'og', 'LineWidth', 1);
 set(h, 'xscale', 'log');
 set(h, 'yscale', 'log');
-set(h, 'zscale', 'log');
 set(h,'ColorScale','log');
-set(h, 'xlim', [min(beta_list) max(beta_list)]);
-set(h, 'ylim', [min(xi_list) max(xi_list)]);
+set(h, 'xlim', [min(xi_list) max(xi_list)]);
+set(h, 'ylim', [min(beta_list) max(beta_list)]);
+% set(gcf, 'Position', [1,1, 960, 720]);
 fontsize(fs, 'points');
-xlabel('$\beta$',Interpreter='latex');
-ylabel('$\xi$',Interpreter='latex');
+xlabel('$\xi$',Interpreter='latex');
+ylabel('$\beta$',Interpreter='latex');
+xticks([1e-3, 1e-1, 1e1, 1e3]);
+yticks([1e-5 1e-3 1e-1 1e1 1e3 1e5]);
 clim([min(l2err_beta_xi_comb(:)) 1]);
 c = colorbar;
 set(c,'TickLabelInterpreter','latex');
-view(2)
 shading flat
 colormap turbo
+h.BoxStyle = 'full';
+view(2)
+hold on
+% area(xi_list, BetaMin(xi_list), 'LineWidth', 2, 'FaceColor', 'w', 'FaceAlpha', 0, 'EdgeColor', 'white')
+plot(xi_list, BetaMin(xi_list), 'w', 'LineWidth', 2)
+scatter(xi_area(wp_idx==0),beta_area(wp_idx==0), 24, 'white', 'filled')
+hold off
+
+kcond_comb = figure;
+fs = 20;                                                       
+h = gca;
+pcolor(Xi, Beta, max(kcond_beta_xi_comb, 1));
+set(h, 'xscale', 'log');
+set(h, 'yscale', 'log');
+set(h,'ColorScale','log');
+set(h, 'xlim', [min(xi_list) max(xi_list)]);
+set(h, 'ylim', [min(beta_list) max(beta_list)]);
+% set(gcf, 'Position', [1,1, 960, 720]);
+fontsize(fs, 'points');
+xlabel('$\xi$',Interpreter='latex');
+ylabel('$\beta$',Interpreter='latex');
+xticks([1e-3, 1e-1, 1e1, 1e3]);
+yticks([1e-5 1e-3 1e-1 1e1 1e3 1e5]);
+clim([min(kcond_beta_xi_comb(:)) 1e15]);
+c = colorbar;
+set(c,'TickLabelInterpreter','latex');
+shading flat
+colormap turbo
+hold on
+% area(xi_list, BetaMin(xi_list), 'LineWidth', 2, 'FaceColor', 'w', 'FaceAlpha', 0, 'EdgeColor', 'white')
+plot(xi_list, BetaMin(xi_list), 'w', 'LineWidth', 2)
+scatter(xi_area(wp_idx==0),beta_area(wp_idx==0), 24, 'white', 'filled')
+hold off
+
+% DO NOT USE MATLAB2TIKZ, LATEX DOESN'T LIKE THIS PLOT. TOO MUCH MEMORY
+% REQUIRED
 
 % this shows that taking beta \ xi > R_min is necessary to achieve good
 % accuracy, otherwise the method is not well posed. To set ourselves in the
@@ -128,7 +169,7 @@ hold off
 
 %% Testing different nu
 % letting nu varies, and taking optimal other values
-nu_list = logspace(0.1, 2, 4);
+nu_list = logspace(0.001, 2, 7);
 L2err_nu = zeros(numel(nu_list), 1);
 for i = 1:numel(nu_list)
     fdata = initializeForm(pdata, pdata.Q, 'CUSTOM', 'NU', nu_list(i));
@@ -167,6 +208,52 @@ for i = 1:numel(beta_list)
     fprintf('-> i = [%d / %d]\n', i, numel(beta_list));
 end
 
+%% check what difference does nu make.
+% compute the diff of each l2error when nu changes, compute the max, if it
+% relevant then ok, else we can claim this and ignore the parameter
+nu_variance = nan(size(l2err_pars, [1, 2]));
+nu_mean = nan(size(l2err_pars, [1,2]));
+nu_min = nan(size(l2err_pars, [1, 2]));
+nu_max = nan(size(l2err_pars, [1, 2]));
+
+for i = 1:numel(beta_list)
+    beta = beta_list(i);
+    for j = 1:numel(xi_list)
+        ids = wp_idx(i, j, :) == 1;
+        ids = ids(:);
+        good_errors = l2err_pars(i, j, ids);
+        tmp = var(good_errors);
+        nu_mean(i, j) = mean(good_errors); 
+        if numel(good_errors) > 0
+            nu_min(i, j) = min(good_errors);
+            nu_max(i, j) = max(good_errors);
+        end
+        if isnan(tmp)
+        else
+            nu_variance(i, j) = tmp;
+        end
+    end
+end
+% plot everything
+pcolor(nu_variance)
+set(gca, 'ColorScale', 'log');
+title('variance')
+colorbar
+figure
+pcolor(nu_mean)
+set(gca, 'ColorScale', 'log');
+title('mean')
+colorbar
+figure
+pcolor(nu_min)
+set(gca, 'ColorScale', 'log');
+title('min')
+colorbar
+figure
+pcolor(nu_max)
+set(gca, 'ColorScale', 'log');
+title('max')
+colorbar
 %% plot in sequence of nu
 figure
 h = gca;

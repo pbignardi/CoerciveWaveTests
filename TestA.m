@@ -1,9 +1,17 @@
-function [] = TestA(p_num, N, varargin)
+function [] = TestA(p_num, N, options)
 %TestA - Compute L2 errors for wide range of AQ and A0, then saves plots
 %   INPUTS:
 %       p_num:  Problem number (see WaveProblem.m)
 %       N:      Number of sample per each parameter
 %       M:      (Optional) Number of element in each direction (default 32)
+arguments
+    p_num
+    N = 75
+    options.M = 64
+    options.SAVEFILE = false
+    options.SAVETIKZ = false
+    options.PARALLEL = true
+end
 
 set(groot,'defaultAxesTickLabelInterpreter','latex'); 
 set(groot,'defaulttextinterpreter','latex');
@@ -12,20 +20,7 @@ set(0,'DefaultTextInterpreter','latex')
 set(0,'DefaultLegendInterpreter','latex')
 
 addpath(genpath("local_stiffness"));
-SAVE_TO_FILE = true;
-
-if ischar(p_num)
-    p_num = str2double(p_num);
-end
-if ischar(N)
-    N = str2double(N);
-end
-
-if ~isempty(varargin)
-    M = varargin{1};
-else
-    M = 32;
-end
+addpath(genpath("matlab2tikz"));
 
 %% Define problem, discretization and mesh
 % Create simple problem
@@ -33,7 +28,7 @@ p = WaveProblem(p_num);
 % Define domain
 Q = p.Q;
 % Define number of elements
-nx = M; nt = M;
+nx = options.M; nt = options.M;
 % Define discretisation
 d = Discretization(nx, nt, Q);
 % Build mesh
@@ -59,6 +54,7 @@ char_line_count = strlength(progress_head);
 for i = 1:numel(AQs)
     % Loop for A0 (fixed A0 on each column)
     AQ_slice = AQs(i);
+    if options.PARALLEL
     parfor j = 1:numel(A0s)
         form = initializeForm(p, Q, 'custom', 'A', AQ_slice, 'A0', A0s(j));
         % Solve problem
@@ -69,6 +65,19 @@ for i = 1:numel(AQs)
         errors = ComputeErrors(u, p, mesh, d, "relative");
         L2errors(i, j) = errors.L2E;
         Kconds(i, j) = Kcond;
+    end
+    else
+        for j = 1:numel(A0s)
+        form = initializeForm(p, Q, 'custom', 'A', AQ_slice, 'A0', A0s(j));
+        % Solve problem
+        [u, Kcond] = SolverWaves( ...
+            p, Q, mesh, d, form);
+
+        % Compute errors
+        errors = ComputeErrors(u, p, mesh, d, "relative");
+        L2errors(i, j) = errors.L2E;
+        Kconds(i, j) = Kcond;
+        end
     end
     to_disp = "..." + string(round(100*i/numel(AQs))) + "%%";
     char_line_count = char_line_count + strlength(to_disp) - 1;
@@ -163,13 +172,17 @@ L2err = L2errors(i, :).';
 best_AQ_table = table(A0, L2err);
 
 %% Saving figures
-if SAVE_TO_FILE
-root_dir = "Results/ParsTestFigures/";
-base_filename = "testA-p" + string(p_num) + "-" + ...
-    "-numEl" + M;
-exportgraphics(l2err_fig, root_dir + base_filename + "-l2err.png", 'Resolution', 300);
-exportgraphics(cond_fig, root_dir + base_filename + "-cond.png", 'Resolution', 300);
-writetable(best_AQ_table, root_dir + base_filename + "bestAQerrslice.dat");
-writetable(best_A0_table, root_dir + base_filename + "bestA0errslice.dat");
+if options.SAVE_TO_FILE
+    root_dir = "Results/ParsTestFigures/";
+    base_filename = "testA-p" + string(p_num) + "-" + "-numEl" + M + "-tikz";
+    if options.OUTPUT_TIKZ
+        matlab2tikz('figurehandle', l2err_fig, 'filename', root_dir + base_filename + "-l2err.tex", 'noSize', true);
+        matlab2tikz('figurehandle', cond_fig, 'filename', root_dir + base_filename + "-cond.tex", 'noSize', true);
+    else
+        exportgraphics(l2err_fig, root_dir + base_filename + "-l2err.png", 'Resolution', 300);
+        exportgraphics(cond_fig, root_dir + base_filename + "-cond.png", 'Resolution', 300);
+    end
+    writetable(best_AQ_table, root_dir + base_filename + "bestAQerrslice.dat");
+    writetable(best_A0_table, root_dir + base_filename + "bestA0errslice.dat");
 end
 

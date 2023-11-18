@@ -1,9 +1,9 @@
 function [] = main()
     % Main C callable function
-    p_num = input("Select problem number (1-7): ")
-    T = input("Select end time T: ")
-    nx = input("Number of X-elements: ")
-    nt = input("NUmber of t-elements: ")
+    p_num = input("Select problem number (1-7): ");
+    T = input("Select end time T: ");
+    nx = input("Number of X-elements: ");
+    nt = input("NUmber of t-elements: ");
     %% Define problem, discretization and mesh
     % Create simple problem
     p = WaveProblem(p_num);

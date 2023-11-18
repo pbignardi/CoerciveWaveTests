@@ -1,4 +1,4 @@
-function [u, Kcond] = SolverWaves(problem, domain, mesh, disc, form)
+function varargout = SolverWaves(problem, domain, mesh, disc, form)
 % Solve the interior impedance problem using BFS element.
 %
 % INPUT:
@@ -11,7 +11,15 @@ function [u, Kcond] = SolverWaves(problem, domain, mesh, disc, form)
 % OUTPUT:
 %   u: (float[]) dof vector of solution
 %   Kcond: (float) condition number of the stiffness matrix
-options = struct('COND', false);
+
+% Parse variable input arguments
+arguments
+    problem
+    domain
+    mesh
+    disc
+    form
+end
 
 %% Unpacking parameters
 % Problem unpacking
@@ -227,20 +235,14 @@ K = K + Ka + Kb;
 %% Load vector assembly
 F = compute_rhs(problem, mesh, disc, parameters);
 
-%% Imposing initial boundary conditions
-initial_dofs = unique([bot n_nodes+bot 2*n_nodes+bot 3*n_nodes+bot]);
-internal = setdiff(1:size(K, 1), initial_dofs);   
-
 %% Solving
-u = zeros(size(K, 1), 1);
 u = K \ F;
 % u = gmres(K, F, restart, tol, maxit, []);
-if options.COND
-    Kcond = condest(K);
-else
-    Kcond = 1;
-end
 
+varargout{1} = u;
+if nargout == 2
+    varargout{2} = condest(K);
+end
 
 
 

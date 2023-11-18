@@ -1,6 +1,6 @@
-function error_table = EnergyConvergence(problem, t, varargin)
-%Energy Convergence - compute convergence of the energy as h\rightarrow 0
-% for the problem given, at time  t.
+function error_table = EnergyConvergence(problem, varargin)
+%Energy Convergence - convergence of sup_t of the energy as h\rightarrow 0
+% for t \in [0,T]
 %   INPUT:
 %   problem: struct of the problem to solve
 %   t: (float) time at which energy should be computed
@@ -16,9 +16,18 @@ function error_table = EnergyConvergence(problem, t, varargin)
 %   OUTPUT:
 %   error_table: table with energy-norm error and H col
 %
+% arguments
+%     problem
+%     options.PARTYPE = 'opt';
+%     options.TOFILE = false;
+%     options.PLOT = true;
+%     options.N = 2.^(1:7);
+%     options.ERRTYPE = 'relative';
+%     options.BETA = 
+% end
 options = struct('PAR_TYPE', 'opt', 'WRITE_TO_FILE', false, 'PLOT', true, ...
-    'N', [2, 4, 8, 16, 32, 64, 128], 'BETA', 1, 'XI', 1, 'NU', 1, 'A', 1, ...
-    'A0', 1);
+    'N', [2, 4, 8, 16, 32, 64, 128], 'ERR_TYPE', 'relative', ...
+    'BETA', 1, 'XI', 1, 'NU', 1, 'A', 1, 'A0', 1);
 
 optionNames = fieldnames(options);
 for pair = reshape(varargin, 2, [])
@@ -34,6 +43,7 @@ end
 if ~isempty(gcp("nocreate"))
     addpath(genpath('local_stiffness'));
 end
+t = linspace(0, problem.Q.T, 6 * 128);
 
 % Set the formulation parameters
 if strcmpi(options.PAR_TYPE, 'CUSTOM')
@@ -56,10 +66,20 @@ for n = options.N
     d = Discretization(nx, nt, problem.Q);
     mesh = CartesianMesh(d);
     [u, ~] = SolverWaves(problem, problem.Q, mesh, d, form);
+    % Try something different also: compute the energy error, across all
+    % times and take the supremum. It should converge with order 2
     [~, ~, uVproj] = ProjectionBFS(problem, d);
-    EnergyNormErrors(i) = ComputeEnergyNormError(u, t, mesh, d, problem);
-    errors = ComputeErrors(uVproj, problem, mesh, d, 'absolute');
-    VprojErrors(i) = errors.VnE;
+    numerical_energy = ComputeEnergy(u, t, mesh, d, problem);
+    exact_energy = zeros(size(numerical_energy));
+    for j = 1:max(size(numerical_energy))
+        exact_energy(j) = ComputeExactEnergy(t(j), problem);
+    end
+    
+    energy_norm_error = ComputeEnergyNormError(u, t, mesh, d, problem);
+    EnergyNormErrors(i) = max(energy_norm_error./exact_energy);
+
+    errors = ComputeErrors(uVproj, problem, mesh, d, options.ERR_TYPE);
+    VprojErrors(i) = errors.VnE^2;
     i = i + 1;
 end
 
@@ -119,16 +139,16 @@ xlabel('h');
 ylabel('absolute error');
 title(sprintf('convergence of energy-norm error at t=%.2f', t));
 
-loglog_plot(HPlot, EnergyNormErrors, '-d', linewidth, BLUE, markersize);
+loglog_plot(HPlot, EnergyNormErrors, '-d', linewidth, YELLOW, markersize);
 p_En = polyfit(log(HPlot(end-2:end)), log(EnergyNormErrors(end-2:end)), 1);
 EnergyNormLegend = strcat('Energy-norm error - order: ', string(p_En(1)));
 rates = diff(log(EnergyNormErrors))./diff(log(HPlot.'));
-for k = length(EnergyNormErrors):-1:2
-    text(HPlot(k)+0.1*HPlot(k), EnergyNormErrors(k), strcat('r=', ...
-        sprintf('%.2f',rates(k-1))), ...
-        Margin=10, FontSize=fs-2);
-end
-loglog_plot(HPlot, VprojErrors, '--', linewidth, BLUE, markersize-1);
+% for k = length(EnergyNormErrors):-1:2
+%     text(HPlot(k)+0.1*HPlot(k), EnergyNormErrors(k), strcat('r=', ...
+%         sprintf('%.2f',rates(k-1))), ...
+%         Margin=10, FontSize=fs-2);
+% end
+loglog_plot(HPlot, VprojErrors, '--', linewidth, GREEN, markersize-1);
 BestApproxLegend = strcat('Best approximation error');
 
 

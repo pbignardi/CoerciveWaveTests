@@ -6,12 +6,19 @@ clear
 close all
 addpath(genpath("local_stiffness"));
 
+WRITE_TO_FILE = false;
+PLOTS = false;
+TIMESLICES = true;
+QUADPOINTS = false;
+
 %% Define problem, discretization and mesh
 % Create simple problem
-p = WaveProblem(3);
+pnum = 3;
+p = WaveProblem(pnum);
 Q = p.Q;
 % Discretise the domain
-nx = 64; nt = 64;
+N = 16;
+nx = N; nt = N;
 d = Discretization(nx, nt, Q);
 % Build mesh
 mesh = CartesianMesh(d);
@@ -26,19 +33,22 @@ u = SolverWaves(p, Q, mesh, d, form);
 [~, uproj, ~] = ProjectionBFS(p, d);
 
 %% Compute energy at each time step
-Ts = linspace(0, 1, 400);
+if TIMESLICES
+Ts = linspace(0, 1, 6*128).';
 Eu = ComputeEnergy(u, Ts, mesh, d, p);
 
-figure(1)
 Eu_ex = zeros(size(Eu));
 for i = 1:numel(Ts)
     Eu_ex(i) = ComputeExactEnergy(Ts(i), p);
 end
+if PLOTS
+figure(1)
 plot(Ts, Eu);
 hold on
 plot(Ts, Eu_ex);
 hold off
 title('Energy computed using time-slices');
+end
 
 figure(2)
 error = abs(Eu - Eu_ex);
@@ -47,21 +57,32 @@ if all(Eu_ex ~= 0)
     error = error ./ Eu_ex;
     err_type = 'Relative';
 end
-plot(Ts, error);
-title([err_type, ' error of energy using time-slices']);
 
+energy_ts_table = table(Ts, Eu, Eu_ex, error);
+
+if WRITE_TO_FILE
+    writetable(energy_ts_table, 'Results/Energy/EnergyTableTS-p' + string(pnum) + '-N' + string(nx) + '.dat');
+end
+
+semilogy(Ts, error);
+title([err_type, ' error of energy using time-slices']);
+end
 %% Compute energy using time quadrature points as evaluation
-figure(3)
+if QUADPOINTS
 [Eu_qp, Ts_qp] = ComputeEnergyOnGrid(u, mesh, d, p);
 Eu_ex_qp = zeros(size(Eu_qp));
 for i = 1:numel(Eu_ex_qp)
     Eu_ex_qp(i) = ComputeExactEnergy(Ts_qp(i), p);
 end
+
+if PLOTS
+figure(3)
 plot(Ts_qp, Eu_qp);
 hold on
 plot(Ts_qp, Eu_ex_qp);
 hold off
 title('Energy evaluated at time quadrature points');
+end
 
 figure(4)
 error = abs(Eu_qp - Eu_ex_qp);
@@ -70,7 +91,15 @@ if all(Eu_ex_qp ~= 0)
     error = error ./ Eu_ex_qp;
     err_type = 'Relative';
 end
-plot(Ts_qp, error);
-title([err_type, ' error of energy using time quadrature points']);
 
+energy_qp_table = table(Ts_qp, Eu_qp, Eu_ex_qp, error);
+
+if WRITE_TO_FILE
+    writetable(energy_qp_table, 'Results/Energy/EnergyTableQP-p' + string(pnum) + '-N' + string(nx) + '.dat');
+end
+
+
+semilogy(Ts_qp, error);
+title([err_type, ' error of energy using time quadrature points']);
+end
 

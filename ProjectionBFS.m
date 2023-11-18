@@ -17,18 +17,6 @@ ndofs = 4 * (nx + 1) * (nt + 1);
 n_elms = nx * nt;
 % problem parameters
 c = p.c;
-if ~isempty(varargin)
-    As = varargin{1};
-    if numel(As) >= 2
-        AQ = As(1);
-        A0 = As(2);
-    end
-    if numel(As) == 3
-        AD = As(3);
-    end
-else
-    AQ = 1; A0 = 1; AD = 1;
-end
 %% Create mesh
 mesh = CartesianMesh(disc);
 pivots = mesh.pivots;
@@ -80,7 +68,7 @@ OPprojLoc.opt   = zeros(size(OPprojLoc.op));
 OPprojLoc.opxVar    = zeros(size(OPprojLoc.op));
 OPprojLoc.optVar    = zeros(size(OPprojLoc.op));
 
-VprojMat = VprojMat + AQ * assemble(OPprojLoc, mesh, disc);
+VprojMat = VprojMat;... + assemble(OPprojLoc, mesh, disc);
 
 % H1 norm on \OT
 H1OTprojLoc = struct();
@@ -96,7 +84,7 @@ VprojMat = VprojMat + ...
 % H1 norm on \OZ
 H1OZprojLoc = struct();
 H1OZprojLoc.op = T * (kron(E0.d1d1, Xb.d0d0) + c^2 * kron(E0.d0d0, Xb.d1d1)) + ...
-	A0 * T^(-1) * kron(E0.d0d0, Xb.d0d0);
+	T^(-1) * kron(E0.d0d0, Xb.d0d0);
 H1OZprojLoc.opx   = zeros(size(H1OTprojLoc.op));
 H1OZprojLoc.opt   = zeros(size(H1OTprojLoc.op));
 H1OZprojLoc.opxVar    = zeros(size(H1OTprojLoc.op));
@@ -206,7 +194,7 @@ for e = 1:n_elms
     
     L2norm = Uex .* v_Q;
     H1seminorm = c^2 * dx_Uex .* gradv_Q + dt_Uex .* vt_Q;
-    OPnorm = AQ * T^2 .* W_Uex .* W_Q;
+    OPnorm = T^2 .* W_Uex .* W_Q;
     
     L2projRHS(dofs) = L2projRHS(dofs) + sum(L2norm .* wqxt).';
     H1projRHS(dofs) = H1projRHS(dofs) + sum((L2norm + H1seminorm).* wqxt).';
@@ -223,7 +211,7 @@ for e = bot_elms
     dx_Uex = p.dx_u(el_xq, 0);
     Uex = p.u(el_xq, 0);
     H1OZseminorm = (dt_Uex .* vt_0 + c^2 * dx_Uex .* vx_0) * T;
-    L2norm = A0 * T^(-1) * Uex .* v_0;
+    L2norm = T^(-1) * Uex .* v_0;
     % rhs construction
     VprojRHS(dofs) = VprojRHS(dofs) + sum((L2norm + H1OZseminorm) .* wqx).';
 end
