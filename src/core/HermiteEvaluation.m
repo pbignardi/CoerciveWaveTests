@@ -1,4 +1,15 @@
 function E = HermiteEvaluation(h, pos)
+% HermiteEvaluation: compute matrix for the 1d Hermite element at the boundary
+% of a local element of size h. Right or left side of the element is specified
+% using pos: pos=0 is left side, pos=1 is right side.
+%
+% INPUT:
+%   h: (float) size of the local element
+%   pos: (0 or 1) position where to evaluate local matrices
+% OUTPUT:
+%   E: (struct) local matrices for the 1d hermite element evaluated at 0 or 1 in
+%               the reference element
+
     % Check if is an evaluation at the start or the end of the interval
     if pos == 0
         % If at start of interval:
@@ -12,6 +23,8 @@ function E = HermiteEvaluation(h, pos)
         v = 2;
         % dv_eval dof is at 4
         dv = 4;
+    else
+        error('Provided pos argument is invalid. Only 0 or 1 are allowed');
     end
 
     E = struct();
