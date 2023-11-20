@@ -1,10 +1,11 @@
-function B = HermiteBasis(varargin)
-    if ~isempty(varargin)
-        h = varargin{1};
-    else
-        h = 1;
-    end
-    
+function B = HermiteBasis(h)
+% HermiteBasis: compute 1D local matrices for hermite element
+%
+% INPUT:
+%   h: (float) local element size
+% OUTPUT:
+%   B: (struct) local matrices of the hermite element
+
     B = struct();
     %% Fixed terms
     B.d0d0 = stiffness(0,0,0) * h;
