@@ -264,10 +264,6 @@ function [u, Kcond] = SolverScatter(problem, domain, mesh, disc, varargin)
     %Kcond = condest(K(internal,internal));
     %Kcond = condest(K(1:end-1,:));
 
-    % Compute mean
-    omega0_mean = ComputeMean(u, 0, mesh, disc);
-    % Remove computed mean
-    %u = u - omega0_mean;
 
     %% Internal stiffness conditioning
     %fprintf("Condition number is: %e \n", condest(K(internal, internal)))
