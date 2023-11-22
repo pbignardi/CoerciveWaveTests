@@ -37,12 +37,6 @@ nt = disc.nt;
 hx = disc.hx;
 ht = disc.ht;
 
-% Boundary unpacking
-top     = mesh.top;
-left    = mesh.left;
-right   = mesh.right;
-bot     = mesh.bot;
-
 % Boundary elms unpacking
 top_elms    = mesh.top_elms;
 right_elms  = mesh.right_elms;
@@ -71,9 +65,6 @@ parameters.a = domain.xmin;
 parameters.b = domain.xmax;
 
 % Other parameters
-n_nodes = (nx + 1) * (nt + 1);
-ndofs = 4*n_nodes;
-dofs = 1:ndofs;
 d = 1;
 x_var = 1;
 t_var = 2;
@@ -177,9 +168,8 @@ opSbtVar = kron(Tb.d1d0, Eb.d0d1) * c^2 * BETA * n;
 % - c/theta * BETA * t * ut * vt
 opSbt = opSbt - kron(Tb.d1d1x, Eb.d0d0) * c / theta * BETA;
 opSbtVar = opSbtVar - kron(Tb.d1d1, Eb.d0d0) * c / theta * BETA;
-% --- Formulation above is correct ---
 
-%% Pack-up local matrix
+%% Pack-up local matrix for assembly
 % Q domain
 KlocQ = struct();
 KlocQ.op        = opQ;
@@ -227,31 +217,19 @@ Ka = assemble_boundary(KlocSa, mesh, disc, left_elms, t_var);
 
 % Sigma=b boundary
 Kb = assemble_boundary(KlocSb, mesh, disc, right_elms, t_var);
+
 %% Global matrix computation
-K = KQ;
-K = K + KT + K0;
-K = K + Ka + Kb; 
+K = KQ + KT + K0 + Ka + Kb;
 
 %% Load vector assembly
 F = compute_rhs(problem, mesh, disc, parameters);
 
 %% Solving
 u = K \ F;
-% u = gmres(K, F, restart, tol, maxit, []);
 
 varargout{1} = u;
 if nargout == 2
     varargout{2} = condest(K);
 end
 
-
-
-
-%% Post-processing solution
-% Compute condest of matrix K :TODO
-%Kcond = condest(K(internal,internal));
-%Kcond = condest(K(1:end-1,:));
-
-%% Internal stiffness conditioning
-%fprintf("Condition number is: %e \n", condest(K(internal, internal)))
 end

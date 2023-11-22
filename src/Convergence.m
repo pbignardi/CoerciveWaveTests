@@ -1,7 +1,7 @@
-function [error_table, conds_table] = Convergence(pstruct, varargin)
+function [error_table, conds_table] = Convergence(problem, options)
 %Convergence - compute convergence plot for the specified problem
 %   INPUT:
-%   pstruct:  Struct of the problem to solve
+%   problem:  Struct of the problem to solve
 %
 %   KWARGS: 
 %   verbose: (bool) print log of problem solved
@@ -23,55 +23,56 @@ function [error_table, conds_table] = Convergence(pstruct, varargin)
 %   error_table:    table with L2, H1, V errors and projections, and H col.
 %   conds_table:    table with condition number of Galerkin matrix, and H.
 
-%% Set options
-% create default option struct
-options = struct('PAR_TYPE', 'opt', 'TEST_CFL', false, 'WRITE_TO_FILE', false, ...
-    'VERBOSE', true, 'PLOT', true, 'ERR_TYPE', 'relative', ...
-    'H1SEMINORM', true, 'N', [2, 4, 8, 16, 32, 64, 128], 'NT', 8, ...
-    'QO_CONST', false, 'BETA', 1, 'XI', 1, 'NU', 1, 'A', 1, 'A0', 1); % not really set
+arguments
+    problem
+    options.ParType { mustBeText } = 'opt'
+    options.WriteFile logical = false
+    options.Verbose logical = true
+    options.ShowPlot logical = true
+    options.ErrorType { mustBeText } = 'relative'
+    options.QOConst logical = false
+    options.N integer = 2.^(1:7)
+    options.NT integer 
+    % Formulation parameters
+    options.A double
+    options.A0 double
+    options.BETA double
+    options.NU double
+    options.XI double
+end
 
-optionNames = fieldnames(options);
-for pair = reshape(varargin,2,[])
-    pName = upper(pair{1});
-    if any(strcmpi(pName, optionNames))
-        options.(pName) = pair{2};
-    else
-        error('%s is not a recognized parameter name', pName);
-    end
+if isfield(options, 'NT')
+    options.TestCfl = true
 end
 
 %% Initialisation
-if ~isempty(gcp("nocreate"))
-    addpath(genpath('local_stiffness'));
-end
-PROJ_PLOT = true;
+PROJ_ShowPlot = true;
 ERRS = {'l2', 'h1', 'cond', 'V'};
+
 %% Define problem, discretization and mesh
 % Create simple problem
-Q = pstruct.Q;
+Q = problem.Q;
 
 % Set the formulation parameters
-if strcmpi(options.PAR_TYPE, 'CUSTOM')
-    form = initializeForm(pstruct, Q, options.PAR_TYPE, varargin{:});
-else
-    form = initializeForm(pstruct, Q, options.PAR_TYPE);
-end
+opts = namedargs2cell(options);
+form = FormParameters(problem, opts{:});
 
 %% Display informations
-if options.VERBOSE
+% TODO: change output to something readable
+if options.Verbose
     fprintf('\n### 1+1D CONVERGENCE TESTS ###\n'); 
     fprintf(['BVP ID:\t%d\n' ...
         '---- domain ----\n' ...
         'xmin:\t%.2e,\txmax:\t%.2e,\nT:\t%.2e\n' ...
         '---- problem ----\n' ...
         'c:\t%.2e,' ...
-        '\ttheta:\t%.2e\n'], pstruct.pnum, Q.xmin, Q.xmax, Q.T, pstruct.c, pstruct.theta);
+        '\ttheta:\t%.2e\n'], problem.pnum, Q.xmin, Q.xmax, Q.T, problem.c, problem.theta);
     fprintf([ '---- parameters ----\n' ...
         'A_Q:\t%.2e,\tA_0:\t%.2e\n' ...
         'beta:\t%.2e,\txi:\t%.2e\n' ...
         'nu:\t%.2e\n' ...
         '---- QO constant ----\n'], form.A, form.A0, form.BETA, form.XI, form.NU);
-    fprintf('Theoretical quasi-optimality constant: %.2e\n', QuasiOptConstant(pstruct, form));
+    fprintf('Theoretical quasi-optimality constant: %.2e\n', QuasiOptConstant(problem, form));
 end
 %% Iterate for different number of elements
 L2errors = zeros(length(options.N), 1);
@@ -80,7 +81,7 @@ Verrors = zeros(length(options.N), 1);
 SUPerrors = zeros(length(options.N), 1);
 Kconds = zeros(length(options.N), 1);
 
-QOconstEst = ones(length(options.N), 1) * QuasiOptConstant(pstruct, form);
+QOconstEst = ones(length(options.N), 1) * QuasiOptConstant(problem, form);
 
 L2projErrors = zeros(length(options.N), 1);
 H1projErrors = zeros(length(options.N), 1);
@@ -90,7 +91,7 @@ i = 1;
 for n = options.N 
     % Discretise the domain
     nx = n;
-    if options.TEST_CFL
+    if options.TestCfl
         nt = options.NT;
     else
         nt = n;
@@ -100,41 +101,34 @@ for n = options.N
     mesh = CartesianMesh(d);
 
     % Solve problem
-    [u, Kcond] = SolverWaves(pstruct, Q, mesh, d, form);
+    [u, Kcond] = SolverWaves(problem, Q, mesh, d, form);
 
     % Compute projection of solution
-    [uL2proj, uH1proj, uVproj] = ProjectionBFS(pstruct, d);
+    [uL2proj, uH1proj, uVproj] = ProjectionBFS(problem, d);
     
     % Compute errors of solution
-    errors = ComputeErrors(u, pstruct, mesh, d, options.ERR_TYPE);
+    errors = ComputeErrors(u, problem, mesh, d, options.ERR_TYPE);
     L2errors(i) = errors.L2E;
-    if options.H1SEMINORM
-        H1errors(i) = errors.H1SE;
-    else
-        H1errors(i) = errors.H1E;
-    end
+    H1errors(i) = errors.H1E;
     Verrors(i) = errors.VnE;
 
     Kconds(i) = Kcond;
     % Compute error of L2 projection
-    errors = ComputeErrors(uL2proj, pstruct, mesh, d, options.ERR_TYPE);
+    errors = ComputeErrors(uL2proj, problem, mesh, d, options.ERR_TYPE);
     L2projErrors(i) = errors.L2E;
     % Compute error of H1 projection
-    errors = ComputeErrors(uH1proj, pstruct, mesh, d, options.ERR_TYPE);
-    if options.H1SEMINORM
-        H1projErrors(i) = errors.H1SE;
-    else
-        H1projErrors(i) = errors.H1E;
-    end
+    errors = ComputeErrors(uH1proj, problem, mesh, d, options.ERR_TYPE);
+    H1projErrors(i) = errors.H1E;
+
     % Compute error of V-norm projection
-    errors = ComputeErrors(uVproj, pstruct, mesh, d, options.ERR_TYPE);
+    errors = ComputeErrors(uVproj, problem, mesh, d, options.ERR_TYPE);
     VprojErrors(i) = errors.VnE;
 
     i = i + 1;
 end
 
 Hx = (Q.xmax - Q.xmin) ./ options.N.';
-if options.TEST_CFL
+if options.TestCfl
     Ht = Q.T ./ options.NT * ones(1, numel(options.N)).';
 else
     Ht = Q.T ./ options.N.';
@@ -150,15 +144,15 @@ Vorder = H.^2*Verrors(end)/(H(end))^2;
 error_table = table(H, Hx, Ht, L2errors, H1errors, Verrors, ...
     L2projErrors, H1projErrors, VprojErrors, ...
     L2order, H1order, Vorder);
-if options.QO_CONST
+if options.QOConst
     error_table.QOconstEst = QOconstEst;
 end
 
-if options.WRITE_TO_FILE
-    filename = strcat('Results/ConvPlots/p', string(pstruct.pnum), '-', ...
-        'ptype', upper(options.PAR_TYPE), '-', ...
+if options.WriteFile
+    filename = strcat('Results/ConvPlots/p', string(problem.pnum), '-', ...
+        'ptype', upper(options.ParType), '-', ...
         'etype', upper(options.ERR_TYPE), '-');
-    if options.TEST_CFL 
+    if options.TestCfl 
         filename = strcat(filename, ...
             'testcfl', '-', ...
             'nt', string(options.NT), '-');
@@ -168,12 +162,12 @@ if options.WRITE_TO_FILE
     % Add comments to the file with parameters used
     fid = fopen(filename,'a');
     file_info = {'# --- Parameter summary ---', ...
-        sprintf('# PROBLEM ID: %d', pstruct.pnum), ...
-        sprintf('# TEST_CFL: %s', string(options.TEST_CFL)), ...
+        sprintf('# PROBLEM ID: %d', problem.pnum), ...
+        sprintf('# TestCfl: %s', string(options.TestCfl)), ...
         sprintf('# NT: %d', options.NT), ...
         sprintf('# N: %s', join(string(options.N),',')), ...
         sprintf('# ERR_TYPE: %s', options.ERR_TYPE), ...
-        sprintf('# PAR_TYPE: %s', options.PAR_TYPE), ...
+        sprintf('# ParType: %s', options.ParType), ...
         sprintf('# BETA: %f', options.BETA), ...
         sprintf('# XI: %f', options.XI), ...
         sprintf('# NU: %f', options.NU), ...
@@ -195,8 +189,8 @@ GREEN   = '#77AC30';
 PURPLE  = '#7E2F8E';
 
 
-if options.PLOT
-    if options.TEST_CFL
+if options.ShowPlot
+    if options.TestCfl
         HPlot = Ht ./ Hx;
     else
         HPlot = H;
@@ -227,7 +221,7 @@ for err = ERRS
                 Margin=10, FontSize=fs-2);
         end
         % Projection plot
-        if PROJ_PLOT
+        if PROJ_ShowPlot
             loglog_plot(HPlot, L2projErrors, '--', linewidth, BLUE, markersize-1);
             lgd_entries{end + 1} = strcat('L2 projection');
         end
@@ -242,7 +236,7 @@ for err = ERRS
                 Margin=10, FontSize=fs-2);
         end
         % Projection plot
-        if PROJ_PLOT
+        if PROJ_ShowPlot
             loglog_plot(HPlot, H1projErrors, '--', linewidth, RED, markersize-1);
             lgd_entries{end + 1} = strcat('H1 projection');
         end
@@ -268,7 +262,7 @@ for err = ERRS
                 Margin=10, FontSize=fs-2);
         end
         % Projection plot
-        if PROJ_PLOT
+        if PROJ_ShowPlot
             loglog_plot(HPlot, VprojErrors, '--', linewidth, GREEN, markersize-1);
             lgd_entries{end + 1} = strcat('V projection');
         end
@@ -288,11 +282,11 @@ rates = diff(log(Kconds))./diff(log(H.'));
 
 % create condition number table
 conds_table = table(H, Hx, Ht, Kconds);
-if options.WRITE_TO_FILE
-    filename = strcat('Results/ConvPlots/p', string(pstruct.pnum), '-', ...
-        'ptype', upper(options.PAR_TYPE), '-', ...
+if options.WriteFile
+    filename = strcat('Results/ConvPlots/p', string(problem.pnum), '-', ...
+        'ptype', upper(options.ParType), '-', ...
         'etype', upper(options.ERR_TYPE), '-');
-    if options.TEST_CFL 
+    if options.TestCfl 
         filename = strcat(filename, ...
             'testcfl', '-', ...
             'nt', string(options.NT), '-');
@@ -303,11 +297,11 @@ if options.WRITE_TO_FILE
     fid = fopen(filename,'a');
     file_info = '# --- Parameter summary ---\n';
     file_info = strcat(file_info, ...
-        sprintf('# PROBLEM ID: %d\n', pstruct.pnum), ...
-        sprintf('# TEST_CFL: %s\n', string(options.TEST_CFL)), ...
+        sprintf('# PROBLEM ID: %d\n', problem.pnum), ...
+        sprintf('# TestCfl: %s\n', string(options.TestCfl)), ...
         sprintf('# NT: %d\n', options.NT), ...
         sprintf('# N: %s\n', join(string(options.N),',')), ...
-        sprintf('# PAR_TYPE: %s\n', options.PAR_TYPE), ...
+        sprintf('# ParType: %s\n', options.ParType), ...
         sprintf('# ERR_TYPE: %s\n', options.ERR_TYPE), ...
         sprintf('# BETA: %f\n', options.BETA), ...
         sprintf('# XI: %f\n', options.XI), ...

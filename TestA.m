@@ -9,7 +9,6 @@ arguments
     N = 75
     options.M = 64
     options.SAVEFILE = false
-    options.SAVETIKZ = false
     options.PARALLEL = true
 end
 
@@ -19,8 +18,45 @@ set(groot,'defaultLegendInterpreter','latex');
 set(0,'DefaultTextInterpreter','latex')
 set(0,'DefaultLegendInterpreter','latex')
 
-addpath(genpath("local_stiffness"));
-addpath(genpath("matlab2tikz"));
+% min exponent for AQ search space
+logAQmin = -15;  
+% max exponent for AQ search space
+logAQmax = 2; 
+% min exponent for A0 search space
+logA0min = -7; 
+% max exponent for A0 search space
+logA0max = 3; 
+% number of nodes in AQ search space
+nAQ = N; 
+% number of nodes in A0 search space
+nA0 = N; 
+
+% number of elements to use to solve the problem
+M = 32;
+
+% output figures font size
+font_size = 20;                                                       
+% resolution of output figures
+output_dpi = 450;
+
+%% Display informations
+fprintf('<strong>TESTING PARAMETERS AQ and A0 </strong>\n');
+
+fprintf('=>> SEARCH SPACE\n');
+fprintf('logAQmin: %d\n', logAQmin);
+fprintf('logAQmax: %d\n', logAQmax);
+fprintf('logA0min: %d\n', logA0min);
+fprintf('logA0max: %d\n', logA0max);
+fprintf('nAQ: %d\n', nAQ);
+fprintf('nA0: %d\n', nA0);
+fprintf('\n');
+
+fprintf('=>> OPTIONS\n');
+fprintf('parallel solve: %d\n', options.PARALLEL);
+fprintf('font_size: %d\n', font_size);
+fprintf('output_dpi: %d\n', output_dpi);
+
+addpath(genpath("src"));
 
 %% Define problem, discretization and mesh
 % Create simple problem
@@ -35,13 +71,14 @@ d = Discretization(nx, nt, Q);
 mesh = CartesianMesh(d);
 
 %% Grid of the parameter $A$
-AQs = logspace(-15, 2, N);
-A0s = logspace(-9, 3, N);
+AQs = logspace(logAQmin, logAQmax, nAQ);
+A0s = logspace(logA0min, logA0max, nA0);
 AQ = AQs;
 A0 = A0s;
-%As = logspace(log10(0.0000000001), log10(1), 2);
-L2errors = zeros(length(AQs), length(A0s));
-Kconds = zeros(length(AQs), length(A0s));
+L2errors = zeros(nAQ, nA0);
+H1errors = zeros(nAQ, nA0);
+Kconds = zeros(nAQ, nA0);
+
 %% Initiate progress bar
 progress_head = "[Progress]: ";
 fprintf(progress_head);
@@ -51,35 +88,35 @@ max_width_progress = 75;
 
 char_line_count = strlength(progress_head);
 % Loop for AQ (fixed AQ on each row)
-for i = 1:numel(AQs)
+for i = 1:nAQ
     % Loop for A0 (fixed A0 on each column)
     AQ_slice = AQs(i);
     if options.PARALLEL
-    parfor j = 1:numel(A0s)
+    parfor j = 1:nA0
         form = initializeForm(p, Q, 'custom', 'A', AQ_slice, 'A0', A0s(j));
         % Solve problem
-        [u, Kcond] = SolverWaves( ...
-            p, Q, mesh, d, form);
+        [u, Kcond] = SolverWaves(p, Q, mesh, d, form);
 
         % Compute errors
-        errors = ComputeErrors(u, p, mesh, d, "relative");
+        errors = ComputeErrors(u, p, mesh, d, 'relative');
         L2errors(i, j) = errors.L2E;
+        H1errors(i, j) = errors.H1E;
         Kconds(i, j) = Kcond;
     end
     else
         for j = 1:numel(A0s)
         form = initializeForm(p, Q, 'custom', 'A', AQ_slice, 'A0', A0s(j));
         % Solve problem
-        [u, Kcond] = SolverWaves( ...
-            p, Q, mesh, d, form);
+        [u, Kcond] = SolverWaves(p, Q, mesh, d, form);
 
         % Compute errors
-        errors = ComputeErrors(u, p, mesh, d, "relative");
+        errors = ComputeErrors(u, p, mesh, d, 'relative');
         L2errors(i, j) = errors.L2E;
+        H1errors(i, j) = errors.H1E;
         Kconds(i, j) = Kcond;
         end
     end
-    to_disp = "..." + string(round(100*i/numel(AQs))) + "%%";
+    to_disp = "..." + string(round(100*i/nAQ)) + "%%";
     char_line_count = char_line_count + strlength(to_disp) - 1;
     if char_line_count > max_width_progress
         fprintf("\n");
@@ -90,10 +127,8 @@ for i = 1:numel(AQs)
 end
 fprintf(" -- Done\n");
 
-
-
+%% Plot the result
 [A0s, AQs] = meshgrid(A0s, AQs);
-fs = 20;                                                       
 l2err_fig = figure;
 h = gca;
 surf(A0s, AQs, L2errors);
@@ -103,7 +138,7 @@ set(h, 'zscale', 'log');
 set(h,'ColorScale','log');
 set(h, 'xlim', [min(A0) max(A0)]);
 set(h, 'ylim', [min(AQ) max(AQ)]);
-fontsize(fs, 'points');
+fontsize(font_size, 'points');
 xlabel('$A_{\Omega_0}$',Interpreter='latex');
 ylabel('$A_Q$',Interpreter='latex');
 clim([min(L2errors(:)) 1]);
@@ -124,7 +159,7 @@ set(h, 'zscale', 'log');
 set(h,'ColorScale','log');
 set(h, 'xlim', [min(A0) max(A0)]);
 set(h, 'ylim', [min(AQ) max(AQ)]);
-fontsize(fs, 'points');
+fontsize(font_size, 'points');
 xlabel('$A_{\Omega_0}$',Interpreter='latex');
 ylabel('$A_Q$',Interpreter='latex');
 clim([min(Kconds(:)) max(Kconds(:))]);
@@ -172,17 +207,12 @@ L2err = L2errors(i, :).';
 best_AQ_table = table(A0, L2err);
 
 %% Saving figures
-if options.SAVE_TO_FILE
-    root_dir = "Results/ParsTestFigures/";
-    base_filename = "testA-p" + string(p_num) + "-" + "-numEl" + M + "-tikz";
-    if options.OUTPUT_TIKZ
-        matlab2tikz('figurehandle', l2err_fig, 'filename', root_dir + base_filename + "-l2err.tex", 'noSize', true);
-        matlab2tikz('figurehandle', cond_fig, 'filename', root_dir + base_filename + "-cond.tex", 'noSize', true);
-    else
-        exportgraphics(l2err_fig, root_dir + base_filename + "-l2err.png", 'Resolution', 300);
-        exportgraphics(cond_fig, root_dir + base_filename + "-cond.png", 'Resolution', 300);
-    end
-    writetable(best_AQ_table, root_dir + base_filename + "bestAQerrslice.dat");
-    writetable(best_A0_table, root_dir + base_filename + "bestA0errslice.dat");
+if options.SAVEFILE
+    root_dir = 'Results/ParsTestFigures/';
+    base_filename = 'testA-p' + string(p_num) + '-' + '-numEl' + options.M;
+    exportgraphics(l2err_fig, root_dir + base_filename + '-l2err.png', 'Resolution', output_dpi);
+    exportgraphics(cond_fig, root_dir + base_filename + '-cond.png', 'Resolution', output_dpi);
+    writetable(best_AQ_table, root_dir + base_filename + 'bestAQerrslice.dat');
+    writetable(best_A0_table, root_dir + base_filename + 'bestA0errslice.dat');
 end
 

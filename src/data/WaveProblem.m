@@ -204,7 +204,7 @@ function problem = WaveProblem(prob_num, varargin)
             problem.ddx_u   = @(x,t) 2*t.^2;
             problem.ddt_u   = @(x,t) 2*x.^2;
         otherwise
-            %warning("No matching problem number");
+            error("No matching problem number");
     end
     % TODO: 1/(r^\alpha), where $r = |(x,t)|$ -> convergence rate should
     % brake down as singularity get closer to the boundary of Q.

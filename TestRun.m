@@ -16,7 +16,7 @@ d = Discretization(nx, nt, problem.Q);
 mesh = CartesianMesh(d);
 
 %% Custom form parameters
-form = initializeForm(problem, Q, 'OPT');
+form = FormParameters(problem);
 form.NU = 1.0001;
 %% Solve problem
 u = SolverWaves(problem, Q, mesh, d, form);
