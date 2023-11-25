@@ -68,7 +68,7 @@ OPprojLoc.opt   = zeros(size(OPprojLoc.op));
 OPprojLoc.opxVar    = zeros(size(OPprojLoc.op));
 OPprojLoc.optVar    = zeros(size(OPprojLoc.op));
 
-VprojMat = VprojMat;... + assemble(OPprojLoc, mesh, disc);
+VprojMat = VprojMat + assemble(OPprojLoc, mesh, disc);
 
 % H1 norm on \OT
 H1OTprojLoc = struct();
