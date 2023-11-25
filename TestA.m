@@ -1,5 +1,8 @@
 function [] = TestA(p_num, N, options)
-%TestA - Compute L2 errors for wide range of AQ and A0, then saves plots
+%TestA - Compute L2 and H1 errors for a range of AQ and A0 and saves plots
+% Can be run in parallel or not; can also specify the number of elements to
+% solve the problem.
+%
 %   INPUTS:
 %       p_num:  Problem number (see WaveProblem.m)
 %       N:      Number of sample per each parameter
@@ -7,9 +10,9 @@ function [] = TestA(p_num, N, options)
 arguments
     p_num
     N = 75
-    options.M = 64
-    options.SAVEFILE = false
-    options.PARALLEL = true
+    options.M = 32
+    options.SaveFile = false
+    options.Parallel = true
 end
 
 set(groot,'defaultAxesTickLabelInterpreter','latex'); 
@@ -17,14 +20,16 @@ set(groot,'defaulttextinterpreter','latex');
 set(groot,'defaultLegendInterpreter','latex');
 set(0,'DefaultTextInterpreter','latex')
 set(0,'DefaultLegendInterpreter','latex')
+% clear persisten variable for textprogressbar
+clear strCR;
 
-% min exponent for AQ search space
+% min order of magnitude for AQ search space
 logAQmin = -15;  
-% max exponent for AQ search space
+% max order of magnitude for AQ search space
 logAQmax = 2; 
-% min exponent for A0 search space
+% min order of magnitude for A0 search space
 logA0min = -7; 
-% max exponent for A0 search space
+% max order of magnitude for A0 search space
 logA0max = 3; 
 % number of nodes in AQ search space
 nAQ = N; 
@@ -34,13 +39,18 @@ nA0 = N;
 % number of elements to use to solve the problem
 M = 32;
 
+% figure size
+figure_width = 920;
+figure_height = 720;
 % output figures font size
 font_size = 20;                                                       
 % resolution of output figures
 output_dpi = 450;
+% set verbose flag for called functions
+verbose = true;
 
 %% Display informations
-fprintf('<strong>TESTING PARAMETERS AQ and A0 </strong>\n');
+fprintf('Test of parameters <strong>AQ</strong> and <strong>A0</strong>\n');
 
 fprintf('=>> SEARCH SPACE\n');
 fprintf('logAQmin: %d\n', logAQmin);
@@ -51,10 +61,20 @@ fprintf('nAQ: %d\n', nAQ);
 fprintf('nA0: %d\n', nA0);
 fprintf('\n');
 
+fprintf('=>> SOLVER PARAMETERS\n');
+fprintf('problem_id: %d\n', p_num);
+fprintf('Nt: %d\n', M);
+fprintf('Nx: %d\n', M);
+fprintf('\n');
+
 fprintf('=>> OPTIONS\n');
-fprintf('parallel solve: %d\n', options.PARALLEL);
+fprintf('parallel solve: %d\n', options.Parallel);
+fprintf('figure width: %d\n', figure_width);
+fprintf('figure height: %d\n', figure_height);
 fprintf('font_size: %d\n', font_size);
 fprintf('output_dpi: %d\n', output_dpi);
+fprintf('verbose: %d\n', verbose);
+fprintf('\n');
 
 addpath(genpath("src"));
 
@@ -80,56 +100,54 @@ H1errors = zeros(nAQ, nA0);
 Kconds = zeros(nAQ, nA0);
 
 %% Initiate progress bar
-progress_head = "[Progress]: ";
-fprintf(progress_head);
-max_width_progress = 75;
-
+textprogressbar('Progress: ');
+textprogressbar(0);
 %% Iterate over A
-
-char_line_count = strlength(progress_head);
 % Loop for AQ (fixed AQ on each row)
 for i = 1:nAQ
     % Loop for A0 (fixed A0 on each column)
     AQ_slice = AQs(i);
-    if options.PARALLEL
+    if options.Parallel
     parfor j = 1:nA0
-        form = initializeForm(p, Q, 'custom', 'A', AQ_slice, 'A0', A0s(j));
+        form = FormParameters(p, ParType='custom', A=AQ_slice, A0=A0s(j));
         % Solve problem
-        [u, Kcond] = SolverWaves(p, Q, mesh, d, form);
+        if compute_cond
+            [u, Kcond] = SolverWaves(p, Q, mesh, d, form);
+            Kconds(i, j) = Kcond;
+        else
+            u = SolverWaves(p, Q, mesh, d, form);
+        end
 
         % Compute errors
         errors = ComputeErrors(u, p, mesh, d, 'relative');
         L2errors(i, j) = errors.L2E;
-        H1errors(i, j) = errors.H1E;
-        Kconds(i, j) = Kcond;
+        H1errors(i, j) = errors.H1E;        
     end
     else
         for j = 1:numel(A0s)
-        form = initializeForm(p, Q, 'custom', 'A', AQ_slice, 'A0', A0s(j));
+        form = FormParameters(p, ParType='custom', A=AQ_slice, A0=A0s(j));
         % Solve problem
-        [u, Kcond] = SolverWaves(p, Q, mesh, d, form);
+        if compute_cond
+            [u, Kcond] = SolverWaves(p, Q, mesh, d, form);
+            Kconds(i, j) = Kcond;
+        else
+            u = SolverWaves(p, Q, mesh, d, form);
+        end
 
         % Compute errors
         errors = ComputeErrors(u, p, mesh, d, 'relative');
         L2errors(i, j) = errors.L2E;
         H1errors(i, j) = errors.H1E;
-        Kconds(i, j) = Kcond;
         end
     end
-    to_disp = "..." + string(round(100*i/nAQ)) + "%%";
-    char_line_count = char_line_count + strlength(to_disp) - 1;
-    if char_line_count > max_width_progress
-        fprintf("\n");
-        char_line_count = strlength(progress_head);
-        fprintf(repmat(' ', 1, char_line_count));
-    end
-    fprintf(to_disp);
+    textprogressbar(round(100*i/nAQ));
 end
-fprintf(" -- Done\n");
+textprogressbar(' - done!');
+fprintf('\n');
 
 %% Plot the result
 [A0s, AQs] = meshgrid(A0s, AQs);
-l2err_fig = figure;
+l2err_fig = figure('Name','L2 error');
 h = gca;
 surf(A0s, AQs, L2errors);
 set(h, 'xscale', 'log');
@@ -149,8 +167,28 @@ shading flat
 colormap turbo
 % title("L2 error")
 
+h1err_fig = figure('Name','H1 error');
+h = gca;
+surf(A0s, AQs, H1errors);
+set(h, 'xscale', 'log');
+set(h, 'yscale', 'log');
+set(h, 'zscale', 'log');
+set(h,'ColorScale','log');
+set(h, 'xlim', [min(A0) max(A0)]);
+set(h, 'ylim', [min(AQ) max(AQ)]);
+fontsize(font_size, 'points');
+xlabel('$A_{\Omega_0}$',Interpreter='latex');
+ylabel('$A_Q$',Interpreter='latex');
+clim([min(H1errors(:)) 1]);
+c = colorbar;
+set(c,'TickLabelInterpreter','latex');
+view(2)
+shading flat
+colormap turbo
+% title("L2 error")
 
-cond_fig = figure;
+if compute_cond
+cond_fig = figure('Name', 'Matrix condition number');
 h = gca;
 surf(A0s, AQs, Kconds);
 set(h, 'xscale', 'log');
@@ -169,7 +207,7 @@ view(2)
 shading flat
 colormap turbo
 % title("Condition number of the matrix");
-
+end
 %% Find the minimum error
 best_error = min(L2errors(:));
 [i, j] = find(L2errors==best_error);
@@ -207,12 +245,19 @@ L2err = L2errors(i, :).';
 best_AQ_table = table(A0, L2err);
 
 %% Saving figures
-if options.SAVEFILE
-    root_dir = 'Results/ParsTestFigures/';
-    base_filename = 'testA-p' + string(p_num) + '-' + '-numEl' + options.M;
-    exportgraphics(l2err_fig, root_dir + base_filename + '-l2err.png', 'Resolution', output_dpi);
-    exportgraphics(cond_fig, root_dir + base_filename + '-cond.png', 'Resolution', output_dpi);
-    writetable(best_AQ_table, root_dir + base_filename + 'bestAQerrslice.dat');
-    writetable(best_A0_table, root_dir + base_filename + 'bestA0errslice.dat');
+if options.SaveFile
+    root = 'Results/ParsTestFigures/';
+    basename = sprintf('%stestA-p%d-numEl%d', root, string(pnum), ...
+        string(nElms));
+    l2err_name = basename + '-l2err.png';
+    cond_name = basename + '-cond.png';
+    bestAQ_name = basename + '-bestAQerrslice.dat';
+    bestA0_name = basename + '-bestA0errslice.dat';
+
+    exportgraphics(l2err_fig, l2err_name, 'Resolution', output_dpi);
+    exportgraphics(h1err_fig, h1err_name, 'Resolution', output_dpi);
+    exportgraphics(cond_fig, cond_name, 'Resolution', output_dpi);
+    writetable(best_AQ_table, bestAQ_name);
+    writetable(best_A0_table, bestA0_name);
 end
 

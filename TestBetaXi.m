@@ -1,82 +1,171 @@
-%% Fix xi or not?
+% TestMultiplierPars - Compute L2 errors for a range of Beta, Xi and Nu.
+%% Initialize
+% specify problem to solve
 pnum = 2;
-xi_list = logspace(-3, 3, 100);
-% ratio_list = logspace(0, 4, numel(xi_list)); % beta / xi
-beta_list = logspace(-5, 5, numel(xi_list));
+% min order of magnitude for Xi
+logXiMin = -3;
+% max order of magnitude for Xi
+logXiMax = 3;
+% min order of magnitude for Beta
+logBetaMin = -5;
+% max order of magnitude for Beta
+logBetaMax = 5;
+% min order of magnitude for Nu
+logNuMin = 0.001;
+% max order of magnitude for Nu
+logNuMax = 2;
+% number of nodes in Xi search space
+nXi = 100;
+% number of nodes in Beta search space
+nBeta = 100;
+% number of nodes in Nu search space
+nNu = 7;
+% number of elements in each direction
+nElms = 32;
 
-pdata = WaveProblem(pnum);
-ddata = Discretization(32, 32, pdata.Q);
-mesh = CartesianMesh(ddata);
+% figure size
+figure_width = 920;
+figure_height = 720;
+% output figures font size
+font_size = 20;                                                       
+% resolution of output figures
+output_dpi = 450;
+% save to file
+save_plot = true;
 
-R_min = @(nu) max([1./(nu-1)*(pdata.Q.L/pdata.c/pdata.Q.T + 1), ...
-    1./(nu - 1)*pdata.Q.L/pdata.c/pdata.Q.T * ...
-    (pdata.theta + 1 / (pdata.theta * pdata.Q.delta))]);
+% is debugging?
+DEBUG = true;
 
+% Print log
+fprintf('Test parameters <strong>BETA, XI, NU</strong>\n');
+fprintf('=>> SEARCH SPACE\n');
+fprintf('logXiMin: %d\n', logXiMin);
+fprintf('logXiMax: %d\n', logXiMax);
+fprintf('logBetaMin: %d\n', logBetaMin);
+fprintf('logBetaMax: %d\n', logBetaMax);
+fprintf('logNuMin: %d\n', logNuMin);
+fprintf('logNuMax: %d\n', logNuMax);
+fprintf('nXi: %d\n', nXi);
+fprintf('nBeta: %d\n', nBeta);
+fprintf('nNu: %d\n', nNu);
+fprintf('\n');
 
-%% 2d surf plot
+fprintf('=>> SOLVER PARAMETERS\n');
+fprintf('problem_id: %d\n', pnum);
+fprintf('Nt: %d\n', nElms);
+fprintf('Nx: %d\n', nElms);
+fprintf('\n');
 
-l2err_beta_xi_comb = nan(numel(beta_list), numel(xi_list));
-kcond_beta_xi_comb = nan(numel(beta_list), numel(xi_list));
-wp_idx = zeros(numel(beta_list), numel(xi_list));
-for i = 1:numel(beta_list)
-    beta = beta_list(i);
-    parfor j = 1:numel(xi_list)
-        xi = xi_list(j);
-        % [err_table, ~] = Convergence(pnum, 'PAR_TYPE', 'CUSTOM', ...
-        %     'BETA', beta, 'XI', xi, 'N', 2.^(1:6), ...
-        %     'PLOT', false, 'VERBOSE', false);
-        fdata = initializeForm(pdata, pdata.Q, 'CUSTOM', ...
-            'BETA', beta, 'xi', xi);
-        [u, Kcond] = SolverWaves(pdata, pdata.Q, mesh, ddata, fdata);
-        err = ComputeErrors(u, pdata, mesh, ddata, 'relative');
-        % l2err_beta_xi_comb(j, i) = err_table.L2errors(end-1);
-        l2err_beta_xi_comb(i, j) = err.L2E;
-        kcond_beta_xi_comb(i, j) = Kcond;
-        % if CheckConvergence(err_table, 3, 4, 3, 2, 1e-1)
-        %     wp_idx(j, i) = 1;
-        % end
-    end
-    fprintf('-> i = [%d / %d]\n', i, numel(beta_list));
-end
+fprintf('=>> OPTIONS\n');
+fprintf('figure width: %d\n', figure_width);
+fprintf('figure height: %d\n', figure_height);
+fprintf('font_size: %d\n', font_size);
+fprintf('output_dpi: %d\n', output_dpi);
+fprintf('save plots: %d\n', save_plot);
+% define search space
+Xi = logspace(logXiMin, logXiMax, nXi);
+Beta = logspace(logBetaMin, logBetaMax, nBeta);
+Nu = logspace(logNuMin, logNuMax, nNu);
 
-%% Make plot
+problem = WaveProblem(pnum);
+discretization = Discretization(nElms, nElms, problem.Q);
+mesh = CartesianMesh(discretization);
+
+% setup Latex ticks interpreter
 set(groot,'defaultAxesTickLabelInterpreter','latex'); 
 set(groot,'defaulttextinterpreter','latex');
 set(groot,'defaultLegendInterpreter','latex');
 set(0,'DefaultTextInterpreter','latex')
 set(0,'DefaultLegendInterpreter','latex')
 
-% create dotted area
-[xi_area, beta_area] = meshgrid(xi_list(2:6:end), beta_list(2:6:end));
-wp_idx = zeros(size(xi_area));
-BetaMin = @(xi) max(xi.*(pdata.Q.L/pdata.c/pdata.Q.T + 1), xi.*pdata.Q.L/pdata.c/pdata.Q.T*(pdata.theta+1/(pdata.theta*pdata.Q.delta)));
-for i = 1:size(xi_area, 1)
-    for j = 1:size(beta_area, 2)
-        xi = xi_area(i, j);
-        beta = beta_area(i, j);
-        if beta >= BetaMin(xi)
-            wp_idx(i, j) = true;
+%% Compute errors for varying parameters
+fprintf('** Compute L2errors varying <strong>BETA, XI, NU</strong>\n')
+
+if DEBUG
+load('Results/l2error_beta_xi_nu.mat');
+L2errors = l2err_pars;
+end
+
+% L2errors = nan(nBeta, nXi, nNu);
+ConditionNumbers = nan(nBeta, nXi, nNu);
+IsWellPosed = false(nBeta, nXi, nNu);
+
+for i = 1:nBeta
+    beta_i = Beta(i);
+    for j = 1:nXi
+        xi_j = Xi(j);
+        for k = 1:nNu
+            if ~DEBUG
+            form = FormParameters(problem, ParType='CUSTOM', BETA=beta_i, ...
+                 XI=xi_j, NU=Nu(k));
+            u = SolverWaves(problem, problem.Q, mesh, discretization, form);
+            err = ComputeErrors(u, problem, mesh, discretization, 'relative');
+            L2errors(i, j, k) = err.L2E;
+            end
+            beta_lb = BetaLowerBound(xi_j, Nu(k), problem.c, problem.Q.T, ...
+                problem.Q.L, problem.theta, problem.Q.delta);
+            IsWellPosed(i, j, k) = beta_i >= beta_lb;
+        end
+        progress = ((i - 1) * nXi + j) / (nXi * nBeta);
+    end
+end
+%% Check ratio of errors for varying Nu. Beta and Xi fixed.
+fprintf('** Importance of parameter <strong>NU</strong> (see 7.1.2)\n')
+% Error ratio for well posed parameters
+NuErrorRatioWP = nan(nBeta, nXi);
+% Error ratio fo all parameters
+NuErrorRatioGlobal = max(L2errors, [], 3) ./ min(L2errors, [], 3);
+
+% Ratio between max error and min error, for fixed beta and xi
+for i = 1:nBeta
+    for j = 1:nXi
+        % keep only parameters when \beta, \xi and \nu are well posed
+        if any(IsWellPosed(i, j, :))
+            max_value = max(L2errors(i, j, IsWellPosed(i, j, :)));
+            min_value = min(L2errors(i, j, IsWellPosed(i, j, :)));
+            NuErrorRatioWP(i, j) = max_value / min_value;
         end
     end
 end
 
-[Xi, Beta] = meshgrid(xi_list, beta_list);
+fprintf('max of error ratio (overall): %f\n', max(NuErrorRatio, [], 'all'));
+ratio_ub = max(NuErrorRatio(Xis >= 1), [], 'all');
+fprintf('max of error ratio (when Xi >= 1): %f\n', ratio_ub);
+
+%% Make plot
+% Assume as in Section 7.1.2 that \nu=2, fixed.
+NuFixed = 2;
+
+% Display dotted area
+[XiArea, BetaArea] = meshgrid(Xi(2:6:end), Beta(2:6:end));
+IsWellPosedArea = zeros(size(XiArea));
+for i = 1:size(XiArea, 1)
+    for j = 1:size(BetaArea, 2)
+        xi = XiArea(i, j);
+        beta_lb = BetaLowerBound(XiArea(i, j), NuFixed, problem.c, ...
+            problem.Q.T, problem.Q.L, problem.theta, problem.Q.delta);
+        if BetaArea(i, j) >= beta_lb
+            IsWellPosedArea(i, j) = true;
+        end
+    end
+end
+
+%% L2 error figure
+[Xis, Betas] = meshgrid(Xi, Beta);
 l2err_comb = figure;
-fs = 20;                                                       
-surf(Xi, Beta, min(l2err_beta_xi_comb, 1));
-h = gca;
-set(h, 'xscale', 'log');
-set(h, 'yscale', 'log');
-set(h,'ColorScale','log');
-set(h, 'xlim', [min(xi_list) max(xi_list)]);
-set(h, 'ylim', [min(beta_list) max(beta_list)]);
-% set(gcf, 'Position', [1,1, 960, 720]);
-fontsize(fs, 'points');
+surf(Xis, Betas, min(L2errors, 1));
+set(gca, 'xscale', 'log');
+set(gca, 'yscale', 'log');
+set(gca,'ColorScale','log');
+set(gca, 'xlim', [min(Xi) max(Xi)]);
+set(gca, 'ylim', [min(Beta) max(Beta)]);
+set(gcf, 'Position', [1,1, figure_width, figure_height]);
+fontsize(font_size, 'points');
 xlabel('$\xi$',Interpreter='latex');
 ylabel('$\beta$',Interpreter='latex');
-xticks([1e-3, 1e-1, 1e1, 1e3]);
-yticks([1e-5 1e-3 1e-1 1e1 1e3 1e5]);
-clim([min(l2err_beta_xi_comb(:)) 1]);
+xticks(10.^(logXiMin:2:logXiMax));
+yticks(10.^(logBetaMin:2:logBetaMax));
+clim([min(L2errors(:)) 1]);
 c = colorbar;
 set(c,'TickLabelInterpreter','latex');
 shading flat
@@ -84,199 +173,53 @@ colormap turbo
 h.BoxStyle = 'full';
 view(2)
 hold on
-% area(xi_list, BetaMin(xi_list), 'LineWidth', 2, 'FaceColor', 'w', 'FaceAlpha', 0, 'EdgeColor', 'white')
-plot(xi_list, BetaMin(xi_list), 'w', 'LineWidth', 2)
-scatter(xi_area(wp_idx==0),beta_area(wp_idx==0), 24, 'white', 'filled')
+
+% Dotted area
+plot(Xi, BetaMin(Xi), 'w', 'LineWidth', 2)
+scatter(XiArea(IsWellPosedArea==0),BetaArea(IsWellPosedArea==0), 24, ...
+    'white', 'filled')
 hold off
 
+%% Condition number figure
 kcond_comb = figure;
-fs = 20;                                                       
-h = gca;
-pcolor(Xi, Beta, max(kcond_beta_xi_comb, 1));
-set(h, 'xscale', 'log');
-set(h, 'yscale', 'log');
-set(h,'ColorScale','log');
-set(h, 'xlim', [min(xi_list) max(xi_list)]);
-set(h, 'ylim', [min(beta_list) max(beta_list)]);
-% set(gcf, 'Position', [1,1, 960, 720]);
-fontsize(fs, 'points');
+pcolor(Xis, Betas, max(kcond_beta_xi_comb, 1));
+set(gca, 'xscale', 'log');
+set(gca, 'yscale', 'log');
+set(gca,'ColorScale','log');
+set(gca, 'xlim', [min(Xi) max(Xi)]);
+set(gca, 'ylim', [min(Beta) max(Beta)]);
+set(gcf, 'Position', [1,1, figure_width, figure_height]);
+fontsize(font_size, 'points');
 xlabel('$\xi$',Interpreter='latex');
 ylabel('$\beta$',Interpreter='latex');
-xticks([1e-3, 1e-1, 1e1, 1e3]);
-yticks([1e-5 1e-3 1e-1 1e1 1e3 1e5]);
+xticks(10.^(logXiMin:2:logXiMax));
+yticks(10.^(logBetaMin:2:logBetaMax));
 clim([min(kcond_beta_xi_comb(:)) 1e15]);
 c = colorbar;
 set(c,'TickLabelInterpreter','latex');
 shading flat
 colormap turbo
 hold on
-% area(xi_list, BetaMin(xi_list), 'LineWidth', 2, 'FaceColor', 'w', 'FaceAlpha', 0, 'EdgeColor', 'white')
-plot(xi_list, BetaMin(xi_list), 'w', 'LineWidth', 2)
-scatter(xi_area(wp_idx==0),beta_area(wp_idx==0), 24, 'white', 'filled')
+
+% Dotted area
+plot(Xi, BetaMin(Xi), 'w', 'LineWidth', 2)
+scatter(XiArea(IsWellPosedArea==0),BetaArea(IsWellPosedArea==0), 24, ...
+    'white', 'filled')
 hold off
 
-% DO NOT USE MATLAB2TIKZ, LATEX DOESN'T LIKE THIS PLOT. TOO MUCH MEMORY
-% REQUIRED
-
-% this shows that taking beta \ xi > R_min is necessary to achieve good
-% accuracy, otherwise the method is not well posed. To set ourselves in the
-% well posed case, we can plot l2error as function of (k * Rmin * xi, xi),
-% where k is the markup. A multiplier on the ratio R. This is given by the
-% plots below
-
-%% Different plot. Fix the ratio beta/xi and look at the l2error
-% So I should take all the values of beta and xi that yields the same ratio
-% and then look at their respective L2errors, right?
-
-% Compute the right ratio to allow every pars to give coercivity
-R = 1;
-for i = 1:N
-    xi = xi_list(N);
-    fdata_opt = initializeForm(pdata, pdata.Q, 'CUSTOM', 'XI', xi);
-    R = max(R, fdata_opt.BETA / fdata_opt.XI);
+%% Save to file
+if save_plot
+    root = 'Results/ParsTestFigures/';
+    basename = sprintf('%stestBetaXiNu-p%d-numEl%d', root, ...
+        string(pnum), string(nElms));
+    l2err_name = basename + '-l2err.png';
+    cond_name = basename + '-cond.png';
+    exportgraphics(l2err_comb, l2err_name, 'Resolution', output_dpi);
+    exportgraphics(kcond_comb, cond_name , 'Resolution', output_dpi);
 end
 
-markups = 0.2:0.2:3;
-L2err_xi = zeros(numel(xi_list), numel(markups));
-for j = 1:numel(markups)
-    R = R * markups(j);
-    parfor i = 1:numel(xi_list)
-        xi = xi_list(i);
-        fdata = initializeForm(pdata, pdata.Q, 'CUSTOM', 'BETA', xi * R, 'XI', xi);
-        [u, ~] = SolverWaves(pdata, pdata.Q, mesh, ddata, fdata);
-        err = ComputeErrors(u, pdata, mesh, ddata, 'relative'); 
-        L2err_xi(i, j) = err.L2E;
-    end
+function beta_lb = BetaLowerBound(xi, nu, c, T, L, theta, delta)
+% Computes the lower bound for Beta to ensure coercivity as in (35). 
+% Assumes that d = 1.
+beta_lb = xi/(nu - 1) * max([L/(c*T) + 1, L/(c*T)*(theta + 1/(theta*delta))]);
 end
-
-l2err_xi_plot = figure;
-h = gca;
-xi_one_idx = find(xi_list == 1);
-legend_entries = cell(numel(markups), 1);
-for j = 1:numel(markups)
-    loglog(h, xi_list, L2err_xi(:, j));
-    legend_entries{j} = sprintf('R=%.2f', markups(j));
-    hold on
-end
-legend(legend_entries);
-% scatter(h, xi_list(xi_one_idx), L2err_xi(xi_one_idx, end));
-fontsize(fs, 'points');
-axis padded
-hold off
-% This shows two things: 1) when xi goes to 0 accuracy deteriorates. If the
-% ratio is large enough though, accuracy can be bounded
-% 2) regardless of the ratio, picking xi=1 gives optimal accuracy.
-
-%% Testing different nu
-% letting nu varies, and taking optimal other values
-nu_list = logspace(0.001, 2, 7);
-L2err_nu = zeros(numel(nu_list), 1);
-for i = 1:numel(nu_list)
-    fdata = initializeForm(pdata, pdata.Q, 'CUSTOM', 'NU', nu_list(i));
-    [u, ~] = SolverWaves(pdata, pdata.Q, mesh, ddata, fdata);
-    err = ComputeErrors(u, pdata, mesh, ddata, 'relative');
-    L2err_nu(i) = err.L2E;
-end
-l2err_nu_plot = figure;
-h = gca;
-loglog(nu_list, L2err_nu);
-axis padded
-
-% Apparently no difference between different nu's. Cool
-
-%% Test all three parameters together
-l2err_pars = zeros(numel(beta_list), numel(xi_list), numel(nu_list));
-wp_idx = zeros(numel(beta_list), numel(xi_list), numel(nu_list));
-for i = 1:numel(beta_list)
-    beta = beta_list(i);
-    for j = 1:numel(xi_list)
-        xi = xi_list(j);
-        parfor k = 1:numel(nu_list)
-            fdata = initializeForm(pdata, pdata.Q, 'CUSTOM', ...
-                'BETA', beta, 'XI', xi, 'NU', nu_list(k));
-            [u, ~] = SolverWaves(pdata, pdata.Q, mesh, ddata, fdata);
-            err = ComputeErrors(u, pdata, mesh, ddata, 'relative');
-            l2err_pars(i, j, k) = err.L2E;
-            R = max([1./(nu_list(k)-1)*(pdata.Q.L/pdata.c/pdata.Q.T + 1), ...
-                1./(nu_list(k) - 1)*pdata.Q.L/pdata.c/pdata.Q.T * ...
-                (pdata.theta + 1 / (pdata.theta * pdata.Q.delta))]);
-            if beta / xi >= R
-                wp_idx(i, j, k) = 1;
-            end
-        end
-    end
-    fprintf('-> i = [%d / %d]\n', i, numel(beta_list));
-end
-
-%% check what difference does nu make.
-% compute the diff of each l2error when nu changes, compute the max, if it
-% relevant then ok, else we can claim this and ignore the parameter
-nu_variance = nan(size(l2err_pars, [1, 2]));
-nu_mean = nan(size(l2err_pars, [1,2]));
-nu_min = nan(size(l2err_pars, [1, 2]));
-nu_max = nan(size(l2err_pars, [1, 2]));
-
-for i = 1:numel(beta_list)
-    beta = beta_list(i);
-    for j = 1:numel(xi_list)
-        ids = wp_idx(i, j, :) == 1;
-        ids = ids(:);
-        good_errors = l2err_pars(i, j, ids);
-        tmp = var(good_errors);
-        nu_mean(i, j) = mean(good_errors); 
-        if numel(good_errors) > 0
-            nu_min(i, j) = min(good_errors);
-            nu_max(i, j) = max(good_errors);
-        end
-        if isnan(tmp)
-        else
-            nu_variance(i, j) = tmp;
-        end
-    end
-end
-% plot everything
-pcolor(nu_variance)
-set(gca, 'ColorScale', 'log');
-title('variance')
-colorbar
-figure
-pcolor(nu_mean)
-set(gca, 'ColorScale', 'log');
-title('mean')
-colorbar
-figure
-pcolor(nu_min)
-set(gca, 'ColorScale', 'log');
-title('min')
-colorbar
-figure
-pcolor(nu_max)
-set(gca, 'ColorScale', 'log');
-title('max')
-colorbar
-%% plot in sequence of nu
-figure
-h = gca;
-% Compute r_min as a function of nu
-R_min = @(nu) max([1./(nu-1)*(pdata.Q.L/pdata.c/pdata.Q.T + 1), ...
-    1./(nu - 1)*pdata.Q.L/pdata.c/pdata.Q.T * ...
-    (pdata.theta + 1 / (pdata.theta * pdata.Q.delta))]);
-
-for i = 1:numel(nu_list)
-    surf(Xi, Beta, min(1,l2err_pars(:, :, i)));
-    hold on
-    scatter3(Xi, Beta, wp_idx(:, :, i), 'xw')
-    hold off
-    set(h, 'xscale', 'log');
-    set(h, 'yscale', 'log');
-    set(h, 'zscale', 'log');
-    set(h,'ColorScale','log');
-    set(h, 'ylim', [min(beta_list) max(beta_list)]);
-    set(h, 'xlim', [min(xi_list) max(xi_list)]);
-    colorbar
-    view(2)
-    pause
-end
-
-% compute ranges as a function of $nu$
-minl2err = min(l2err_pars, [], [1,2]);
