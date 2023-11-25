@@ -34,10 +34,10 @@ end
 
 form = struct('XI', options.XI, 'NU', options.NU);
 
-if options.ParType == 'opt'
+if strcmpi(options.ParType, 'opt')
     form.A = 1e-2;
     form.A0 = 1;
-elseif options.ParType == 'gen'
+elseif strcmpi(options.ParType, 'gen')
     form.A = 1;
     form.A0 = 1;
 else
@@ -46,7 +46,7 @@ else
 end
 
 if isfield(options, 'BETA')
-    form.BETA = options.BETA
+    form.BETA = options.BETA;
 else
     form.BETA = form.XI / (form.NU - 1) * max([
         problem.Q.L/(problem.c*problem.Q.T) + 1, ...
