@@ -1,11 +1,11 @@
-function [L2proj, H1proj, Vproj] = ProjectionBFS(p, disc, varargin)
+function [L2proj, H1proj, Vproj] = ProjectionBFS(problem, disc)
 % Compute orthogonal projection of function on BFS space
 %% Values unpacking
 % domain
-T = p.Q.T;
-a = p.Q.xmin;
-b = p.Q.xmax;
-L = p.Q.L;
+T = problem.Q.T;
+a = problem.Q.xmin;
+b = problem.Q.xmax;
+L = problem.Q.L;
 % discretisation
 nx = disc.nx;
 nt = disc.nt;
