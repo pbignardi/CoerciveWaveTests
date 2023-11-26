@@ -4,50 +4,42 @@
 clc
 clear
 close all
-addpath(genpath("local_stiffness"));
 
-WRITE_TO_FILE = false;
-PLOTS = false;
-TIMESLICES = true;
-QUADPOINTS = false;
+% define problem
+pnum = 3;
+% number of elements
+nElms = 16;
+% save plot to file
+save_plot = false;
+% show plot
+show_plot = false;
 
 %% Define problem, discretization and mesh
-% Create simple problem
-pnum = 3;
-p = WaveProblem(pnum);
-Q = p.Q;
-% Discretise the domain
-N = 16;
-nx = N; nt = N;
-d = Discretization(nx, nt, Q);
+problem = WaveProblem(pnum);
+Q = problem.Q;
+discretization = Discretization(nElms, nElms, problem.Q);
 % Build mesh
-mesh = CartesianMesh(d);
+mesh = CartesianMesh(discretization);
 
 %% Custom form parameters
-form = initializeForm(p, Q, 'OPT');
+form = initializeForm(problem, Q, 'OPT');
 
 %% Print info
 % TODO
 %% Solve problem
-u = SolverWaves(p, Q, mesh, d, form);
-[~, uproj, ~] = ProjectionBFS(p, d);
+u = SolverWaves(problem, Q, mesh, discretization, form);
+[~, uproj, ~] = ProjectionBFS(problem, discretization);
 
 %% Compute energy at each time step
-if TIMESLICES
 Ts = linspace(0, 1, 6*128).';
-Eu = ComputeEnergy(u, Ts, mesh, d, p);
-
-Eu_ex = zeros(size(Eu));
-for i = 1:numel(Ts)
-    Eu_ex(i) = ComputeExactEnergy(Ts(i), p);
-end
-if PLOTS
-figure(1)
-plot(Ts, Eu);
-hold on
-plot(Ts, Eu_ex);
-hold off
-title('Energy computed using time-slices');
+[disc_sol_energy, exact_energy, ~] = ComputeEnergy(u, 
+if show_plot
+    figure(1)
+    plot(Ts, Eu);
+    hold on
+    plot(Ts, Eu_ex);
+    hold off
+    title('Energy computed using time-slices');
 end
 
 figure(2)

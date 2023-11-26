@@ -1,4 +1,6 @@
 % TestMultiplierPars - Compute L2 errors for a range of Beta, Xi and Nu.
+addpath(genpath('src'));
+clc
 %% Initialize
 % specify problem to solve
 pnum = 2;
@@ -34,7 +36,7 @@ output_dpi = 450;
 save_plot = true;
 
 % is debugging?
-DEBUG = true;
+DEBUG = false;
 
 % Print log
 fprintf('Test parameters <strong>BETA, XI, NU</strong>\n');
@@ -79,22 +81,24 @@ set(0,'DefaultTextInterpreter','latex')
 set(0,'DefaultLegendInterpreter','latex')
 
 %% Compute errors for varying parameters
+fprintf('\n');
 fprintf('** Compute L2errors varying <strong>BETA, XI, NU</strong>\n')
+parpool('threads', 6);
 
 if DEBUG
 load('Results/l2error_beta_xi_nu.mat');
 L2errors = l2err_pars;
 end
 
-% L2errors = nan(nBeta, nXi, nNu);
+L2errors = nan(nBeta, nXi, nNu);
 ConditionNumbers = nan(nBeta, nXi, nNu);
 IsWellPosed = false(nBeta, nXi, nNu);
-
+textprogressbar('Progress: ');
 for i = 1:nBeta
     beta_i = Beta(i);
     for j = 1:nXi
         xi_j = Xi(j);
-        for k = 1:nNu
+        parfor k = 1:nNu
             if ~DEBUG
             form = FormParameters(problem, ParType='CUSTOM', BETA=beta_i, ...
                  XI=xi_j, NU=Nu(k));
@@ -107,8 +111,10 @@ for i = 1:nBeta
             IsWellPosed(i, j, k) = beta_i >= beta_lb;
         end
         progress = ((i - 1) * nXi + j) / (nXi * nBeta);
+        textprogressbar(round(100*progress));
     end
 end
+textprogressbar(' - done!');
 %% Check ratio of errors for varying Nu. Beta and Xi fixed.
 fprintf('** Importance of parameter <strong>NU</strong> (see 7.1.2)\n')
 % Error ratio for well posed parameters
