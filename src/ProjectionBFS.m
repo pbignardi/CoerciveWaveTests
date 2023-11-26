@@ -16,7 +16,7 @@ tt = kron(disc.t, ones((nx + 1), 1));
 ndofs = 4 * (nx + 1) * (nt + 1);
 n_elms = nx * nt;
 % problem parameters
-c = p.c;
+c = problem.c;
 %% Create mesh
 mesh = CartesianMesh(disc);
 pivots = mesh.pivots;
@@ -187,10 +187,10 @@ for e = 1:n_elms
     el_xq = xxqh + xx(mesh.pivots(e));
     el_tq = ttqh + tt(mesh.pivots(e));
     
-    Uex 	= p.u(el_xq, el_tq);
-    dx_Uex 	= p.dx_u(el_xq, el_tq);
-    dt_Uex 	= p.dt_u(el_xq, el_tq);
-    W_Uex 	= p.f(el_xq, el_tq);
+    Uex 	= problem.u(el_xq, el_tq);
+    dx_Uex 	= problem.dx_u(el_xq, el_tq);
+    dt_Uex 	= problem.dt_u(el_xq, el_tq);
+    W_Uex 	= problem.f(el_xq, el_tq);
     
     L2norm = Uex .* v_Q;
     H1seminorm = c^2 * dx_Uex .* gradv_Q + dt_Uex .* vt_Q;
@@ -207,9 +207,9 @@ for e = bot_elms
 	dofs = mapper(el_ids, nx, nt);
 	el_xq = xxqh(1:nq) + xx(pivots(e));
     % solution evaluation
-    dt_Uex = p.dt_u(el_xq, 0);
-    dx_Uex = p.dx_u(el_xq, 0);
-    Uex = p.u(el_xq, 0);
+    dt_Uex = problem.dt_u(el_xq, 0);
+    dx_Uex = problem.dx_u(el_xq, 0);
+    Uex = problem.u(el_xq, 0);
     H1OZseminorm = (dt_Uex .* vt_0 + c^2 * dx_Uex .* vx_0) * T;
     L2norm = T^(-1) * Uex .* v_0;
     % rhs construction
@@ -222,8 +222,8 @@ for e = top_elms
 	dofs = mapper(el_ids, nx, nt);
 	el_xq = xxqh(1:nq) + xx(pivots(e));
     % solution evaluation
-    dt_Uex = p.dt_u(el_xq, T);
-    dx_Uex = p.dx_u(el_xq, T);
+    dt_Uex = problem.dt_u(el_xq, T);
+    dx_Uex = problem.dx_u(el_xq, T);
     H1OZseminorm = (dt_Uex .* vt_T + c^2 * dx_Uex .* vx_T) * T;
 
     % rhs construction
@@ -236,8 +236,8 @@ for e = left_elms
 	dofs = mapper(el_ids, nx, nt);
 	el_tq = ttqh(nq*(1:nq)) + tt(pivots(e));
     % solution evaluation
-    dt_Uex = p.dt_u(a, el_tq);
-    dx_Uex = p.dx_u(a, el_tq);
+    dt_Uex = problem.dt_u(a, el_tq);
+    dx_Uex = problem.dx_u(a, el_tq);
     H1SIseminorm = L * (dt_Uex .* vt_a + c^2 * dx_Uex .* vx_a);
 
     % rhs construction
@@ -250,8 +250,8 @@ for e = right_elms
 	dofs = mapper(el_ids, nx, nt);
 	el_tq = ttqh(nq*(1:nq)) + tt(pivots(e));
     % solution evaluation
-    dt_Uex = p.dt_u(b, el_tq);
-    dx_Uex = p.dx_u(b, el_tq);
+    dt_Uex = problem.dt_u(b, el_tq);
+    dx_Uex = problem.dx_u(b, el_tq);
     H1SIseminorm = L * (dt_Uex .* vt_b + c^2 * dx_Uex .* vx_b);
 
     % rhs construction
