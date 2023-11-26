@@ -1,9 +1,8 @@
-function varargout = SolverWaves(problem, domain, mesh, disc, form)
+function varargout = SolverWaves(problem, mesh, disc, form)
 % Solve the interior impedance problem using BFS element.
 %
 % INPUT:
 %   problem: (struct) problem description
-%   domain: (struct) domain structure
 %   mesh: (struct) mesh structure of the problem 
 %   disc: (struct) struct of discretisation parameters 
 %   form: (struct) struct with parameters of the formulation
@@ -14,11 +13,10 @@ function varargout = SolverWaves(problem, domain, mesh, disc, form)
 
 % Parse variable input arguments
 arguments
-    problem
-    domain
-    mesh
-    disc
-    form
+problem
+mesh
+disc
+form
 end
 
 %% Unpacking parameters
@@ -27,9 +25,9 @@ c       = problem.c;
 theta   = problem.theta;
 
 % Domain unpacking
-T       = domain.T;
-a       = domain.xmin;
-b       = domain.xmax;
+T       = problem.Q.T;
+a       = problem.Q.xmin;
+b       = problem.Q.xmax;
 
 % Elements unpacking
 nx = disc.nx;
@@ -50,19 +48,6 @@ XI = form.XI;
 A = form.A;
 A0 = form.A0;
 Tstar   = NU*T;
-
-% Pack formulation parameters
-parameters = struct();
-parameters.A = A;
-parameters.A0 = A0;
-parameters.BETA = BETA;
-parameters.Tstar = Tstar;
-parameters.NU = NU;
-parameters.XI = XI;
-parameters.c = c;
-parameters.T = T;
-parameters.a = domain.xmin;
-parameters.b = domain.xmax;
 
 % Other parameters
 d = 1;
@@ -222,7 +207,7 @@ Kb = assemble_boundary(KlocSb, mesh, disc, right_elms, t_var);
 K = KQ + KT + K0 + Ka + Kb;
 
 %% Load vector assembly
-F = compute_rhs(problem, mesh, disc, parameters);
+F = compute_rhs(problem, mesh, disc, form);
 
 %% Solving
 u = K \ F;
