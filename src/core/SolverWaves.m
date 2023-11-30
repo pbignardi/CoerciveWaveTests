@@ -13,10 +13,10 @@ function varargout = SolverWaves(problem, mesh, disc, form)
 
 % Parse variable input arguments
 arguments
-problem
-mesh
-disc
-form
+    problem
+    mesh
+    disc
+    form
 end
 
 %% Unpacking parameters

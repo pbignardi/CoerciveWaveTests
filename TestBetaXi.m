@@ -3,7 +3,7 @@ addpath(genpath('src'));
 clc
 %% Initialize
 % specify problem to solve
-pnum = 2;
+pnum = 1;
 % min order of magnitude for Xi
 logXiMin = -3;
 % max order of magnitude for Xi
@@ -26,8 +26,8 @@ nNu = 7;
 nElms = 32;
 
 % figure size
-figure_width = 920;
-figure_height = 720;
+figure_width = 540;
+figure_height = 420;
 % output figures font size
 font_size = 20;                                                       
 % resolution of output figures
@@ -142,6 +142,27 @@ fprintf('max of error ratio (when Xi >= 1): %f\n', ratio_ub);
 % Assume as in Section 7.1.2 that \nu=2, fixed.
 NuFixed = 2;
 
+L2errors = nan(nBeta, nXi);
+ConditionNumbers = nan(nBeta, nXi);
+IsWellPosed = false(nBeta, nXi);
+textprogressbar('Progress: ');
+for i = 1:nBeta
+    beta_i = Beta(i);
+    parfor j = 1:nXi 
+        form = FormParameters(problem, ParType='CUSTOM', BETA=beta_i, ...
+             XI=Xi(j), NU=NuFixed);
+        [u, Kcond] = SolverWaves(problem, mesh, discretization, form);
+        err = ComputeErrors(u, problem, mesh, discretization, 'relative');
+        L2errors(i, j) = err.L2E;
+        beta_lb = BetaLowerBound(xi_j, NuFixed, problem.c, problem.Q.T, ...
+            problem.Q.L, problem.theta, problem.Q.delta);
+        IsWellPosed(i, j) = beta_i >= beta_lb;
+        ConditionNumbers(i, j) = Kcond;
+    end
+    progress = i / (nXi);
+    textprogressbar(round(100*progress));
+end
+
 % Display dotted area
 [XiArea, BetaArea] = meshgrid(Xi(2:6:end), Beta(2:6:end));
 IsWellPosedArea = zeros(size(XiArea));
@@ -159,7 +180,7 @@ end
 %% L2 error figure
 [Xis, Betas] = meshgrid(Xi, Beta);
 l2err_comb = figure;
-surf(Xis, Betas, min(L2errors, 1));
+pcolor(Xis, Betas, min(L2errors, 1));
 set(gca, 'xscale', 'log');
 set(gca, 'yscale', 'log');
 set(gca,'ColorScale','log');
@@ -176,9 +197,11 @@ c = colorbar;
 set(c,'TickLabelInterpreter','latex');
 shading flat
 colormap turbo
-h.BoxStyle = 'full';
 view(2)
 hold on
+
+BetaMin = @(xi) BetaLowerBound(xi, NuFixed, problem.c, problem.Q.T, ...
+    problem.Q.L, problem.theta, problem.Q.delta);
 
 % Dotted area
 plot(Xi, BetaMin(Xi), 'w', 'LineWidth', 2)
@@ -188,7 +211,7 @@ hold off
 
 %% Condition number figure
 kcond_comb = figure;
-pcolor(Xis, Betas, max(kcond_beta_xi_comb, 1));
+pcolor(Xis, Betas, max(ConditionNumbers, 1));
 set(gca, 'xscale', 'log');
 set(gca, 'yscale', 'log');
 set(gca,'ColorScale','log');
@@ -200,7 +223,7 @@ xlabel('$\xi$',Interpreter='latex');
 ylabel('$\beta$',Interpreter='latex');
 xticks(10.^(logXiMin:2:logXiMax));
 yticks(10.^(logBetaMin:2:logBetaMax));
-clim([min(kcond_beta_xi_comb(:)) 1e15]);
+clim([min(ConditionNumbers(:)) 1e15]);
 c = colorbar;
 set(c,'TickLabelInterpreter','latex');
 shading flat
@@ -216,10 +239,9 @@ hold off
 %% Save to file
 if save_plot
     root = 'Results/ParsTestFigures/';
-    basename = sprintf('%stestBetaXiNu-p%d-numEl%d', root, ...
-        string(pnum), string(nElms));
-    l2err_name = basename + '-l2err.png';
-    cond_name = basename + '-cond.png';
+    basename = sprintf('%stestBetaXiNu-p%d-numEl%d', root, pnum, nElms);
+    l2err_name = [basename, '-l2err.png'];
+    cond_name = [basename, '-cond.png'];
     exportgraphics(l2err_comb, l2err_name, 'Resolution', output_dpi);
     exportgraphics(kcond_comb, cond_name , 'Resolution', output_dpi);
 end

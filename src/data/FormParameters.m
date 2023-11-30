@@ -10,14 +10,12 @@ function form = FormParameters(problem, options)
 %
 % INPUTS:
 %   problem: (struct) struct of the problem
-%
-% NAME-VALUE INPUTS: (optional)
-%   ParType: (string) either 'opt', 'gen' or 'custom'
-%   BETA: (float) Multiplier coefficient \beta in (28)
-%   XI: (float) Multiplier coefficient \xi in (28)
-%   NU: (float) Multiplier coefficient \nu in (28)
-%   A: (float) Least squares coefficient A_Q in (28)
-%   A0: (float) Least squares coefficient A_\OZ in (28)
+%   options.ParType: 'opt', 'gen' or 'custom'
+%   options.BETA: (float) Multiplier coefficient \beta in (28)
+%   options.XI: (float) Multiplier coefficient \xi in (28)
+%   options.NU: (float) Multiplier coefficient \nu in (28)
+%   options.A: (float) Least squares coefficient A_Q in (28)
+%   options.A0: (float) Least squares coefficient A_\OZ in (28)
 %
 % OUTPUT:
 %   form: (struct) structure of parameters of the formulation

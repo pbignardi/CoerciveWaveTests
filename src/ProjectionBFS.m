@@ -1,5 +1,14 @@
 function [L2proj, H1proj, Vproj] = ProjectionBFS(problem, disc)
 % Compute orthogonal projection of function on BFS space
+% 
+% INPUT
+%   problem: (struct) problem structure (see WaveProblem.m)
+%   disc: (struct) discretization of the XT domain (see Discretization.m)
+%
+% OUTPUT: 
+%   L2proj: (float[]) dofs of the L2 projection
+%   H1proj: (float[]) dofs of the H1 projection
+%   Vproj: (float[]) dofs of the V-norm projection
 %% Values unpacking
 % domain
 T = problem.Q.T;

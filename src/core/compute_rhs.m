@@ -1,4 +1,4 @@
-function F = compute_rhs(p, mesh, disc, parameters)
+function F = compute_rhs(p, mesh, disc, form)
     %% Unpacking parameters
     % Mesh parameters
     elms    = mesh.elms;
@@ -18,16 +18,17 @@ function F = compute_rhs(p, mesh, disc, parameters)
     u0  = p.u0;
     u1  = p.u1;
 
+    c       = p.c;
+    T       = p.Q.T;
+    a       = p.Q.xmin;
+    b       = p.Q.xmax; 
+
     % Formulation parameters
-    A       = parameters.A;
-    A0      = parameters.A0;
-    BETA    = parameters.BETA;
-    XI      = parameters.XI;
-    Tstar   = parameters.Tstar;
-    T       = parameters.T;
-    c       = parameters.c;
-    a       = parameters.a;
-    b       = parameters.b; 
+    A       = form.A;
+    A0      = form.A0;
+    BETA    = form.BETA;
+    XI      = form.XI;
+    Tstar   = form.NU * T;
 
     % Discretisation parameters
     hx = disc.hx;

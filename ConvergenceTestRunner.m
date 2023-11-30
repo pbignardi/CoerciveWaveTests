@@ -18,7 +18,7 @@ err_type = 'relative';
 % save table to file
 save_table = false;
 % show plot
-show_plot = false;
+show_plot = true;
 % save dir location
 basedir = 'Results/ConvTables/';
 
@@ -44,8 +44,7 @@ fprintf('Beta: %.2f\n', form.BETA);
 fprintf('Nu: %.2f\n', form.NU);
 fprintf('\n');
 % do convergence table
-cfl_table = Convergence(problem, form, NxElms, Nt=NtElms, ...
-    ShowPlot=show_plot, ErrType=err_type);
+cfl_table = Convergence(problem, form, NxElms, Nt=NtElms, ErrType=err_type);
 % save to file
 if save_table == true
     pstring = string(p_id);
@@ -65,8 +64,7 @@ fprintf('Beta: %.2f\n', form.BETA);
 fprintf('Nu: %.2f\n', form.NU);
 fprintf('\n');
 % do convergence table
-cfl_table = Convergence(problem, form, NxElms, Nt=NtElms, ...
-    ShowPlot=show_plot, ErrType=err_type);
+cfl_table = Convergence(problem, form, NxElms, Nt=NtElms, ErrType=err_type);
 % save to file
 if save_table == true
     pstring = string(p_id);
@@ -95,14 +93,15 @@ fprintf('Beta: %.2f\n', form.BETA);
 fprintf('Nu: %.2f\n', form.NU);
 fprintf('\n');
 % do convergence table
-conv_table = Convergence(problem, form, nElms, ShowPlot=show_plot, ...
-    ErrType=err_type);
+conv_table = Convergence(problem, form, nElms, ErrType=err_type);
 % save to file
 if save_table == true
-    pstring = string(p_id);
-    ntstring = string(NtElms);
-    filename = sprintf('convtable-p%d-Nt%d-Aopt.dat', pstring, ntstring);
+    filename = sprintf('convtable-p%d-Aopt.dat', string(p_id));
     writetable(conv_table, basedir + filename);
+end
+% show plot
+if show_plot == true
+    ShowConvergencePlot(conv_table, Form=form, Problem=problem);
 end
 
 % Convergence test - with A_Q = 1, A_\OZ = 1
@@ -116,12 +115,9 @@ fprintf('Beta: %.2f\n', form.BETA);
 fprintf('Nu: %.2f\n', form.NU);
 fprintf('\n');
 % do convergence table
-conv_table = Convergence(problem, form, nElms, ShowPlot=show_plot, ...
-    ErrType=err_type);
+conv_table = Convergence(problem, form, nElms, ErrType=err_type);
 % save to file
 if save_table == true
-    pstring = string(p_id);
-    ntstring = string(NtElms);
-    filename = sprintf('convtable-p%d-Nt%d-Agen.dat', pstring, ntstring);
+    filename = sprintf('convtable-p%d-Agen.dat', string(p_id));
     writetable(conv_table, basedir + filename);
 end

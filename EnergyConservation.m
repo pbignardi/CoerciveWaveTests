@@ -1,97 +1,119 @@
 % Coercive wave equation numerical tests
-% Paolo Bignardi 2022
+% Paolo Bignardi 2023
 % Energy conservation
 clc
 clear
 close all
 
+%% Initialization
+addpath(genpath('src'));
 % define problem
-pnum = 3;
+pnum = 2;
 % number of elements
 nElms = 16;
-% save plot to file
-save_plot = false;
+% compute 'relative' or 'absolute' error
+err_type = 'relative';
+% save table to file
+save_table = false;
 % show plot
-show_plot = false;
+show_plot = true;
+% number of elements for convergence
+nElConv = 2.^(1:7);
 
-%% Define problem, discretization and mesh
+% set font size for plot
+font_size = 20;
+% base dir location
+basedir = 'Results/Energy/';
+
+% Define problem, disc and mesh
 problem = WaveProblem(pnum);
-Q = problem.Q;
-discretization = Discretization(nElms, nElms, problem.Q);
+disc = Discretization(nElms, nElms, problem.Q);
 % Build mesh
-mesh = CartesianMesh(discretization);
+mesh = CartesianMesh(disc);
 
-%% Custom form parameters
-form = initializeForm(problem, Q, 'OPT');
+% Custom form parameters
+form = FormParameters(problem);
 
-%% Print info
-% TODO
+% Print info
+fprintf('** Error conservation test');
+fprintf('=>> SOLVER PARAMETERS\n');
+fprintf('problem_id: %d\n', pnum);
+fprintf('Nt: %d\n', nElms);
+fprintf('Nx: %d\n', nElms);
+fprintf('err_type: %s\n', err_type);
+fprintf('\n');
+
+fprintf('=>> FORMULATION PARAMETERS\n');
+fprintf('A: %.2f\n', form.A);
+fprintf('A0: %.2f\n', form.A0);
+fprintf('Xi: %.2f\n', form.XI);
+fprintf('Beta: %.2f\n', form.BETA);
+fprintf('Nu: %.2f\n', form.NU);
+fprintf('\n');
+
+fprintf('=>> OPTIONS\n');
+fprintf('font_size: %d\n', font_size);
+fprintf('show_plot: %s\n', string(show_plot));
+fprintf('save table: %s\n', string(save_table));
+
+
 %% Solve problem
-u = SolverWaves(problem, Q, mesh, discretization, form);
-[~, uproj, ~] = ProjectionBFS(problem, discretization);
+u = SolverWaves(problem, mesh, disc, form);
+[~, uproj, ~] = ProjectionBFS(problem, disc);
 
 %% Compute energy at each time step
-Ts = linspace(0, 1, 6*128).';
-[disc_sol_energy, exact_energy, ~] = ComputeEnergy(u, 
-if show_plot
-    figure(1)
-    plot(Ts, Eu);
+t = linspace(0, 1, 6*128).';
+energy_table = ComputeEnergy(u, t, mesh, disc, problem, ErrType=err_type);
+
+% show plot
+if show_plot == true
+    % plot energies
+    figure
     hold on
-    plot(Ts, Eu_ex);
+    plot(t, energy_table.UhEnergy, '-b', LineWidth=1);
+    plot(t, energy_table.UEnergy, '-r', LineWidth=1);
     hold off
-    title('Energy computed using time-slices');
+    title('Energy of discrete and exact solution');
+    xlabel('$t$');
+    ylabel('Energy');
+    fontsize(font_size, 'points');
+    legend('Energy of $u_h$', 'Energy of $u$', Interpreter='latex');
+    grid on
+
+    % plot error of the energy
+    figure
+    semilogy(t, energy_table.NumericalEnergyError, '-k', LineWidth=1);
+    title(sprintf('Error (%s) of the numerical energy', err_type));
+    xlabel('$t$');
+    ylabel('Error of energy');
+    fontsize(font_size, 'points');
+    legend('Error of the numerical energy');
+    grid on
 end
 
-figure(2)
-error = abs(Eu - Eu_ex);
-err_type = 'Absolute';
-if all(Eu_ex ~= 0)
-    error = error ./ Eu_ex;
-    err_type = 'Relative';
+if save_table == true
+    filename = sprintf('EnergyTable-p%d-N%d.dat', string(pnum), string(nElms));
+    writetable(energy_table, basedir + filename);
 end
 
-energy_ts_table = table(Ts, Eu, Eu_ex, error);
+%% Energy convergence 
+% Print info
+fprintf('** Energy convergence test');
+fprintf('=>> SOLVER PARAMETERS\n');
+fprintf('problem_id: %d\n', pnum);
+fprintf('Nx: %s\n', join(string(nElConv), ','));
+fprintf('Nt: %s\n', join(string(nElConv), ','));
+fprintf('err_type: %s\n', err_type);
+fprintf('\n');
 
-if WRITE_TO_FILE
-    writetable(energy_ts_table, 'Results/Energy/EnergyTableTS-p' + string(pnum) + '-N' + string(nx) + '.dat');
+% Compute energy convergence using EnergyConvergence
+conv_table = EnergyConvergence(problem, form,nElConv, ErrType=err_type);
+% save to file
+if save_table == true
+    filename = sprintf('EnergyConvTable-p%d.dat', string(pnum));
+    writetable(conv_table, basedir + filename);
 end
+% show plot if required
+if show_plot == true
 
-semilogy(Ts, error);
-title([err_type, ' error of energy using time-slices']);
 end
-%% Compute energy using time quadrature points as evaluation
-if QUADPOINTS
-[Eu_qp, Ts_qp] = ComputeEnergyOnGrid(u, mesh, d, p);
-Eu_ex_qp = zeros(size(Eu_qp));
-for i = 1:numel(Eu_ex_qp)
-    Eu_ex_qp(i) = ComputeExactEnergy(Ts_qp(i), p);
-end
-
-if PLOTS
-figure(3)
-plot(Ts_qp, Eu_qp);
-hold on
-plot(Ts_qp, Eu_ex_qp);
-hold off
-title('Energy evaluated at time quadrature points');
-end
-
-figure(4)
-error = abs(Eu_qp - Eu_ex_qp);
-err_type = 'Absolute';
-if all(Eu_ex_qp ~= 0)
-    error = error ./ Eu_ex_qp;
-    err_type = 'Relative';
-end
-
-energy_qp_table = table(Ts_qp, Eu_qp, Eu_ex_qp, error);
-
-if WRITE_TO_FILE
-    writetable(energy_qp_table, 'Results/Energy/EnergyTableQP-p' + string(pnum) + '-N' + string(nx) + '.dat');
-end
-
-
-semilogy(Ts_qp, error);
-title([err_type, ' error of energy using time quadrature points']);
-end
-
