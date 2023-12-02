@@ -10,3 +10,8 @@ manuscript.
 In the `src` there are functions that perform the main computations (computing
 numerical solutions, errors, energy, etc). Docstrings are provided with each 
 one of such functions.
+
+## TODO
+- Plotting function for the CFL condition test
+- Reorganize the test A and test beta xi scripts
+- Run all the test of the paper to see if everything works
