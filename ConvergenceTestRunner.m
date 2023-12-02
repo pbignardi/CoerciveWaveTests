@@ -52,6 +52,10 @@ if save_table == true
     filename = sprintf('cfltable-p%d-Nt%d-Aopt.dat', pstring, ntstring);
     writetable(cfl_table, basedir + filename);
 end
+% show plot
+if show_plot == true
+    ShowCFLTestPlot(cfl_table, Form=form, Problem=problem);
+end
 
 % Testing CFL condition - with A_Q = 1, A_\OZ = 1
 form = FormParameters(problem, A = 1, A0 = 1);
@@ -71,6 +75,10 @@ if save_table == true
     ntstring = string(NtElms);
     filename = sprintf('cfltable-p%d-Nt%d-Agen.dat', pstring, ntstring);
     writetable(cfl_table, basedir + filename);
+end
+% show plot
+if show_plot == true
+    ShowCFLTestPlot(cfl_table, Form=form, Problem=problem);
 end
 
 %% Full convergence tests
@@ -120,4 +128,8 @@ conv_table = Convergence(problem, form, nElms, ErrType=err_type);
 if save_table == true
     filename = sprintf('convtable-p%d-Agen.dat', string(p_id));
     writetable(conv_table, basedir + filename);
+end
+% show plot
+if show_plot == true
+    ShowConvergencePlot(conv_table, Form=form, Problem=problem);
 end
