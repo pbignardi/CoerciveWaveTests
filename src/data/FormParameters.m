@@ -22,7 +22,7 @@ function form = FormParameters(problem, options)
 
 arguments
     problem
-    options.ParType = 'opt'
+    options.ParType
     options.XI (1, 1) double { mustBeNumeric } = 1
     options.NU (1, 1) double { mustBeNumeric } = 2
     options.A (1, 1) double { mustBeNumeric } = 1e-2
@@ -31,13 +31,17 @@ arguments
 end
 
 form = struct('XI', options.XI, 'NU', options.NU);
-
-if strcmpi(options.ParType, 'opt')
-    form.A = 1e-2;
-    form.A0 = 1;
-elseif strcmpi(options.ParType, 'gen')
-    form.A = 1;
-    form.A0 = 1;
+if isfield(options, 'ParType')
+    if strcmpi(options.ParType, 'opt')
+        form.A = 1e-2;
+        form.A0 = 1;
+    elseif strcmpi(options.ParType, 'gen')
+        form.A = 1;
+        form.A0 = 1;
+    else
+        form.A = options.A;
+        form.A0 = options.A0;
+    end
 else
     form.A = options.A;
     form.A0 = options.A0;
