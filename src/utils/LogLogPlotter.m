@@ -74,5 +74,6 @@ hold off
 grid on
 
 % add legend
-legend(options.LegendText, Location='southeast', FontSize=font_size);
+legend(options.LegendText{:}, Location='southeast', FontSize=font_size, ...
+    Interpreter='latex');
 end

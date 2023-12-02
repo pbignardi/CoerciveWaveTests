@@ -39,17 +39,16 @@ for i = 1:numel(nElms)
     u = SolverWaves(problem, mesh, disc, form);
 
     [~, ~, uVproj] = ProjectionBFS(problem, disc);
-    sup_energy = max(ComputeEnergy(u, t, mesh, d, problem));
+    sup_energy = max(ComputeEnergy(u, t, mesh, disc, problem));
     ErrorEnergy(i) = sup_energy.ErrorEnergy / sup_energy.UEnergy;
     NumericalEnergyError(i) = sup_energy.NumericalEnergyError / ...
-        sup_enegy.UEnergy;
-    errors = ComputeErrors(uVproj, problem, mesh, d, options.ERR_TYPE);
-    VprojErrorsSq(i) = errors.VnE^2;
-    i = i + 1;
+        sup_energy.UEnergy;
+    errors = ComputeErrors(uVproj, problem, mesh, disc, options.ErrType);
+    VprojErrorSq(i) = errors.VnE^2;
 end
 
-Hx = (problem.Q.xmax - problem.Q.xmin) ./ options.N.';
-Ht = problem.Q.T ./ options.N.';
+Hx = (problem.Q.xmax - problem.Q.xmin) ./ nElms.';
+Ht = problem.Q.T ./ nElms.';
 H = sqrt(Hx .^2 + Ht .^ 2);
 
 %% Build table and write to file
