@@ -1,5 +1,5 @@
-function ShowConvergencePlot(conv_table, options)
-% Helper function to show h-convergence plot. 
+function ShowCFLTestPlot(conv_table, options)
+% Helper function to show CFL test plot
 % Optionally you can provide Form: the Subtitle now shows the parameters used
 % Optionally you can provide Form: the Title now shows the problem solved
 % 
@@ -11,32 +11,26 @@ function ShowConvergencePlot(conv_table, options)
 %   options.Problem (struct) problem to solve 
 %   options.Title: (string) title of the figure
 %   options.Subtitle; (string) subtitle of the figure
-%   options.ShowRates; (bool) show computed convergence rates
 arguments
     conv_table
     options.Form
     options.Problem
     options.Title = ''
     options.Subtitle = ''
-    options.ShowRates = true
 end
 if isfield(options, 'Problem')
     p_id = options.Problem.pnum;
-    options.Title = sprintf('Convergence plot - Problem %d', p_id);
+    options.Title = sprintf('Unconditional stability plot - Problem %d', p_id);
 end
 if isfield(options, 'Form')
     separators = {'=', ' ', '=', ' ', '=', ' ', '=', ' ', '='};
     options.Subtitle = join(string(namedargs2cell(options.Form)), separators);
 end
 
-% define dashed lines for best approximation errors
-dashed = [5, 6, 7];
 % construct legend text
-legend_text = {'$L^2$ error', '$H^1$ error', '$V$-norm error', ...
-    '$L^2$ best-approx error', '$H^1$ best-approx error', ...
-    '$V$-norm best-approx error'};
-to_plot_table = conv_table(:, [1, 4:9]);
-LogLogPlotter(to_plot_table, LegendText=legend_text, DashedIds=dashed, ...
-    Title=options.Title, Subtitle=options.Subtitle, xLabel='h', ...
-    ShowRates=options.ShowRates)
+legend_text = {'$L^2$ error', '$H^1$ error'}
+conv_table.HtHxRatio = conv_table.Ht./conv_table.Hx;
+to_plot_table = [conv_table(:, end) conv_table(:, 4) conv_table(:, 5)]
+LogLogPlotter(to_plot_table, LegendText=legend_text, Title=options.Title, ... 
+    Subtitle=options.Subtitle, xLabel='$h_t/h_x$')
 end
