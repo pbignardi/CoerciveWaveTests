@@ -76,16 +76,16 @@ if show_plot == true
     title('Energy of discrete and exact solution');
     xlabel('$t$');
     ylabel('Energy');
-    fontsize(font_size, 'points');
-    legend('Energy of $u_h$', 'Energy of $u$', Interpreter='latex');
+    fontsize(font_size, 'points'); legend('Energy of $u_h$', 'Energy of $u$',...
+        Interpreter='latex');
     grid on
 
     % plot error of the energy
     figure
     semilogy(t, energy_table.NumericalEnergyError, '-k', LineWidth=1);
     title(sprintf('Error (%s) of the numerical energy', err_type));
-    xlabel('$t$');
-    ylabel('Error of energy');
+    xlabel('$t$', Interpreter='latex');
+    ylabel('Error of energy', Interpreter='latex');
     fontsize(font_size, 'points');
     legend('Error of the numerical energy');
     grid on
@@ -120,6 +120,6 @@ if show_plot == true
     fig_subtitle = '';
     legend_text = {'$sup_t E(t; u-u_h)$', '$sup_t |E(t;u)-E(t;u_h)|$', ...
         'V-norm best approximation error'};
-    LogLogPlotter(conv_table, DashedIds=[4], Title=fig_title, ShowRates=true,
+    LogLogPlotter(conv_table, DashedIds=[4], Title=fig_title, ShowRates=true,...
         Subtitle=fig_subtitle, xLabel='h', LegendText=legend_text);
 end
