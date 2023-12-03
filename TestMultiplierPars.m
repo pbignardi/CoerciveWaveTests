@@ -73,14 +73,6 @@ problem = WaveProblem(pnum);
 discretization = Discretization(nElms, nElms, problem.Q);
 mesh = CartesianMesh(discretization);
 
-% setup Latex ticks interpreter
-% TO REMOVE:!!!
-set(groot,'defaultAxesTickLabelInterpreter','latex'); 
-set(groot,'defaulttextinterpreter','latex');
-set(groot,'defaultLegendInterpreter','latex');
-set(0,'DefaultTextInterpreter','latex')
-set(0,'DefaultLegendInterpreter','latex')
-
 %% Compute errors for varying parameters
 fprintf('\n');
 fprintf('** Compute L2errors varying <strong>BETA, XI, NU</strong>\n')
@@ -205,12 +197,12 @@ set(c,'TickLabelInterpreter','latex');
 shading flat
 colormap turbo
 view(2)
-hold on
 
 BetaMin = @(xi) BetaLowerBound(xi, NuFixed, problem.c, problem.Q.T, ...
     problem.Q.L, problem.theta, problem.Q.delta);
 
 % Dotted area
+hold on
 plot(Xi, BetaMin(Xi), 'w', 'LineWidth', 2)
 scatter(XiArea(IsWellPosedArea==0),BetaArea(IsWellPosedArea==0), 24, ...
     'white', 'filled')
@@ -242,9 +234,9 @@ c = colorbar;
 set(c,'TickLabelInterpreter','latex');
 shading flat
 colormap turbo
-hold on
 
 % Dotted area
+hold on
 plot(Xi, BetaMin(Xi), 'w', 'LineWidth', 2)
 scatter(XiArea(IsWellPosedArea==0),BetaArea(IsWellPosedArea==0), 24, ...
     'white', 'filled')
