@@ -1,10 +1,9 @@
 % Coercive wave equation numerical tests
 % Paolo Bignardi 2022
 clc
-%clear
+clear
 close all
-addpath(genpath("local_stiffness"));
-addpath(genpath("matlab2tikz"));
+addpath(genpath('src'));
 
 %% Define problem, discretization and mesh
 % Create simple problem
