@@ -1,22 +1,7 @@
 %TestA - Compute L2 and H1 errors for a range of AQ and A0 and saves plots
 % Can be run in parallel or not; can also specify the number of elements to
 % solve the problem.
-%
-%   INPUTS:
-%       p_num:  Problem number (see WaveProblem.m)
-%       N:      Number of sample per each parameter
-%       nElms:      (Optional) Number of element in each direction (default 32)
 
-set(groot,'defaultAxesTickLabelInterpreter','latex'); 
-set(groot,'defaulttextinterpreter','latex');
-set(groot,'defaultLegendInterpreter','latex');
-set(0,'DefaultTextInterpreter','latex')
-set(0,'DefaultLegendInterpreter','latex')
-% clear persisten variable for textprogressbar
-clear strCR;
-
-% number of elements in each search space direction
-N = 75;
 % Problem to solve
 p_num = 1;
 % min order of magnitude for AQ search space
@@ -28,16 +13,14 @@ logA0min = -7;
 % max order of magnitude for A0 search space
 logA0max = 3; 
 % number of nodes in AQ search space
-nAQ = N; 
+nAQ = 10; 
 % number of nodes in A0 search space
-nA0 = N; 
+nA0 = 10; 
 
 % number of elements to use to solve the problem
 nElms = 32;
-% decide to compute condition number
-compute_cond = true;
 % compute parallel
-parallel_solve = true;
+parallel_solve = false;
 
 % figure size
 figure_width = 920;
@@ -48,6 +31,8 @@ font_size = 20;
 output_dpi = 450;
 % set verbose flag for called functions
 verbose = true;
+% save to file
+save_file = false;
 
 %% Display informations
 fprintf('Test of parameters <strong>AQ</strong> and <strong>A0</strong>\n');
@@ -68,12 +53,13 @@ fprintf('Nx: %d\n', nElms);
 fprintf('\n');
 
 fprintf('=>> OPTIONS\n');
-fprintf('parallel solve: %d\n', parallel_solve);
+fprintf('parallel solve: %s\n', parallel_solve);
 fprintf('figure width: %d\n', figure_width);
 fprintf('figure height: %d\n', figure_height);
 fprintf('font_size: %d\n', font_size);
 fprintf('output_dpi: %d\n', output_dpi);
-fprintf('verbose: %d\n', verbose);
+fprintf('verbose: %s\n', verbose);
+fprintf('save_file: %s\n', save_file);
 fprintf('\n');
 
 addpath(genpath("src"));
@@ -95,12 +81,14 @@ AQs = logspace(logAQmin, logAQmax, nAQ);
 A0s = logspace(logA0min, logA0max, nA0);
 AQ = AQs;
 A0 = A0s;
+
 %% Initialize errors
 L2errors = zeros(nAQ, nA0);
 H1errors = zeros(nAQ, nA0);
 Kconds = zeros(nAQ, nA0);
 
 %% Iterate over A
+statusbar = waitbar(0, 'Computing...');
 % Loop for AQ (fixed AQ on each row)
 for i = 1:nAQ
     % Loop for A0 (fixed A0 on each column)
@@ -109,12 +97,8 @@ for i = 1:nAQ
     parfor j = 1:nA0
         form = FormParameters(p, ParType='custom', A=AQ_slice, A0=A0s(j));
         % Solve problem
-        if compute_cond == true
-            [u, Kcond] = SolverWaves(p, mesh, d, form);
-            Kconds(i, j) = Kcond;
-        else
-            u = SolverWaves(p, mesh, d, form);
-        end
+        [u, Kcond] = SolverWaves(p, mesh, d, form);
+        Kconds(i, j) = Kcond;
 
         % Compute errors
         errors = ComputeErrors(u, p, mesh, d, 'relative');
@@ -125,12 +109,8 @@ for i = 1:nAQ
         for j = 1:numel(A0s)
         form = FormParameters(p, ParType='custom', A=AQ_slice, A0=A0s(j));
         % Solve problem
-        if compute_cond == true
-            [u, Kcond] = SolverWaves(p, Q, mesh, d, form);
-            Kconds(i, j) = Kcond;
-        else
-            u = SolverWaves(p, Q, mesh, d, form);
-        end
+        [u, Kcond] = SolverWaves(p, mesh, d, form);
+        Kconds(i, j) = Kcond;
 
         % Compute errors
         errors = ComputeErrors(u, p, mesh, d, 'relative');
@@ -138,9 +118,11 @@ for i = 1:nAQ
         H1errors(i, j) = errors.H1E;
         end
     end
-    disp(i)
+    progress = i / nAQ;
+    waitbar(progress, statusbar);
 end
-fprintf('\n');
+waitbar(1, statusbar, 'Done!');
+close(statusbar);
 
 %% Plot the result
 [A0s, AQs] = meshgrid(A0, AQ);
@@ -216,35 +198,22 @@ best_error = min(L2errors(:));
 figure
 loglog(AQ, L2errors(:, j),'LineWidth',2);
 grid on
-title("L2 error for best A0")
-xlabel("$A_Q$", Interpreter='latex');
-ylabel("$L^2(Q)$ error", Interpreter='latex');
+title('L2 error for best A0')
+xlabel('$A_Q$', Interpreter='latex');
+ylabel('$L^2(Q)$ error', Interpreter='latex');
 % Mark the optimal value of AQ
 xline(AQs(i, j), 'Color', 'r', 'LineWidth', 1);
 textLabel = sprintf("Optimal AQ = %e", AQs(i, j));
 text(AQs(i, j), L2errors(i, j)*1e2, textLabel, 'fontSize', 13, ...
     'VerticalAlignment', 'bottom');
-AQ = AQ.';
 L2err = L2errors(:, j);
-best_A0_table = table(AQ, L2err);
 
-%% Plot the error fixing the best AQ
-figure
-loglog(A0, L2errors(i, :),'LineWidth',2);
-grid on 
-title("L2 error for best AQ")
-xlabel("$A_0$", Interpreter='latex');
-ylabel("$L^2(Q)$ error", Interpreter='latex');
-% % mark the optimal value of A0
-% xline(A0s(i, j), 'Color', 'r', 'LineWidth', 1);
-% textLabel = sprintf("Optimal A0 = %f", A0s(i, j));
-% text(A0s(i, j), L2errors(i, j), textLabel, 'fontSize', 13, ...
-%     'VerticalAlignment', 'bottom');
-A0 = A0.';
-L2err = L2errors(i, :).';
-best_AQ_table = table(A0, L2err);
+% create table for A0 error
+best_A0_table = table;
+best_A0_table.AQ = AQ.';
+best_AQ_table.L2err = L2err;
 
-%% Saving figures
+%% Saving figures and tables
 if save_file
     root = 'Results/ParsTestFigures/';
     basename = sprintf('%stestA-p%d-numEl%d', root, pnum, nElms);

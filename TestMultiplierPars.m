@@ -74,6 +74,7 @@ discretization = Discretization(nElms, nElms, problem.Q);
 mesh = CartesianMesh(discretization);
 
 % setup Latex ticks interpreter
+% TO REMOVE:!!!
 set(groot,'defaultAxesTickLabelInterpreter','latex'); 
 set(groot,'defaulttextinterpreter','latex');
 set(groot,'defaultLegendInterpreter','latex');
@@ -93,16 +94,16 @@ end
 L2errors = nan(nBeta, nXi, nNu);
 ConditionNumbers = nan(nBeta, nXi, nNu);
 IsWellPosed = false(nBeta, nXi, nNu);
-textprogressbar('Progress: ');
+statusbar = waitbar(0, 'Computing...');
 for i = 1:nBeta
     beta_i = Beta(i);
     for j = 1:nXi
         xi_j = Xi(j);
         parfor k = 1:nNu
             if ~DEBUG
-            form = FormParameters(problem, ParType='CUSTOM', BETA=beta_i, ...
+            form = FormParameters(problem, ParType='custom', BETA=beta_i, ...
                  XI=xi_j, NU=Nu(k));
-            u = SolverWaves(problem, problem.Q, mesh, discretization, form);
+            u = SolverWaves(problem, mesh, discretization, form);
             err = ComputeErrors(u, problem, mesh, discretization, 'relative');
             L2errors(i, j, k) = err.L2E;
             end
@@ -111,10 +112,12 @@ for i = 1:nBeta
             IsWellPosed(i, j, k) = beta_i >= beta_lb;
         end
         progress = ((i - 1) * nXi + j) / (nXi * nBeta);
-        textprogressbar(round(100*progress));
+        waitbar(progress, statusbar);
     end
 end
-textprogressbar(' - done!');
+waitbar(1, statusbar, 'Done!');
+close(statusbar);
+
 %% Check ratio of errors for varying Nu. Beta and Xi fixed.
 fprintf('** Importance of parameter <strong>NU</strong> (see 7.1.2)\n')
 % Error ratio for well posed parameters
@@ -134,18 +137,20 @@ for i = 1:nBeta
     end
 end
 
-fprintf('max of error ratio (overall): %f\n', max(NuErrorRatio, [], 'all'));
-ratio_ub = max(NuErrorRatio(Xis >= 1), [], 'all');
+fprintf('max of error ratio (overall): %f\n', max(NuErrorRatioWP, [], 'all'));
+ratio_ub = max(NuErrorRatioWP(Xis >= 1), [], 'all');
 fprintf('max of error ratio (when Xi >= 1): %f\n', ratio_ub);
 
-%% Make plot
+%% Compute parameter importance for Nu=2
 % Assume as in Section 7.1.2 that \nu=2, fixed.
 NuFixed = 2;
+fprintf('** Compute L2errors varying <strong>BETA, XI</strong>, NU=%d\n', ...
+    NuFixed)
 
 L2errors = nan(nBeta, nXi);
 ConditionNumbers = nan(nBeta, nXi);
 IsWellPosed = false(nBeta, nXi);
-textprogressbar('Progress: ');
+statusbar = waitbar(0, 'Computing...');
 for i = 1:nBeta
     beta_i = Beta(i);
     parfor j = 1:nXi 
@@ -154,14 +159,16 @@ for i = 1:nBeta
         [u, Kcond] = SolverWaves(problem, mesh, discretization, form);
         err = ComputeErrors(u, problem, mesh, discretization, 'relative');
         L2errors(i, j) = err.L2E;
-        beta_lb = BetaLowerBound(xi_j, NuFixed, problem.c, problem.Q.T, ...
+        beta_lb = BetaLowerBound(Xi(j), NuFixed, problem.c, problem.Q.T, ...
             problem.Q.L, problem.theta, problem.Q.delta);
         IsWellPosed(i, j) = beta_i >= beta_lb;
         ConditionNumbers(i, j) = Kcond;
     end
     progress = i / (nXi);
-    textprogressbar(round(100*progress));
+    waitbar(progress, statusbar);
 end
+waitbar(1, statusbar, 'Done!');
+close(statusbar);
 
 % Display dotted area
 [XiArea, BetaArea] = meshgrid(Xi(2:6:end), Beta(2:6:end));
@@ -208,6 +215,13 @@ plot(Xi, BetaMin(Xi), 'w', 'LineWidth', 2)
 scatter(XiArea(IsWellPosedArea==0),BetaArea(IsWellPosedArea==0), 24, ...
     'white', 'filled')
 hold off
+% save file
+if save_plot
+    root = 'Results/ParsTestFigures/';
+    basename = sprintf('%stestBetaXiNu-p%d-numEl%d', root, pnum, nElms);
+    l2err_name = [basename, '-l2err.png'];
+    exportgraphics(l2err_comb, l2err_name, 'Resolution', output_dpi);
+end
 
 %% Condition number figure
 kcond_comb = figure;
@@ -236,13 +250,11 @@ scatter(XiArea(IsWellPosedArea==0),BetaArea(IsWellPosedArea==0), 24, ...
     'white', 'filled')
 hold off
 
-%% Save to file
+% save file
 if save_plot
     root = 'Results/ParsTestFigures/';
     basename = sprintf('%stestBetaXiNu-p%d-numEl%d', root, pnum, nElms);
-    l2err_name = [basename, '-l2err.png'];
     cond_name = [basename, '-cond.png'];
-    exportgraphics(l2err_comb, l2err_name, 'Resolution', output_dpi);
     exportgraphics(kcond_comb, cond_name , 'Resolution', output_dpi);
 end
 
