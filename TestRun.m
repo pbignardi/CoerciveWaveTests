@@ -1,10 +1,9 @@
 % Coercive wave equation numerical tests
 % Paolo Bignardi 2022
 clc
-%clear
+clear
 close all
-addpath(genpath("local_stiffness"));
-addpath(genpath("matlab2tikz"));
+addpath(genpath('src'));
 
 %% Define problem, discretization and mesh
 % Create simple problem
@@ -16,14 +15,13 @@ d = Discretization(nx, nt, problem.Q);
 mesh = CartesianMesh(d);
 
 %% Custom form parameters
-form = initializeForm(problem, Q, 'OPT');
+form = FormParameters(problem);
 form.NU = 1.0001;
 %% Solve problem
-u = SolverWaves(problem, Q, mesh, d, form);
-[~, uproj, ~] = ProjectionBFS(problem, d);
+u = SolverWaves(problem, mesh, d, form);
 %% Plot solution
-[U, X, T] = OperatorEval(u, mesh, d, {linspace(0, 1, 5), linspace(0, 1,  5)}, 'u');
-[Uproj, ~, ~] = OperatorEval(uproj, mesh, d, {linspace(0, 1, 5), linspace(0, 1, 5)}, 'u');
+xq_eval = {linspace(0, 1, 5), linspace(0, 1,  5)}
+[U, X, T] = OperatorEval(u, mesh, d, xq_eval, 'u');
 
 pcolor(X, T, U);
 colorbar
@@ -32,4 +30,4 @@ xlabel("X"); ylabel("T");
 
 %% Compute errors
 errors = ComputeErrors(u, problem, mesh, d, "relative");
-errors.L2E
+disp(errors.L2E)
