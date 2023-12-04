@@ -1,3 +1,4 @@
+% Paolo Bignardi - Dec 2023
 function [U, X, T] = OperatorEval(u, mesh, disc, xq, opname, varargin)
     % Evaluate operator over the gauss quadrature nodes
     % at the specified elements or over the whole mesh

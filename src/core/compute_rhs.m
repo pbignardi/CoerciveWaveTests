@@ -1,3 +1,4 @@
+% Paolo Bignardi - Dec 2023
 function F = compute_rhs(p, mesh, disc, form)
     %% Unpacking parameters
     % Mesh parameters

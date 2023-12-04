@@ -1,3 +1,4 @@
+% Paolo Bignardi - Dec 2023
 function E = HermiteEvaluation(h, pos)
 % HermiteEvaluation: compute matrix for the 1d Hermite element at the boundary
 % of a local element of size h. Right or left side of the element is specified

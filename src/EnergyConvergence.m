@@ -1,3 +1,4 @@
+% Paolo Bignardi - Dec 2023
 function conv_table = EnergyConvergence(problem, form, nElms,  options)
 %Energy Convergence - convergence of sup_t of the energy as h\rightarrow 0
 % for t \in [0,T]

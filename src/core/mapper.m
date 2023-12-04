@@ -1,3 +1,4 @@
+% Paolo Bignardi - Dec 2023
 function dofs = mapper(el_ids, nx, nt)
     % map nodes_ids to degrees of freedom
     % the order must be compliant with kron product structure:

@@ -1,3 +1,4 @@
+% Paolo Bignardi - Dec 2023
 function [L2proj, H1proj, Vproj] = ProjectionBFS(problem, disc)
 % Compute orthogonal projection of function on BFS space
 % 

@@ -1,3 +1,4 @@
+% Paolo Bignardi - Dec 2023
 function disc = Discretization(n_elms_x, n_elms_t, domain)
     %% Unpack domain values
     xmin = domain.xmin;
