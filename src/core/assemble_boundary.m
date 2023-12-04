@@ -1,3 +1,4 @@
+% Paolo Bignardi - Dec 2023
 function K = assemble_boundary(Kloc, mesh, disc, bound_elms, component)
 % Assemble global boundary matrix given the local matrix struct over the volume.
 % Construct global matrix using the sparse function included in MATLAB for fast

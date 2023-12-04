@@ -1,3 +1,4 @@
+% Paolo Bignardi - Dec 2023
 function LogLogPlotter(data, options)
 % Base function to plot in loglog with consistent styling
 % 

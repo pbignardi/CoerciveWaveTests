@@ -1,3 +1,4 @@
+% Paolo Bignardi - April 2023
 % TestMultiplierPars - Compute L2 errors for a range of Beta, Xi and Nu.
 addpath(genpath('src'));
 clc

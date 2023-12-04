@@ -1,3 +1,4 @@
+% Paolo Bignardi - Dec 2023
 function errors = ComputeErrors(u, problem, mesh, disc, err_type)
     %% Unpack structs
     u_ex    = problem.u;

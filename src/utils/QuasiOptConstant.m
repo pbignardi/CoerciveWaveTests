@@ -1,3 +1,4 @@
+% Paolo Bignardi - Dec 2023
 function quasi_opt_const = QuasiOptConstant(problem, form)
 % QuasiOptConstant: Compute the quasi optimality constant for given problem and 
 % formulation parameters
