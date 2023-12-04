@@ -1,6 +1,6 @@
-% Coercive wave equation numerical tests
-% Paolo Bignardi 2023
-% Energy conservation
+% Paolo Bignardi - August 2023
+% Energy conservation and convergence
+
 clc
 clear
 close all

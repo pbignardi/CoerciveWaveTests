@@ -1,3 +1,4 @@
+% Paolo Bignardi - Dec 2023
 function [U, X, T] = SolutionGridEval(u, mesh, disc, xps, tps)
     % Evaluate solution u over meshgrid(px, pt)
     % Parameters

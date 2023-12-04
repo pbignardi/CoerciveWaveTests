@@ -1,3 +1,4 @@
+% Paolo Bignardi - Dec 2023
 function energy_table = ComputeEnergy(u, t, mesh, disc, problem, options)
 % Compute the energy of the discrete solution, of the exact solution and of the
 % numerical error E(t; u-u_h)

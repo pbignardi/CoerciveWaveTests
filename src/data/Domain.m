@@ -1,3 +1,4 @@
+% Paolo Bignardi - Dec 2023
 function domain = Domain(xmin, xmax, T)
     domain = struct();
     domain.xmin = xmin;

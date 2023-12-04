@@ -1,3 +1,4 @@
+% Paolo Bignardi - Dec 2023
 function [psi, dpsi, ddpsi] = BasisEvaluation(xq)
 % BasisEvaluation: evaluate Hermite 1D basis functions and its derivatives
 %

@@ -1,3 +1,4 @@
+% Paolo Bignardi - Dec 2023
 function ShowConvergencePlot(conv_table, options)
 % Helper function to show h-convergence plot. 
 % Optionally you can provide Form: the Subtitle now shows the parameters used

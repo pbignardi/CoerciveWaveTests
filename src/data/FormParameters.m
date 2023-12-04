@@ -1,3 +1,4 @@
+% Paolo Bignardi - Dec 2023
 function form = FormParameters(problem, options)
 % Initialize struct with all formulation parameters. Allows for choice
 % of optimal parameters, generic and custom.

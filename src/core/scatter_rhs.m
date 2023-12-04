@@ -1,3 +1,4 @@
+% Paolo Bignardi - Dec 2023
 function F = scatter_rhs(p, mesh, disc, parameters)
     %% Unpacking parameters
     % Mesh parameters

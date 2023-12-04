@@ -1,3 +1,4 @@
+% Paolo Bignardi - April 2023
 %TestA - Compute L2 and H1 errors for a range of AQ and A0 and saves plots
 % Can be run in parallel or not; can also specify the number of elements to
 % solve the problem.

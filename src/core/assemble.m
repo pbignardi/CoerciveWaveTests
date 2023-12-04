@@ -1,3 +1,4 @@
+% Paolo Bignardi - Dec 2023
 function K = assemble(Kloc, mesh, disc)
 % Assemble global matrix given the local matrix struct over the volume.
 % Construct global matrix using the sparse function included in MATLAB for fast

@@ -1,3 +1,4 @@
+% Paolo Bignardi - Dec 2023
 function error_table = Convergence(problem, form, nElms, options)
 %Convergence - compute convergence table and condition for the specified problem
 % Optionally show the plot

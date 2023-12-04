@@ -1,5 +1,5 @@
+% Paolo Bignardi - May 2022
 % Coercive wave equation numerical tests
-% Paolo Bignardi 2022
 clc
 clear
 close all

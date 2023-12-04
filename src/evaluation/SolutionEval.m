@@ -1,3 +1,4 @@
+% Paolo Bignardi - Dec 2023
 function varargout = SolutionEval(u, mesh, disc, varargin)
     % Evaluate solution over the gauss quadrature nodes
     % Parameters

@@ -1,3 +1,4 @@
+% Paolo Bignardi - Dec 2023
 function problem = WaveProblem(prob_num, varargin)
     problem = struct();
     kwargs = struct();
