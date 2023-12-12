@@ -189,4 +189,5 @@ function problem = WaveProblem(prob_num)
         otherwise
             error("No matching problem number");
     end
+
 end
