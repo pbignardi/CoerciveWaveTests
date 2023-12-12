@@ -1,5 +1,32 @@
 % Paolo Bignardi - Dec 2023
 function problem = WaveProblem(prob_num)
+% WaveProblem - assemble the structs with problem parameters and data
+%
+%   INPUT:
+%       prob_num: (int) problem number id. One of the following:
+%           - 1) Homogeneous B.C. Only volume forcing term
+%           - 2) Homogeneous volume term. double wave packet hitting boundary
+%           - 3) Wave packet hitting boundary. Solution not in H^2(Q)
+%           - 4) Single Wave packet hitting boundary. 
+%           - 10) Consistency test. Exact solution is in the discrete space
+%
+%   OUTPUT:
+%       problem: (struct)
+%           - Q: (struct) Domain structure (see Domain.m)
+%           - f: volume forcing term
+%           - gI: impedance boundary condition forcing term
+%           - gD: dirichlet scatter boundary condition forcing term
+%           - u0: initial data
+%           - du0: gradient of u_0
+%           - u1: time derivative initial data
+%           - c: wave-speed
+%           - theta: impedance parameter
+%           - u: exact solution
+%           - dx_u: exact solution space derivative
+%           - dt_u: exact solution time derivative
+%           - ddx_u: exact solution 2nd order space derivative
+%           - ddt_u: exact solution 2nd order time derivative
+
     problem = struct();
     problem.pnum = prob_num;
     switch prob_num
