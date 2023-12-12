@@ -1,11 +1,6 @@
 % Paolo Bignardi - Dec 2023
-function problem = WaveProblem(prob_num, varargin)
+function problem = WaveProblem(prob_num)
     problem = struct();
-    kwargs = struct();
-    for pair = reshape(varargin, 2, [])
-        pname = lower(pair{1});
-        kwargs.(pname) = pair{2};
-    end
     problem.pnum = prob_num;
     switch prob_num
         %% Homogeneous boundary wave problem 2
