@@ -24,6 +24,8 @@ nElConv = 2.^(1:8);
 font_size = 20;
 % base dir location
 basedir = 'Results/Energy/';
+% check if output dir exists, else create it
+if ~isfolder(basedir) && save_table; mkdir(basedir); end
 
 % Define problem, disc and mesh
 problem = WaveProblem(pnum);
