@@ -20,7 +20,7 @@ form.NU = 1.0001;
 %% Solve problem
 u = SolverWaves(problem, mesh, d, form);
 %% Plot solution
-xq_eval = {linspace(0, 1, 5), linspace(0, 1,  5)}
+xq_eval = {linspace(0, 1, 5), linspace(0, 1, 5)};
 [U, X, T] = OperatorEval(u, mesh, d, xq_eval, 'u');
 
 pcolor(X, T, U);

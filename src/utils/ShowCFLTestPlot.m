@@ -29,9 +29,9 @@ if isfield(options, 'Form')
 end
 
 % construct legend text
-legend_text = {'$L^2$ error', '$H^1$ error'}
+legend_text = {'$L^2$ error', '$H^1$ error'};
 conv_table.HtHxRatio = conv_table.Ht./conv_table.Hx;
-to_plot_table = [conv_table(:, end) conv_table(:, 4) conv_table(:, 5)]
+to_plot_table = [conv_table(:, end) conv_table(:, 4) conv_table(:, 5)];
 LogLogPlotter(to_plot_table, LegendText=legend_text, Title=options.Title, ... 
-    Subtitle=options.Subtitle, xLabel='$h_t/h_x$')
+    Subtitle=options.Subtitle, xLabel='$h_t/h_x$');
 end

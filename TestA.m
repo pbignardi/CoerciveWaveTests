@@ -169,7 +169,6 @@ shading flat
 colormap turbo
 % title("L2 error")
 
-if compute_cond
 cond_fig = figure('Name', 'Matix condition number');
 h = gca;
 surf(A0s, AQs, Kconds);
@@ -189,7 +188,7 @@ view(2)
 shading flat
 colormap turbo
 % title("Condition number of the matrix");
-end
+
 hold off
 %% Find the minimum error
 best_error = min(L2errors(:));

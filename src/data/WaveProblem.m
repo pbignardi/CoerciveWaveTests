@@ -1,11 +1,33 @@
 % Paolo Bignardi - Dec 2023
-function problem = WaveProblem(prob_num, varargin)
+function problem = WaveProblem(prob_num)
+% WaveProblem - assemble the structs with problem parameters and data
+%
+%   INPUT:
+%       prob_num: (int) problem number id. One of the following:
+%           - 1) Homogeneous B.C. Only volume forcing term
+%           - 2) Homogeneous volume term. double wave packet hitting boundary
+%           - 3) Wave packet hitting boundary. Solution not in H^2(Q)
+%           - 4) Single Wave packet hitting boundary. 
+%           - 10) Consistency test. Exact solution is in the discrete space
+%
+%   OUTPUT:
+%       problem: (struct)
+%           - Q: (struct) Domain structure (see Domain.m)
+%           - f: volume forcing term
+%           - gI: impedance boundary condition forcing term
+%           - gD: dirichlet scatter boundary condition forcing term
+%           - u0: initial data
+%           - du0: gradient of u_0
+%           - u1: time derivative initial data
+%           - c: wave-speed
+%           - theta: impedance parameter
+%           - u: exact solution
+%           - dx_u: exact solution space derivative
+%           - dt_u: exact solution time derivative
+%           - ddx_u: exact solution 2nd order space derivative
+%           - ddt_u: exact solution 2nd order time derivative
+
     problem = struct();
-    kwargs = struct();
-    for pair = reshape(varargin, 2, [])
-        pname = lower(pair{1});
-        kwargs.(pname) = pair{2};
-    end
     problem.pnum = prob_num;
     switch prob_num
         %% Homogeneous boundary wave problem 2
@@ -141,46 +163,6 @@ function problem = WaveProblem(prob_num, varargin)
             problem.ddx_u   = @(x,t) ddw(x - c*t) + phi * ddw(2 - x - c*t);
             problem.ddt_u   = @(x,t) c^2*(ddw(x - c*t) + phi * ddw(2 - x - c*t));
 
-        %% Scattering problem (Dirichlet on Left boundary)
-        % TODO: fix the code for scattering problem
-        case 11
-            %Problem domain
-            problem.Q   = Domain(1, 3, 4);
-            %Problem data
-            problem.c       = 1;
-            problem.theta   = 5;
-            phi = (1-1/problem.theta)/(1+1/problem.theta);
-            problem.f       = @(x, t) x.*0 + t.*0;
-            problem.gI      = @(x, t) x.*0 + t.*0;
-            problem.dt_gD   = @(x,t) x.*0 + t.*0;
-            
-            a = 20;
-            % Define gaussian and derivatives
-            n   = @(x, c) exp(-a*(x - c).^2);
-            dn  = @(x, c) a*exp(-a*(c - x).^2).*(2*c - 2*x);
-            ddn = @(x, c) a^2*exp(-a*(c - x).^2).*(2*c - 2*x).^2 - ... 
-                            2*a*exp(-a*(c - x).^2);
-            % Define initial wave
-            w   = @(x) n(x, 0.1) - n(x, -0.1);
-            dw  = @(x) dn(x, 0.1) - dn(x, -0.1); 
-            ddw = @(x) ddn(x, 0.1) - ddn(x, -0.1);
-
-            problem.u0  = @(x) w(x - 2) + w(x) - phi * w(x - 6);
-            problem.du0 = @(x) dw(x - 2) + dw(x) - phi * dw(x - 6);
-            problem.u1  = @(x) dw(x - 2) - dw(x) - phi * dw(x - 6);
-
-            problem.u       = @(x, t) w(x - 2 + t) + w(x - t) - ...
-                phi * w(x - 6 + t);
-            problem.dx_u    = @(x, t) dw(x - 2 + t) + dw(x - t) - ...
-                phi * dw(x - 6 + t);
-            problem.dt_u    = @(x, t) dw(x - 2 + t) - dw(x - t) - ...
-                phi * dw(x - 6 + t);
-
-            problem.ddx_u   = @(x, t) ddw(x - 2 + t) + ddw(x - t) - ...
-                phi * ddw(x - 6 + t);
-            problem.ddt_u   = @(x, t) ddw(x - 2 + t) + ddw(x - t) - ...
-                phi * ddw(x - 6 + t);
-        
         % Exact solution is in discrete space
         case 10
             % Problem domain
@@ -207,6 +189,5 @@ function problem = WaveProblem(prob_num, varargin)
         otherwise
             error("No matching problem number");
     end
-    % TODO: 1/(r^\alpha), where $r = |(x,t)|$ -> convergence rate should
-    % brake down as singularity get closer to the boundary of Q.
+
 end
