@@ -21,6 +21,8 @@ save_table = false;
 show_plot = true;
 % save dir location
 basedir = 'Results/ConvTables/';
+% check if savedir exists, else create it
+if ~isfolder(basedir) && save_table; mkdir(basedir); end
 
 % define problem
 problem = WaveProblem(p_id);

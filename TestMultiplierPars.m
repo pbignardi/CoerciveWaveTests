@@ -35,9 +35,11 @@ font_size = 20;
 output_dpi = 450;
 % save to file
 save_plot = true;
+% output dir location
+basedir = 'Results/ParsTestFigures/';
+% check if output dir exists, else create it
+if ~isfolder(basedir) && save_plot; mkdir(basedir); end
 
-% is debugging?
-DEBUG = false;
 
 % Print log
 fprintf('Test parameters <strong>BETA, XI, NU</strong>\n');
@@ -210,8 +212,7 @@ scatter(XiArea(IsWellPosedArea==0),BetaArea(IsWellPosedArea==0), 24, ...
 hold off
 % save file
 if save_plot
-    root = 'Results/ParsTestFigures/';
-    basename = sprintf('%stestBetaXiNu-p%d-numEl%d', root, pnum, nElms);
+    basename = sprintf('%stestBetaXiNu-p%d-numEl%d', basedir, pnum, nElms);
     l2err_name = [basename, '-l2err.png'];
     exportgraphics(l2err_comb, l2err_name, 'Resolution', output_dpi);
 end
@@ -245,8 +246,7 @@ hold off
 
 % save file
 if save_plot
-    root = 'Results/ParsTestFigures/';
-    basename = sprintf('%stestBetaXiNu-p%d-numEl%d', root, pnum, nElms);
+    basename = sprintf('%stestBetaXiNu-p%d-numEl%d', basedir, pnum, nElms);
     cond_name = [basename, '-cond.png'];
     exportgraphics(kcond_comb, cond_name , 'Resolution', output_dpi);
 end

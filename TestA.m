@@ -34,6 +34,10 @@ output_dpi = 450;
 verbose = true;
 % save to file
 save_file = false;
+% output directory
+basedir = 'Results/ParsTestFigures/';
+% check if savedir exists, else create it
+if ~isfolder(basedir) && save_file; mkdir(basedir); end
 
 %% Display informations
 fprintf('Test of parameters <strong>AQ</strong> and <strong>A0</strong>\n');
@@ -215,8 +219,7 @@ best_AQ_table.L2err = L2err;
 
 %% Saving figures and tables
 if save_file
-    root = 'Results/ParsTestFigures/';
-    basename = sprintf('%stestA-p%d-numEl%d', root, pnum, nElms);
+    basename = sprintf('%stestA-p%d-numEl%d', basedir, pnum, nElms);
     l2err_name = [basename, '-l2err.png'];
     h1err_name = [basename, '-h1err.png'];
     cond_name = [basename, '-cond.png'];
