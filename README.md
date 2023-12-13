@@ -2,7 +2,7 @@
 Numerical tests for the manuscript "Space-time continuous and coercive
 formulation for the wave equation" - P. Bignardi, A. Moiola.
 
-For context, refer to the preprint [here](link-to-somewhere).
+For context, refer to the preprint [here](https://arxiv.org/abs/2312.07268).
 
 ## Project structure
 The top level folder contains scripts that produces plots and data used in the 
